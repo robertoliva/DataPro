@@ -1,0 +1,33 @@
+A) In order to deploy the program into an .exe from scratch:
+
+- Select release from target selector (4th button on the left/bottom of the screen, this button has the shape of a computer on the left panel of QT)
+- Go to Projects, deactivate Shadow Build.
+- Build -> Build All Projects
+- an .exe file will show up in the release folder, copy only this .exe into a new folder and follow instructions below.
+
+I followed the instructions in https://wiki.qt.io/Deploy_an_Application_on_Windows
+
+1. Close Qt Creator.
+2. Copy the following into C:\Deployment\
+ - The release version of MyApp.exe
+ - All the .dll files from C:\Qt\5.2.1\mingw48_32\bin\
+ - All the folders from C:\Qt\5.2.1\mingw48_32\plugins\
+(If you used QML) All the folders from C:\Qt\5.2.1\mingw48_32\qml\
+3. Rename C:\Qt\ to C:\QtHidden\ (This turns your PC into a clean environment, just like one that doesn't have Qt installed).
+4. Launch C:\Deployment\MyApp.exe.
+
+To cleanup dlls:
+- Launch MyApp.exe. While it is running, try to delete all DLLs. The DLLs that aren't used will go to the recycle bin, leaving behind only the DLLs that you need. (This trick doesn't work for .qml and qmldir files, however).
+- (If you used QML) Delete a few .qml files and try relaunching MyApp.exe. Repeat until you try all .qml files.
+- (If you used QML) Delete qmldir files from the folders that have no more DLLs or .qml files
+
+
+
+B) In order to build working .exe from previous versions. 
+
+1- Click Projects, then "Edit build configutation" set to "Release", then unclick "Shadow build".
+2- Build -> Build all projects
+3- Build -> Clean all projects
+4- Copy folders and .dll files from C:\Users\Acer\Desktop\Work\0_Programacio\Deployment to the release folder (e.g. C:\Users\Acer\Desktop\Work\0_Programacio\PPE_v0_2_4_2\release)
+5- Thats it, it should work!
+

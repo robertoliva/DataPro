@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/Images">
+        <file>24x24/Hot/Close-24x24.png</file>
+    </qresource>
+</RCC>

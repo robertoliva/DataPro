@@ -1,0 +1,233 @@
+<RCC>
+    <qresource prefix="/Images">
+        <file>24x24/Folder-24x24.png</file>
+        <file>24x24/Information-24x24.png</file>
+        <file>24x24/Line-Graph-24x24.png</file>
+        <file>24x24/Power-Off-24x24.png</file>
+        <file>24x24/Save-24x24.png</file>
+        <file>24x24/Folder-Down-24x24.png</file>
+        <file>24x24/Document-24x24.png</file>
+        <file>Favourites.ico</file>
+        <file>24x24/Bar-Graph-24x24.png</file>
+        <file>24x24/Blu-Ray-24x24.png</file>
+        <file>24x24/Blu-Ray-Down-a-level-24x24.png</file>
+        <file>24x24/Bar-Graph-Delete-24x24.png</file>
+        <file>24x24/Blu-Ray-Tick-24x24.png</file>
+        <file>24x24/Calculator-24x24.png</file>
+        <file>24x24/Compressed-File-24x24.png</file>
+        <file>24x24/Computer-24x24.png</file>
+        <file>24x24/Copy-24x24.png</file>
+        <file>24x24/Computer-Down-24x24 - copia.png</file>
+        <file>24x24/Controls-Skip-24x24 - copia.png</file>
+        <file>24x24/Controls-Skip-Back-24x24 - copia.png</file>
+        <file>24x24/Copy-Down-24x24 - copia.png</file>
+        <file>24x24/Copy-Link-24x24 - copia.png</file>
+        <file>24x24/Delete-24x24 - copia.png</file>
+        <file>24x24/Document-24x24 - copia.png</file>
+        <file>24x24/Document-Down-24x24 - copia.png</file>
+        <file>24x24/Document-Export-24x24 - copia.png</file>
+        <file>24x24/Document-Import-24x24 - copia.png</file>
+        <file>24x24/Draw-24x24 - copia.png</file>
+        <file>24x24/Edit-24x24 - copia.png</file>
+        <file>24x24/Favourites-24x24 - copia.png</file>
+        <file>24x24/Favourites-Save-24x24 - copia.png</file>
+        <file>24x24/Filter-24x24 - copia.png</file>
+        <file>24x24/Folder-Close-24x24 - copia.png</file>
+        <file>24x24/Folder-Create-24x24 - copia.png</file>
+        <file>24x24/Folder-Down-24x24 - copia.png</file>
+        <file>24x24/Folder-Down-a-level-24x24 - copia.png</file>
+        <file>24x24/Folder-Export-24x24 - copia.png</file>
+        <file>24x24/Folder-Import-24x24 - copia.png</file>
+        <file>24x24/Folder-Left-24x24 - copia.png</file>
+        <file>24x24/Folder-Save-24x24 - copia.png</file>
+        <file>24x24/Folder-Tick-24x24 - copia.png</file>
+        <file>24x24/Key-24x24 - copia.png</file>
+        <file>24x24/Line-Graph-Close-24x24 - copia.png</file>
+        <file>24x24/Line-Graph-Create-24x24 - copia.png</file>
+        <file>24x24/Line-Graph-Delete-24x24 - copia.png</file>
+        <file>24x24/Line-Graph-Down-24x24 - copia.png</file>
+        <file>24x24/Line-Graph-Down-a-level-24x24 - copia.png</file>
+        <file>24x24/Line-Graph-Edit-24x24 - copia.png</file>
+        <file>24x24/Line-Graph-Export-24x24 - copia.png</file>
+        <file>24x24/Line-Graph-Favourites-24x24 - copia.png</file>
+        <file>24x24/Line-Graph-Filter-24x24 - copia.png</file>
+        <file>24x24/Line-Graph-Find-24x24 - copia.png</file>
+        <file>24x24/Line-Graph-Import-24x24 - copia.png</file>
+        <file>24x24/Line-Graph-Left-24x24 - copia.png</file>
+        <file>24x24/Line-Graph-Link-24x24 - copia.png</file>
+        <file>24x24/Line-Graph-New-24x24 - copia.png</file>
+        <file>24x24/Line-Graph-Next-24x24 - copia.png</file>
+        <file>24x24/Line-Graph-Open-24x24 - copia.png</file>
+        <file>24x24/Line-Graph-Previous-24x24 - copia.png</file>
+        <file>24x24/Line-Graph-Redo-24x24 - copia.png</file>
+        <file>24x24/Line-Graph-Refresh-24x24 - copia.png</file>
+        <file>24x24/Line-Graph-Right-24x24 - copia.png</file>
+        <file>24x24/Line-Graph-Save-24x24 - copia.png</file>
+        <file>24x24/Line-Graph-Search-24x24 - copia.png</file>
+        <file>24x24/Line-Graph-Settings-24x24 - copia.png</file>
+        <file>24x24/Line-Graph-Tick-24x24 - copia.png</file>
+        <file>24x24/Line-Graph-Undo-24x24 - copia.png</file>
+        <file>24x24/Line-Graph-Up-24x24 - copia.png</file>
+        <file>24x24/Line-Graph-Up-a-level-24x24 - copia.png</file>
+        <file>24x24/Line-Graph-Warning-24x24 - copia.png</file>
+        <file>24x24/Line-Graph-Wizard-24x24 - copia.png</file>
+        <file>24x24/Link-24x24 - copia.png</file>
+        <file>24x24/Network-24x24 - copia.png</file>
+        <file>24x24/Network-Tick-24x24.png</file>
+        <file>24x24/Notepad-24x24 - copia.png</file>
+        <file>24x24/Notepad-Close-24x24 - copia.png</file>
+        <file>24x24/Notepad-Create-24x24 - copia.png</file>
+        <file>24x24/Notepad-Create-24x24.png</file>
+        <file>24x24/Notepad-Delete-24x24 - copia.png</file>
+        <file>24x24/Notepad-Delete-24x24.png</file>
+        <file>24x24/Notepad-Down-24x24 - copia.png</file>
+        <file>24x24/Notepad-Down-24x24.png</file>
+        <file>24x24/Notepad-Down-a-level-24x24.png</file>
+        <file>24x24/Notepad-Edit-24x24.png</file>
+        <file>24x24/Notepad-Export-24x24.png</file>
+        <file>24x24/Notepad-Favourites-24x24.png</file>
+        <file>24x24/Notepad-Filter-24x24.png</file>
+        <file>24x24/Notepad-Find-24x24.png</file>
+        <file>24x24/Notepad-Import-24x24.png</file>
+        <file>24x24/Notepad-Left-24x24.png</file>
+        <file>24x24/Notepad-Link-24x24.png</file>
+        <file>24x24/Notepad-New-24x24.png</file>
+        <file>24x24/Notepad-Next-24x24.png</file>
+        <file>24x24/Notepad-Open-24x24.png</file>
+        <file>24x24/Notepad-Previous-24x24.png</file>
+        <file>24x24/Notepad-Redo-24x24.png</file>
+        <file>24x24/Notepad-Refresh-24x24.png</file>
+        <file>24x24/Notepad-Right-24x24.png</file>
+        <file>24x24/Notepad-Save-24x24.png</file>
+        <file>24x24/Notepad-Search-24x24.png</file>
+        <file>24x24/Notepad-Settings-24x24.png</file>
+        <file>24x24/Notepad-Tick-24x24.png</file>
+        <file>24x24/Notepad-Undo-24x24.png</file>
+        <file>24x24/Notepad-Up-24x24.png</file>
+        <file>24x24/Notepad-Up-a-level-24x24.png</file>
+        <file>24x24/Notepad-Warning-24x24.png</file>
+        <file>24x24/Notepad-Wizard-24x24.png</file>
+        <file>24x24/Options-24x24.png</file>
+        <file>24x24/Package-24x24.png</file>
+        <file>24x24/Package-Create-24x24.png</file>
+        <file>24x24/Package-Down-24x24.png</file>
+        <file>24x24/Package-Favourites-24x24.png</file>
+        <file>24x24/Package-Filter-24x24.png</file>
+        <file>24x24/Package-Find-24x24.png</file>
+        <file>24x24/Package-Import-24x24.png</file>
+        <file>24x24/Package-Left-24x24.png</file>
+        <file>24x24/Package-Link-24x24.png</file>
+        <file>24x24/Package-New-24x24.png</file>
+        <file>24x24/Padlock-24x24.png</file>
+        <file>24x24/Padlock-Close-24x24.png</file>
+        <file>24x24/Padlock-Create-24x24.png</file>
+        <file>24x24/Paste-24x24.png</file>
+        <file>24x24/Photo-24x24.png</file>
+        <file>24x24/Pie-Chart-24x24.png</file>
+        <file>24x24/Recycle-24x24.png</file>
+        <file>24x24/Ruler-24x24.png</file>
+        <file>24x24/Ruler-Close-24x24.png</file>
+        <file>24x24/Ruler-Create-24x24.png</file>
+        <file>24x24/Ruler-Delete-24x24.png</file>
+        <file>24x24/Ruler-Import-24x24.png</file>
+        <file>24x24/Ruler-New-24x24.png</file>
+        <file>24x24/Ruler-Search-24x24.png</file>
+        <file>24x24/Ruler-Settings-24x24.png</file>
+        <file>24x24/Ruler-Tick-24x24.png</file>
+        <file>24x24/Ruler-Undo-24x24.png</file>
+        <file>24x24/Ruler-Up-24x24.png</file>
+        <file>24x24/Ruler-Up-a-level-24x24.png</file>
+        <file>24x24/Ruler-Warning-24x24.png</file>
+        <file>24x24/Ruler-Wizard-24x24.png</file>
+        <file>24x24/Save-Close-24x24.png</file>
+        <file>24x24/Save-Create-24x24.png</file>
+        <file>24x24/Save-Delete-24x24.png</file>
+        <file>24x24/Save-Down-24x24.png</file>
+        <file>24x24/Save-Down-a-level-24x24.png</file>
+        <file>24x24/Save-Edit-24x24.png</file>
+        <file>24x24/Save-Export-24x24.png</file>
+        <file>24x24/Save-Favourites-24x24.png</file>
+        <file>24x24/Save-Filter-24x24.png</file>
+        <file>24x24/Save-Find-24x24.png</file>
+        <file>24x24/Save-Import-24x24.png</file>
+        <file>24x24/Save-Left-24x24.png</file>
+        <file>24x24/Save-Link-24x24.png</file>
+        <file>24x24/Search-24x24.png</file>
+        <file>24x24/Search-Wizard-24x24.png</file>
+        <file>24x24/Software-24x24.png</file>
+        <file>24x24/Table-24x24.png</file>
+        <file>24x24/Table-Create-24x24.png</file>
+        <file>24x24/Table-Favourites-24x24.png</file>
+        <file>24x24/Warning-24x24.png</file>
+        <file>24x24/Warning-Close-24x24.png</file>
+        <file>24x24/Warning-Create-24x24.png</file>
+        <file>24x24/Warning-Delete-24x24.png</file>
+        <file>24x24/Warning-Down-24x24.png</file>
+        <file>24x24/Warning-Edit-24x24.png</file>
+        <file>24x24/Window-24x24.png</file>
+        <file>24x24/Window-Create-24x24.png</file>
+        <file>24x24/Window-Favourites-24x24.png</file>
+        <file>24x24/Wizard-24x24.png</file>
+        <file>24x24/Wizard-Warning-24x24.png</file>
+        <file>24x24/Computer-Left-24x24.png</file>
+        <file>24x24/Computer-Previous-24x24.png</file>
+        <file>24x24/Controls-Rewind-24x24.png</file>
+        <file>24x24/Table-Close-24x24.png</file>
+        <file>24x24/Table-Delete-24x24.png</file>
+        <file>24x24/Table-Down-24x24.png</file>
+        <file>24x24/Table-Down-a-level-24x24.png</file>
+        <file>24x24/Table-Edit-24x24.png</file>
+        <file>24x24/Table-Export-24x24.png</file>
+        <file>24x24/Table-Filter-24x24.png</file>
+        <file>24x24/Table-Find-24x24.png</file>
+        <file>24x24/Table-Import-24x24.png</file>
+        <file>24x24/Table-Left-24x24.png</file>
+        <file>24x24/Table-Link-24x24.png</file>
+        <file>24x24/Table-New-24x24.png</file>
+        <file>24x24/Table-Next-24x24.png</file>
+        <file>24x24/Table-Open-24x24.png</file>
+        <file>24x24/Table-Previous-24x24.png</file>
+        <file>24x24/Table-Redo-24x24.png</file>
+        <file>24x24/Table-Refresh-24x24.png</file>
+        <file>24x24/Table-Right-24x24.png</file>
+        <file>24x24/Table-Save-24x24.png</file>
+        <file>24x24/Table-Search-24x24.png</file>
+        <file>24x24/Table-Settings-24x24.png</file>
+        <file>24x24/Line2-Graph-24x24.png</file>
+        <file>24x24/Line3-Graph-24x24.png</file>
+        <file>24x24/Copy-Close-24x24.png</file>
+        <file>24x24/Copy-Create-24x24.png</file>
+        <file>24x24/Copy-Delete-24x24.png</file>
+        <file>24x24/Copy-Down-24x24.png</file>
+        <file>24x24/Copy-Down-a-level-24x24.png</file>
+        <file>24x24/Copy-Edit-24x24.png</file>
+        <file>24x24/Copy-Export-24x24.png</file>
+        <file>24x24/Copy-Favourites-24x24.png</file>
+        <file>24x24/Copy-Filter-24x24.png</file>
+        <file>24x24/Copy-Find-24x24.png</file>
+        <file>24x24/Copy-Import-24x24.png</file>
+        <file>24x24/Copy-Left-24x24.png</file>
+        <file>24x24/Copy-Link-24x24.png</file>
+        <file>24x24/Copy-New-24x24.png</file>
+        <file>24x24/Copy-Next-24x24.png</file>
+        <file>24x24/Copy-Open-24x24.png</file>
+        <file>24x24/Copy-Previous-24x24.png</file>
+        <file>24x24/Copy-Redo-24x24.png</file>
+        <file>24x24/Copy-Refresh-24x24.png</file>
+        <file>24x24/Copy-Right-24x24.png</file>
+        <file>24x24/Copy-Save-24x24.png</file>
+        <file>24x24/Copy-Search-24x24.png</file>
+        <file>24x24/Copy-Settings-24x24.png</file>
+        <file>24x24/Copy-Tick-24x24.png</file>
+        <file>24x24/Copy-Undo-24x24.png</file>
+        <file>24x24/Copy-Up-24x24.png</file>
+        <file>24x24/Copy-Up-a-level-24x24.png</file>
+        <file>24x24/Copy-Warning-24x24.png</file>
+        <file>24x24/Copy-Wizard-24x24.png</file>
+        <file>DataPro.ico</file>
+        <file>logo/logo_HBg_icon.ico</file>
+        <file>logo/logo2.ico</file>
+        <file>logo/logo3.ico</file>
+        <file>logo/logo4.ico</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,108 @@
+PPE_v0_1	Aquesta versio nomes permet afegir punts en un grafic que no es reescala.
+PPE_v0_1_1	Aquesta versio reescala els eixos un 10% del recorregut total.
+PPE_v0_1_2	Aquesta versio hauria de tenir un menu plan Files, Graph, About...
+PPE_v0_1_3	Aquesta versio pot obrir un diferent nombre d'arxius i plotejarlos individualment o grupalment
+PPE_v0_1_4	Can add a constant to spectra, but it is buggy, I need to create dynamical matrix to allocate the data in an organized manner.
+PPE_v0_1_5	Need to create a dynamical matrix to store plotted data (done, vec vec vec)
+PPE_v0_1_6	Adds a constant to y axis (needs fix rescale). I should consider only using AllData instead of qv_x and qv_y.
+PPE_v0_2_0      Functioning version (little errors). Adds a constant to y axis. Vectors qv_x and qv_y have been deleted, only AllData is used. This version may be slow.
+PPE_v0_2_2_1    Functioning version which is able to read files with an arbitrary number of columns.
+PPE_v0_2_2_2    FUNCTIONING VERSION. Is able to UNDO actions. Plots linewidth is larger and axis font.st
+PPE_v0_2_2_3    FUNCTIONING VERSION. Improved UNDO (works undoing also different column plots). Shows info in the status bar (e.g. when multiple spectra are opened, it should inform that only first plot is plotted). Started working on the save option by implementing the AllActions 2D vector, which will remember all actions performed.
+PPE_v0_2_2_4	AllActions 2D Vector has been improved. Some functions are called by reference now, which will help put them in other files in the future.
+PPE_v0_2_2_5	Is able to save files and operate between different columns. For that, AllActions 2D Vector is read, and instructions are executed sequentially.
+PPE_v0_2_2_6	FUNCTIONING VERSION (F.V.). Can read files omitting empty lines, and errors in the datalength and datatype.
+PPE_v0_2_2_7	Can merge multiple files. Can delete a column. Can swap columns. Can trim. Can subtract a linear baseline. Can normalize the graphs. Can multiply y axis by a constant.
+PPE_v0_2_2_8	Can clean spikes. UNDO fixed, now works. Improved saved precision (scientific). Also has a legend.
+PPE_v0_2_2_9	F.V. Improved clean spikes. Can trim without errors. Can stack data. Shows x,y position when clicked, copy to clipboard, and upon double click shows trace.
+PPE_v0_2_3_1	F.V. Can set Y axis to log scale.
+PPE_v0_2_3_2	F.V. Option ball-like baseline. Input dialogs are now able to get double numbers such as -2.3e22. Delete and set columns error management improved.
+PPE_v0_2_3_3	F.V. Undo properly reset VerticalShift (error corrected). Normalize errors corrected. Integration subfunction corrected. Can add the column with reference. Delete column options improved, don't crash when deleting current column, and don't allow to delete columns for 2-column files.
+PPE_v0_2_3_4	F.V. Can make FFT analysis for interferences. AddConstant to column code improved.
+PPE_v0_2_3_5	F.V. Can do Kramers Kronig analysis.  Option "Save as" implemented. Can merge files with the same number of cols and rows. Merge multiple files improved. Improved GUI.
+PPE_v0_2_3_6	F.V. Can plot user-defined maximum amount of files plotNumLim, default is 10. Improved delete column. Combine pairs works file by file, respecting low RAM.  on_actionMerge_files_2_triggered() does not depend on AllData[][][][]. 
+PPE_v0_2_3_7	F.V. findColRowNums(filenames) implemented in many functions to avoid crash while dealing with datafiles with different nums of cols and rows. Code has been better organized. Program won't crash when attempting to perform actions with data not opened. Trim improved. Delete cols improved. 
+PPE_v0_2_3_8	F.V. Improved log scale. Checked all functions to correct errors with operations between files with different num of cols and rows. Made tests with files with different number of ranges, rows and cols to check robustness of the program. Can export selected columns, or all columns into new files. Can dublicate columns.
+		Option save column into file implemented. Save As... implemented as well as Save In....
+PPE_v0_2_3_9	F.V. Should do things in astherisc. Import datafiles implemented. Can replace filenames and extensions and text inside the body of the datafiles. Program doesnt crash when I attempt to open a file full of data using commas instead of dots as decimals.
+PPE_v0_2_4_0	F.V. Warning error about lines improved (only shows up once instead of many times for multiple file operations). Should do things in astherisc. Save as... and Save in... improved.
+		QMenuBar expands when user press ALT+ hotkey. Can Export. Also AllFormatActions[][] has been implemented and works supernice for "find and replace characters" option, where changes are saved recursivelly in a created /TempPreview folder.
+PPE_v0_2_4_1	Can undo format actions. Can Find and replace characters, UNDO option works. 
+		Format->Rename->Extensions extension can be exported and undone, but after SAVING it seems to have forgotten the updated importnames names.
+PPE_v0_2_4_2	F.V. Format->Rename->Extensions extension can be exported and undone. 
+
+
+To Do in the future:
+
+ * Implement AFA in other Format options such as those that modify the filename and extension.
+	- Must work now on Format->Rename->Filenames.
+ * Keep working on Format options. Improve the instructions for the developer showing how AFA must be implemented for each Format option.
+
+ - It should be able to change units (e.g. nm to eV, Kilo, Mega, Giga, nano, pico... ...).
+ - Consider making the /TempPreview folder invisible, and then preview the changes in Format with a popup panel. (future versions should have a file explorer foldable panel and a data preview foldable panel)
+ - When operating pairs of spectra, it should check number of columns, and that spectra starts and ends at the same x point.
+ - When operating with spectra, it should check that, if the step is constant, there are a number of expected lines.
+ - When correcting lines authomateically at load, check the percentage of corrected lines, if it is below a yield, such as 20%, should be able to interpolate the deleted lines from adjacent lines.
+ - Include progress bar to check progresss of long operations. (Probably difficult and time consuming.)
+ - Alt+Letters to open file tabs.
+ - Rescale option in a user-defined range (will be superuseful to rescale to a certain peak or area of interest in the spectra).
+ - make fast files backup and recover backup option (copy to/from a folder /backup)
+ - Analysis on x and y axis => make log, exponentitate 10^x, and make power x^10.
+ - The program should give the name of a selected spectra in the lower bar in a priority upon showing the position of the cursor. Alternativelly, the position should be shown only upon double click. 
+ - The program crashes when tries to open an empty file.
+ - The program crashes when I go back too many times, after subtracting baseline and stacking.
+ - The program crashes when I try to delete column 2 while viewing col 4 (total cols 4).
+ - Everything crashes if no file is opened. Avoid program crashing due to the fact that no file is opened, and show message that files must be opened before performing such action.
+ - Save in new column option.
+ - Normalize option to a certain range so you don't have to trim the spectra.
+ - Check if a file is empty while trying to open, or dont have any valid number.
+ - Should be able to detect if a non-valid data column on top has labels for each column. My program should be able to include and read a first text row with the column names.
+ - Should be able to limit amount of plotable data to 10 spectra.
+ - "Prepare data" options.
+ - Work on error evaluators (i.e. proper number of row sizes, formats...)
+ - "Analysis" options
+ - "Graph" options
+ - Add fitting option
+	- Linear
+	- Polinomial
+	- Gaussian
+		- Multipeak
+	- Lorentzian
+		- Multipeak
+
+ - Improve the ordering of the code. Include additional .cpp files for the actions and for the subfunctions.
+ - Re-think how to put all options in the menu file. Consider making option to select columns easier. 
+ - Put program in Github
+ - "Please wait option for time consuming operations" + abort?
+ - Should be able to convert whole program to an .exe
+ - Should be able to convert whole program to a setup.exe for the installation in other computers
+ - Improve data acquisition:
+ 	- Also, read column's titles?
+	- Consider adding "disable datacheck acquisition" option for faster processing.
+		- i.e. skipp checking that each input value is a double number.
+ - (Not important) Show dots instead of lines option.
+ - Modify order of rows (flip order of all rows) option (maybe in format?).
+ - Future versions should be able to trim only one column instead of all. For this option, I should check if it is possible to set NULL or void to a value of QVector<double> in the trimmed column, and verify that these voids won't cause trouble for operations.
+ - The program should be able to preserve first caption not-numerical lines, if there are.
+ - Column mode (Complicated!)
+	- Instead of running over files, the program should be able to run and apply Actions over columns.
+ 	- Plot all columns of a file 
+ - Improve bugs and errors (e.g. program crashes if I click certain actions before opening datafiles).
+ - Make an option to import or open all files with a certain extension from a folder.
+ - Consider if I should use the function InputAction, or simply delete it. I might help make the code more organized and smaller. maybe because x decrease.
+ - Insert a expandable menu on the leftside of the graph where you can track the Files inside the folders in real time, select them there instead of open and import. (Difficult)
+ - Add noise option? (this option is quite shady, and might have bad scientific uses).
+
+Bugs:
+- Mystery crash! If I replace newlines with letter q, and then delete letter q, then I cannot open such file no matter how well the data looks like. The file is corrupted not for notepad, but for my program only.
+	I think I know what happens. The program replaces \n and only \r is left. Then the program only reads new lines if there is \r\n or \n.
+	I tried to fix it unsuccsefully, but it should not be a problem. Users don't need to do that, and it is highly unlikelly they would. However, it would be nice to solve this issue just in case the program tries to
+	open a file with \r instead of \r\n. Maybe I could try a safeGetline function (https://stackoverflow.com/questions/6089231/getting-std-ifstream-to-handle-lf-cr-and-crlf), but it is kind of difficult.
+
+Typical errors:
+- When QT reports "The program has unexpectedly finished" and cannot make a build, it is better to 
+	1- Eliminate the folder build-PPE_v1-Desktop_Qt_5_14_2_MinGW_32_bit-Debug
+	2- Restart computer
+	3- Try putting projects in different folders
+	4- Try first compiling older versions, then make Build -> Clean All Projects
+	5- You can also play with Project Build Settings.
