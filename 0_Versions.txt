@@ -30,7 +30,7 @@ PPE_v0_2_4_0	F.V. Warning error about lines improved (only shows up once instead
 PPE_v0_2_4_1	Can undo format actions. Can Find and replace characters, UNDO option works. 
 		Format->Rename->Extensions extension can be exported and undone, but after SAVING it seems to have forgotten the updated importnames names.
 PPE_v0_2_4_2	F.V. Format->Rename->Extensions extension can be exported and undone. 
-
+PPE_github	v0_2_4_2	This version has been set to be uploaded in github.
 
 To Do in the future:
 

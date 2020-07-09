@@ -1243,6 +1243,115 @@ void MainWindow::ResetBackup(){ // When new files are opened, we clear all previ
 
 //*********FORMAT FUNCTIONS**********
 
+
+void MainWindow::createNewStep(QString importname, double desiredStep){
+    bool equal=false; // checks if an output X value is identical to input X value
+    bool found = false;
+    int remember,rememberfound;
+    QVector<QVector<QVector<QVector<double>>>> TempArr;
+    TempArr.resize(1);
+    if (getOneData(importname, TempArr)==0){ // If there's no error. BTW. this should create TempArr.
+    QVector<QVector<double>> OutputArr;
+    OutputArr.resize(TempArr[0][0].size()); //We set proper number of columns
+    double currValue = TempArr[0][0][0][0]; //current Value, we will run a for for this value below.
+    OutputArr[0].resize(1);
+    OutputArr[0][0]=currValue;
+    for(int ww=1; ww<TempArr[0][0].size();ww++){ //Here we set the first row of the output, which coincides with the first row of TempArr.
+        OutputArr[ww].resize(1);
+        OutputArr[ww][0]=TempArr[0][0][ww][0];
+    }
+
+        if(TempArr[0][0][0][TempArr[0][0][0].size()-1] > TempArr[0][0][0][0]){ //Numbers of Col 1 increase
+            currValue = currValue + desiredStep; //Because we created the first row above.
+
+            while(currValue <= TempArr[0][0][0][TempArr[0][0][0].size()-1]){ // We run over rows, creating new rows if possible.
+            OutputArr[0].resize(OutputArr[0].size()+1);
+            OutputArr[0][OutputArr[0].size()-1] = currValue;
+                for(int q =0; q<TempArr[0][0][0].size()-1;q++){       // We run over rows to search the two values where currVal falls inside in TempArr.
+                    if(currValue == TempArr[0][0][0][q]){           // If currValue is found in TempArr, we will simply copy all row values to OutputArr.
+                        equal = true;
+                        remember =q;
+                        break;
+                    }else if(currValue == TempArr[0][0][0][q+1]){ //Because the for ends at TempArr[0][0][0].size()-2 ! in order to prevent errors below [q+1]
+                        equal = true;
+                        remember =q+1;
+                        break;
+                    }else if((currValue > TempArr[0][0][0][q]) && (currValue < TempArr[0][0][0][q+1])){
+                        found=true;
+                        rememberfound=q;
+                        break;
+                    }
+                }
+
+                for(int w =1; w< TempArr[0][0].size();w++){ // We run over columns
+                    OutputArr[w].resize(OutputArr[w].size()+1);
+                    if(equal){
+                        OutputArr[w][OutputArr[w].size()-1] = TempArr[0][0][w][remember];
+                    }else if(found){
+                        OutputArr[w][OutputArr[w].size()-1] = TempArr[0][0][w][rememberfound]+(currValue-TempArr[0][0][0][rememberfound])*(TempArr[0][0][w][rememberfound+1]-TempArr[0][0][w][rememberfound])/(TempArr[0][0][0][rememberfound+1]-TempArr[0][0][0][rememberfound]);
+                    }
+                }
+                equal = false;
+                found = false;
+
+            currValue = currValue+desiredStep;
+            }
+
+
+
+        }else if(TempArr[0][0][0][TempArr[0][0][0].size()-1] < TempArr[0][0][0][0]){ // Numbers of Col 1 decrease
+            currValue = currValue - fabs(desiredStep); //Because we created the first row above.
+
+            while(currValue >= TempArr[0][0][0][TempArr[0][0][0].size()-1]){ // We run over rows, creating new rows if possible.
+            OutputArr[0].resize(OutputArr[0].size()+1);
+            OutputArr[0][OutputArr[0].size()-1] = currValue;
+                for(int q =0; q<TempArr[0][0][0].size()-1;q++){       // We run over rows to search the two values where currVal falls inside in TempArr.
+                    if(currValue == TempArr[0][0][0][q]){           // If currValue is found in TempArr, we will simply copy all row values to OutputArr.
+                        equal = true;
+                        remember =q;
+                        break;
+                    }else if(currValue == TempArr[0][0][0][q+1]){ //Because the for ends at TempArr[0][0][0].size()-2 ! in order to prevent errors below [q+1]
+                        equal = true;
+                        remember =q+1;
+                        break;
+                    }else if((currValue < TempArr[0][0][0][q]) && (currValue > TempArr[0][0][0][q+1])){
+                        found=true;
+                        rememberfound=q;
+                        break;
+                    }
+                }
+
+                for(int w =1; w< TempArr[0][0].size();w++){ // We run over columns
+                    OutputArr[w].resize(OutputArr[w].size()+1);
+                    if(equal){
+                        OutputArr[w][OutputArr[w].size()-1] = TempArr[0][0][w][remember];
+                    }else if(found){
+                        OutputArr[w][OutputArr[w].size()-1] = TempArr[0][0][w][rememberfound]+(currValue-TempArr[0][0][0][rememberfound])*(TempArr[0][0][w][rememberfound+1]-TempArr[0][0][w][rememberfound])/(TempArr[0][0][0][rememberfound+1]-TempArr[0][0][0][rememberfound]);
+                    }
+                }
+                equal = false;
+                found = false;
+
+            currValue = currValue - fabs(desiredStep);
+            }
+        }
+    SaveSingleData(importname, OutputArr);
+    }
+}
+
+
+double MainWindow::stepNum(QString importname, bool start){
+    QVector<QVector<QVector<QVector<double>>>> TempArr;
+    TempArr.resize(1);
+    if (getOneData(importname, TempArr)==0){ // If there's no error. BTW. this should create TempArr.
+        if(start){      // We return the step at the begging of the file
+            return fabs(TempArr[0][0][0][1] - TempArr[0][0][0][0]);
+        }else{          // We return the step at the end of the file
+            return fabs(TempArr[0][0][0][TempArr[0][0][0].size()-2] - TempArr[0][0][0][TempArr[0][0][0].size()-1]);
+        }
+    }
+}
+
 void MainWindow::DeleteTempFolder(QString importnames){
     QFileInfo inputprelputinfo(importnames);
     QString output2 = inputprelputinfo.path() + Tempfolder + "/" + inputprelputinfo.completeBaseName() + "." + inputprelputinfo.suffix();
@@ -2867,6 +2976,90 @@ void MainWindow::on_actionLinear_triggered(){
 
 // *********************************************** FORMAT actions ***********************************************
 
+void MainWindow::on_actionSet_step_triggered(){
+    if(importnames.isEmpty()){ // We check if some files are imported.
+        QMessageBox::warning(this, "Warning", QString("Please, first import new files to proceed with this action.") );
+        return;
+    }
+    QVector<QVector<QVector<QVector<double>>>> TempArr;
+    double remember;
+    bool start = true; // To check if all files start with the same number at x.
+        TempArr.resize(1);
+        if(getOneData(importnames[0], TempArr)==1){
+            QMessageBox::warning(this,"Warning", QString("Warning: Empty lines or lines with invalid data have been detected in some files. Please, import files with readable format.") );
+            return;
+        }
+        remember = TempArr[0][0][0][0];
+        TempArr.resize(0);
+
+    if(importnames.size()>1){
+        for (int q =1; q<importnames.size(); q++){ // We check if we can read the files.
+            TempArr.resize(1);
+            if(getOneData(importnames[q], TempArr)==1){
+                QMessageBox::warning(this,"Warning", QString("Warning: Empty lines or lines with invalid data have been detected in some files. Please, import files with readable format.") );
+                return;
+            }
+            if (remember !=TempArr[0][0][0][0]){
+                start = false;
+            }
+            TempArr.resize(0);
+        }
+    }
+
+    // First we check what is the step in the files, and wether it is constant or not. Then we ask what is the desired step.
+    double stepnum= stepNum(importnames[0], true);
+    double desiredStep;
+    bool constant=true;     //We assume all files have the same step number from begging to end. We check if it is true below.
+    bool equalFiles = true; //We assume all files are equal in terms of step. We check if it is true below.
+
+    if (stepNum(importnames[0], true) != stepNum(importnames[0], false)){ //IF the step at the beggining of the file is different than at the end, then the step is not constant.
+        constant=false;
+    }
+
+    if(importnames.size()>1){
+        for (int q =1; q<importnames.size(); q++){
+            if(stepnum!=stepNum(importnames[q], true)){
+                equalFiles = false;
+            }
+            stepnum = stepNum(importnames[q], true);
+            if (stepNum(importnames[q], true) != stepNum(importnames[q], false)){ //IF the step at the beggining of the file is different than at the end, then the step is not constant.
+                constant=false;
+            }
+        }
+    }
+    QString message1, message2, message3;
+    if (constant == false){
+        message1 = "Some datafile(s) do not have a constant step. ";
+    }
+    if(equalFiles == false){
+        message2 = "Some datafile(s) do not share the same step. ";
+    }
+    if(start == false){
+        message3= "Some datafile(s) start at different x values. ";
+    }
+
+    if(constant && equalFiles && start){
+        desiredStep = getMyDouble(QString("The current step of the X variable (1st column) is: %1. \nIntroduce new step:\n(Warning! This action will modify the number of rows of the imported files. If you introduce a lower step number, the information of the datafile(s) will be permanently decreased)") .arg(stepnum) );
+    }else if((constant && !equalFiles) || (constant && !start) ){
+        desiredStep = getMyDouble(QString("Some warning(s) have been detected: %1%2%3 \nThe current step of the X variable (1st column) is: %4. \nIntroduce new step:\n(Warning! This action will modify the number of rows of the imported files. If you introduce a lower step number, the information of the datafile(s) will be permanently decreased).") .arg(message1) .arg(message2) .arg(message3) .arg(stepnum) );
+    }else{
+        int reply = QMessageBox::question(this, "Attention!", "It has been detected that some datafile(s) do not exhibit a constant step of the X variable (1st column). Performing this action is not advised. Are you sure you want to proceed with this action?",
+                                      QMessageBox::Yes|QMessageBox::No);
+        if (reply == QMessageBox::No) {
+            return;
+        }
+        desiredStep = getMyDouble(QString("Some warning(s) have been detected: %1%2%3 \nThe current step of the X variable (1st column) is around: %4. \nSince the step value of X is not constant, performing this action is not advised.\nIntroduce new step:\n(Warning! This action will modify the number of rows of the imported files. If you introduce a lower step number, the information of the datafile(s) will be permanently decreased).") .arg(message1) .arg(message2) .arg(message3) .arg(stepnum) );
+    }
+
+    // Here I should call the function of step number (to be created), with desiredStep, then implement AFA. The funcion will modify all columns and change the number of rows (either increase or decrease it if desiredStep is higher or lower than intional step).
+
+    for (int q =0; q<importnames.size(); q++){
+        createNewStep(importnames[q], desiredStep); //This function overwrittes. Should be called from AFA instead.
+    }
+
+
+}
+
 void MainWindow::on_actionReplace_characters_triggered(){
     if(importnames.isEmpty()){
         QMessageBox::warning(this, "Warning", QString("Please, first import new files to proceed with this action.") );
@@ -2907,7 +3100,7 @@ void MainWindow::on_actionExtensions_triggered(){
     QStringList pieces, nameext;
 
     QMessageBox::StandardButton reply;
-    reply = QMessageBox::question(this, "Question", "Do you want to rename the extensions?", QMessageBox::Yes|QMessageBox::No);
+    reply = QMessageBox::question(this, "Question", "Do you want to rename the extensions? If you proceed you can previsualize the changes in the folder /TempPreview and apply them by clicking 'Export format' (Ctrl+E)", QMessageBox::Yes|QMessageBox::No);
     if (reply == QMessageBox::Yes) {
         answer1 = QInputDialog::getText(this, "Input", "Introduce the name of the extension without dot (e.g. introduce 'txt' or 'asc').");
         if(answer1.isEmpty()){
@@ -3175,3 +3368,4 @@ void MainWindow::toClipboard(const std::string &s){
 //QMessageBox::information(this, "Information", QString("Here I output number %1 and %2") .arg(i) .arg(j));
 //ui->statusbar->showMessage(QString("%1 reference file(s) have been imported").arg(referencenames.size()),10000);
 //VerticalShift = getMyDouble(QString("Set stacking value to vertically shift the plots. Suggested value is %1") .arg(maxVal));
+

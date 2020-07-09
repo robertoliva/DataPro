@@ -107,7 +107,8 @@ public:
     void changeExtension(QString inputname, QString outputname, QString &importnames, QString answer1, QString previousExt, bool rewritte);
     void DeleteTempFolder(QString importnames); //If exists, deletes a temp folder recursivelly.
     void CreateTempFolderFiles(QString importnames);
-
+    double stepNum(QString importname, bool start);
+    void createNewStep(QString importname, double desiredStep);
 
     QString x_axis;
     QString y_axis;
@@ -218,8 +219,8 @@ private slots:
     void on_actionExtensions_triggered();
     void on_actionReplace_characters_triggered();
     void on_actionExport_data_triggered();
-
     void on_actionModify_units_2_triggered();
+    void on_actionSet_step_triggered();
 
 private:
     Ui::MainWindow *ui;

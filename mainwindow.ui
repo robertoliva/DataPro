@@ -750,6 +750,10 @@
    </property>
   </action>
   <action name="actionSet_step">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Notepad-Tick-24x24.png</normaloff>:/Images/24x24/Notepad-Tick-24x24.png</iconset>
+   </property>
    <property name="text">
     <string>Set &amp;step</string>
    </property>

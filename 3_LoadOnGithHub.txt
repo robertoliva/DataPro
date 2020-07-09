@@ -1,0 +1,12 @@
+1- Open sourcetree.exe
+2- Click "Stage All"						(Accept changes)
+3- Click Commit tab (up left)					
+4- Writte Commit changes and click Commit (bottom right)	(load to Git)
+5- Click Push							(load to GitHub)
+
+
+Sense sourcetree (m'hauria d'instalar la consola de commands Git, o al "Terminal de SourceTree):
+la comanda de Git es: 
+	Per mirar el status:
+		git status
+	Per a stage all: 
