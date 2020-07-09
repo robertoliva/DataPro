@@ -1,0 +1,60 @@
+Important global variables:
+
+	1- QStringList filenames; 					// This is the names of the files that will be operated.
+	2- QStringList referencenames;					// The names of the files to be used for reference actions.
+	3- int flag1;							// Whether we plot only one plot, or many.
+	4- int columnPlot;						// Column number to plot
+	5- int undo = 5; 						// Maximum amount of times the program allows to undo actions.
+	6- int plotNumLim = 10;						// Limit of files to be plotted.
+	7- int plotNum;							// Number of plots in the program.
+	8- QVector<QVector<QVector<QVector<double>>>> AllData;  	// 4D Vector used for plotting only. [Historical][files][columns][rows]
+	9- QVector<QVector<QVector<QVector<double>>>> ReferenceData;	// Idem, for reference data.
+    	10- QVector<QVector<int>> AllActions; 				// Remembers all actions performed to be applied in the moment of saving. [Action#][indexes]
+	11- QVector<QVector<double>> RememberInv;			// Info stored as double that could not be stored in the AllActions cuz that's int only.
+
+Step-by-step instruction to include a new function into the program.
+ - If the function is meant to modify data upon save option.
+	0. Firstly, read the "Notes for the programmer" and "Must read" below.
+	1. Introduce name of the functionallity in the Form mainwindow.ui, with an icon by double clicking on the action (action editor). Then left click on it, and select "go to slot...."
+	2. The slot is in mainwindow.cpp. Move it inside mainwindow.cpp to a proper place.
+		0) If needed include:   if(filenames.isEmpty()){         QMessageBox::warning(this, "Warning", QString("Please, first open new files to proceed with this action.") );   return; }
+		a) Make a backup of the data: Backup();
+		b) Input box if needed: double result = QInputDialog::getDouble(this, "Input","Set constant value",0.0, -2147483647,2147483647,9);
+		c) Call functions that will do the job, first Ref to AllData the integers, etc: AddConstant(result, AllData);
+			- The function should be designed to modify a singe file at a time, so a for loop will be needed.
+		c.2) If the number of modifyied, ColumnMinSize must be increased/decreased accordingly.
+		d) Replot if a change is expected: plotall(flag1);
+		e) Update statusbar message: ui->statusbar->showMessage(QString("Constant %1 has been added to all plots").arg(result),10000);
+		f) Update Allactions:
+		        AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
+    			AllActions[AllActions.size()-1].resize(2);
+    			AllActions[AllActions.size()-1][0]=2;
+   			AllActions[AllActions.size()-1][1]=result;
+				Include the new case also as a comment in mainwindow.h under AllActions definition.
+		g) If the function called needs some double parameter, it must be stored in RememberInv[][]:
+			RememberInv.resize(AllActions.size()+1);
+    			RememberInv[RememberInv.size()-1].resize(0);
+		        RememberInv[RememberInv.size()-1][0]=result1;
+	3. Define the function(s) in mainwindow.h. We make it access a 2D vector by reference to manipulate it.
+	4. Introduce function in mainwindow.cpp, calling the class "MainWindow::": void MainWindow::SwapCols(QVector<QVector<double>> &AllData, int result1, int result2){
+	5. Modify SaveAll function.
+		a) Include a new case.
+	6. Modify GetBackup if the plotted column number changed after the action.
+	7. Unclick shallow build in project (this also helps update UI)
+
+
+Notes for the programmer:
+
+The idea is that the user can see the data plotted to operate visually. Data is located in a 4D vector caled AllData, but changes in the vector are never saved directly to the files.
+Instead, the changes that the user does, are remembered in a 2D vector called AllActions. This vector saves all the actions the user did to the visual spectra. At the moment of saving
+the AllActions vector is used to apply action after action all the actions the user did in the chronological order, and those are applied to each file one at a time. This is the best 
+way to not saturate the program with too much RAM. The idea is that the user should only see the first 10 spectra max in order to not load large amounts of data for visuatization
+purposes only.
+
+Programmer must read before making any implementation:
+
+Each time a function for implementation is applied that modify AllData and will ultimatelly modify the files after saving, it is crucial that the programmer also implements it in the 
+AllActions 2D Vector (also comment the implementation in the mainwindow.h near definition of AllActions), as well as SaveAll.
+
+
+ - 

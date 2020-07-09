@@ -1,0 +1,4 @@
+SaveAFA
+	- Runs over Files
+		- Set exportname and inputnames (rewritte=Export_data, !rewritte=UNDO, Replace_characters, Extensions)
+			- Run over actions.	
