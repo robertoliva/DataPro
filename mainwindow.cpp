@@ -1243,8 +1243,7 @@ void MainWindow::ResetBackup(){ // When new files are opened, we clear all previ
 
 //*********FORMAT FUNCTIONS**********
 
-
-void MainWindow::createNewStep(QString importname, double desiredStep){
+void MainWindow::createNewStep(QString importname, QString exportname, double desiredStep){
     bool equal=false; // checks if an output X value is identical to input X value
     bool found = false;
     int remember,rememberfound;
@@ -1297,8 +1296,6 @@ void MainWindow::createNewStep(QString importname, double desiredStep){
             currValue = currValue+desiredStep;
             }
 
-
-
         }else if(TempArr[0][0][0][TempArr[0][0][0].size()-1] < TempArr[0][0][0][0]){ // Numbers of Col 1 decrease
             currValue = currValue - fabs(desiredStep); //Because we created the first row above.
 
@@ -1335,10 +1332,11 @@ void MainWindow::createNewStep(QString importname, double desiredStep){
             currValue = currValue - fabs(desiredStep);
             }
         }
-    SaveSingleData(importname, OutputArr);
+    //SaveSingleData(importname, OutputArr);
+    //QMessageBox::information(this, "Information", QString("Attempting to save in %1 an array of %2 columns and %3 rows") .arg(exportname) .arg(OutputArr.size()) .arg(OutputArr[0].size()));
+    SaveSingleData(exportname, OutputArr);
     }
 }
-
 
 double MainWindow::stepNum(QString importname, bool start){
     QVector<QVector<QVector<QVector<double>>>> TempArr;
@@ -1423,6 +1421,11 @@ void MainWindow::SaveAFA(bool rewritte){
                     changeExtension(inputnames[q],exportnames[q],importnames[q], AllFormatActions[w][1], AllFormatActions[w][2], rewritte);
                 break;
                 }
+                case 3:{
+                    // QMessageBox::information(this, "Information", QString("We want to create %1 \nfrom %2\n and with a step of %3") .arg(exportnames[q]) .arg(importnames[q]) .arg(AllFormatActions[w][1].toDouble()) );
+                    createNewStep(importnames[q],exportnames[q], AllFormatActions[w][1].toDouble());
+                break;
+                }
                 }
             }
         }
@@ -1462,7 +1465,6 @@ int MainWindow::replaceString(QString nameOfFile, QString nameOfOutputFile, QStr
         outputfile.write(codec->fromUnicode(text));
         outputfile.close();
     }
-
     return linesReplaced;
 }
 
@@ -3053,11 +3055,19 @@ void MainWindow::on_actionSet_step_triggered(){
 
     // Here I should call the function of step number (to be created), with desiredStep, then implement AFA. The funcion will modify all columns and change the number of rows (either increase or decrease it if desiredStep is higher or lower than intional step).
 
-    for (int q =0; q<importnames.size(); q++){
-        createNewStep(importnames[q], desiredStep); //This function overwrittes. Should be called from AFA instead.
-    }
+    AllFormatActions.resize(AllFormatActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
+    AllFormatActions[AllFormatActions.size()-1].resize(2);
+    AllFormatActions[AllFormatActions.size()-1][0]=QString("3");
+    AllFormatActions[AllFormatActions.size()-1][1]=QString("%1").arg(desiredStep);
 
+    SaveAFA(false); //We only set true for Export, when we want to overwritte the data.
 
+    ui->statusbar->showMessage(QString("%1 datafile(s) have been modified. Select Export (Ctrl+E) to save changes. A preview can be found in folder /TempPreview") .arg(importnames.size()),10000);
+
+    //This was used before AFA was implemented.
+//    for (int q =0; q<importnames.size(); q++){
+//        createNewStep(importnames[q], desiredStep); //This function overwrittes. Should be called from AFA instead.
+//    }
 }
 
 void MainWindow::on_actionReplace_characters_triggered(){

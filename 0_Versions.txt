@@ -31,14 +31,30 @@ PPE_v0_2_4_1	Can undo format actions. Can Find and replace characters, UNDO opti
 		Format->Rename->Extensions extension can be exported and undone, but after SAVING it seems to have forgotten the updated importnames names.
 PPE_v0_2_4_2	F.V. Format->Rename->Extensions extension can be exported and undone. 
 PPE_github	v0_2_4_2	This version has been set to be uploaded in github.
+PPE_github	Format->Modfy datapoint numbers -> Set step is working and can be undone.
 
 To Do in the future:
 
+ * Format->Modfy datapoint numbers -> Set number should be implemented with UNDO (AFA). This should be really easy since by merelly calculating the step you can reuse the previous functions and call them.
+ * 
+
  * Implement AFA in other Format options such as those that modify the filename and extension.
-	- Must work now on Format->Rename->Filenames.
+	- Must work now on Format->Rename->Filenames. (I'm not sure it is worth it, it is kind of complicated and time consuming and not really useful for the user).
+
  * Keep working on Format options. Improve the instructions for the developer showing how AFA must be implemented for each Format option.
 
+ * Columns -> "Delete all columns except..." option
+ * Columns -> "Average all columns" option, the result should be shown in a new column.
+
  - It should be able to change units (e.g. nm to eV, Kilo, Mega, Giga, nano, pico... ...).
+	- Change magnitudes
+	- Energy/spectroscopy (Joules + http://halas.rice.edu/conversions)
+	- Temperature
+	- Time
+	- Change optical spectroscopic units
+
+ - Units should be visible in the Axis, also in the headers of the columns (header read+writte must be implemented).
+
  - Consider making the /TempPreview folder invisible, and then preview the changes in Format with a popup panel. (future versions should have a file explorer foldable panel and a data preview foldable panel)
  - When operating pairs of spectra, it should check number of columns, and that spectra starts and ends at the same x point.
  - When operating with spectra, it should check that, if the step is constant, there are a number of expected lines.

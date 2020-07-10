@@ -108,7 +108,7 @@ public:
     void DeleteTempFolder(QString importnames); //If exists, deletes a temp folder recursivelly.
     void CreateTempFolderFiles(QString importnames);
     double stepNum(QString importname, bool start);
-    void createNewStep(QString importname, double desiredStep);
+    void createNewStep(QString importname, QString exportname, double desiredStep);
 
     QString x_axis;
     QString y_axis;
@@ -138,8 +138,9 @@ public:
     QVector<QVector<double>> RememberInv; //Used to store double data that cannot be stored in AllActions since that's integer.
     //We backup all actions so the program can execute sequentially them into the files.
     QVector<QVector<QString>> AllFormatActions; //will save all actions for formating: Import/Export. [w][0] for type of action, action number w. next data [0][1]... for data necessary to perform the action.
-    // AllFormatActions[0][0] = 1 corresponds replace of string [][1] by new string [][2].
+    // AllFormatActions[0][0] = 1 corresponds replace of string [][1] by new string [][2] inside each datafile.
     // AllFormatActions[0][0] = 2 corresponds to modify extension to [][1].
+    // AllFormatActions[0][0] = 3 corresponds to modify the step of the first column, therefore changing the number of rows for each datafile.
 
     QVector<QVector<int>> AllActions; //First indice for a new action, second index [0][0] for number of action, next indexes [0][1]... for data necessary to perform the action.
     // AllActions[0][0] = 1 corresponds to new column selected. AllActions[0][1]= column number selected. AllActions[0][2]= previous column value.

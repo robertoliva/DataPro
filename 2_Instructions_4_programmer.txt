@@ -11,6 +11,7 @@ Important global variables:
 	9- QVector<QVector<QVector<QVector<double>>>> ReferenceData;	// Idem, for reference data.
     	10- QVector<QVector<int>> AllActions; 				// Remembers all actions performed to be applied in the moment of saving. [Action#][indexes]
 	11- QVector<QVector<double>> RememberInv;			// Info stored as double that could not be stored in the AllActions cuz that's int only.
+	12- QVector<QVector<QString>> AllFormatActions;			// Remembers all format actions performed to be applied in the moment of exporting. [Action#][indexes] 
 
 Step-by-step instruction to include a new function into the program.
  - If the function is meant to modify data upon save option.
@@ -41,7 +42,25 @@ Step-by-step instruction to include a new function into the program.
 		a) Include a new case.
 	6. Modify GetBackup if the plotted column number changed after the action.
 	7. Unclick shallow build in project (this also helps update UI)
-
+ - IF the function is included in the "Format" tab.
+	0. Same as latter case (see above)
+	1. Same as latter case (see above)
+	2. Same as latter case (see above)
+		0) if(importnames.isEmpty()){ [...]
+		a) Modify AFA in the action function. e.g:
+		        AllFormatActions.resize(AllFormatActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
+    			AllFormatActions[AllFormatActions.size()-1].resize(2);
+   			AllFormatActions[AllFormatActions.size()-1][0]=QString("3");
+    			AllFormatActions[AllFormatActions.size()-1][1]=QString("%1").arg(desiredStep);
+		b) Include the following line:
+			SaveAFA(false); //We only set true for Export, when we want to overwritte the data.
+		c) Update status:
+		        ui->statusbar->showMessage(QString("%1 datafile(s) have been modified. Select Export (Ctrl+E) to save changes. A preview can be found in folder /TempPreview") .arg(importnames.size()),10000);
+	3. Same as latter case (see above)
+	4. Same as latter case (see above)
+	5. Modify SaveAFA function.
+		a) Include a new case.
+	7. Same as latter case (see above)
 
 Notes for the programmer:
 

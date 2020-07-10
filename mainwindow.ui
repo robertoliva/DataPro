@@ -232,15 +232,8 @@
      <property name="title">
       <string>&amp;Modify datapoints</string>
      </property>
-     <widget class="QMenu" name="menuIncrease_Datapoints">
-      <property name="title">
-       <string>&amp;Modify datapoints number</string>
-      </property>
-      <addaction name="actionSet_step"/>
-      <addaction name="actionSet_number"/>
-     </widget>
-     <addaction name="actionAverage_datapoints"/>
-     <addaction name="menuIncrease_Datapoints"/>
+     <addaction name="actionSet_step"/>
+     <addaction name="actionSet_number"/>
     </widget>
     <addaction name="menuRename"/>
     <addaction name="menuDecrease_datapoints"/>
@@ -309,6 +302,8 @@
      <addaction name="actionDelete_column"/>
      <addaction name="actionAdd_reference_column"/>
      <addaction name="actionDuplicate_Column"/>
+     <addaction name="actionDelete_all_columns_except"/>
+     <addaction name="actionAverage_all_columns"/>
     </widget>
     <addaction name="actionSet_Plot_Column"/>
     <addaction name="menuColumns_2"/>
@@ -565,11 +560,6 @@
     <string>Delete datapoints</string>
    </property>
   </action>
-  <action name="actionAverage_datapoints">
-   <property name="text">
-    <string>&amp;Average datapoints</string>
-   </property>
-  </action>
   <action name="actionSpline">
    <property name="text">
     <string>&amp;Create spline</string>
@@ -755,12 +745,12 @@
      <normaloff>:/Images/24x24/Notepad-Tick-24x24.png</normaloff>:/Images/24x24/Notepad-Tick-24x24.png</iconset>
    </property>
    <property name="text">
-    <string>Set &amp;step</string>
+    <string>Set &amp;step of Col 1</string>
    </property>
   </action>
   <action name="actionSet_number">
    <property name="text">
-    <string>Set &amp;number</string>
+    <string>Set &amp;number of rows</string>
    </property>
   </action>
   <action name="actionVisually_sort">
@@ -982,6 +972,16 @@
   <action name="actionDescending">
    <property name="text">
     <string>Descending</string>
+   </property>
+  </action>
+  <action name="actionDelete_all_columns_except">
+   <property name="text">
+    <string>Delete all columns except...</string>
+   </property>
+  </action>
+  <action name="actionAverage_all_columns">
+   <property name="text">
+    <string>Average all columns</string>
    </property>
   </action>
  </widget>
