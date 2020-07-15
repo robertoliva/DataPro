@@ -31,10 +31,12 @@ PPE_v0_2_4_1	Can undo format actions. Can Find and replace characters, UNDO opti
 		Format->Rename->Extensions extension can be exported and undone, but after SAVING it seems to have forgotten the updated importnames names.
 PPE_v0_2_4_2	F.V. Format->Rename->Extensions extension can be exported and undone. 
 PPE_github	v0_2_4_2	This version has been set to be uploaded in github.
-PPE_github	Format->Modfy datapoint numbers -> Set step is working and can be undone.
+PPE_github	Format->Modfy datapoint numbers -> Set step is working and can be undone. Also it checks if number of rows coincides with expected value from detected constant step.
 
 To Do in the future:
 
+
+ * ERROR! When I make two consecutive replacements, the first file in TempFolder disappears. Not so serious since after saving everything seems to work, but this mistake should be corrected.
  * Format->Modfy datapoint numbers -> Set number should be implemented with UNDO (AFA). This should be really easy since by merelly calculating the step you can reuse the previous functions and call them.
  * 
 
@@ -108,6 +110,8 @@ To Do in the future:
  - Consider if I should use the function InputAction, or simply delete it. I might help make the code more organized and smaller. maybe because x decrease.
  - Insert a expandable menu on the leftside of the graph where you can track the Files inside the folders in real time, select them there instead of open and import. (Difficult)
  - Add noise option? (this option is quite shady, and might have bad scientific uses).
+ - Create a foldable panel at the right side with three subpanels where the Opened and Imported files can be seen (each in a subpanel). A third subpanel would be use to previsualize the contents a selected datafile. It should be possible to open and import datafiles as well by dragging files into these panels.
+
 
 Bugs:
 - Mystery crash! If I replace newlines with letter q, and then delete letter q, then I cannot open such file no matter how well the data looks like. The file is corrupted not for notepad, but for my program only.

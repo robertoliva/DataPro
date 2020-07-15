@@ -30,6 +30,7 @@
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
+#include <windows.h>
 
 
 typedef std::numeric_limits< double > dbl;
@@ -109,13 +110,16 @@ public:
     void CreateTempFolderFiles(QString importnames);
     double stepNum(QString importname, bool start);
     void createNewStep(QString importname, QString exportname, double desiredStep);
+    int estimateRowNums(QString importname, double step); // Estimates the number of rows from the first and last digit of 1st column and step.
+    bool checkTempExists(QString importnames); // checks if Temp folder exist.
+
 
     QString x_axis;
     QString y_axis;
     QString rememberExt;
     QVector<QString> prevExt; //remember previous extension.
     QString Tempfolder ="/TempPreview";
-    QStringList filenames, inputnames, importnames, exportnames;
+    QStringList filenames, inputnames, oldinputnames, importnames, exportnames;
     QStringList newFileNames;
     QString newFileDirectory, Logo; //the ones chosen to save as...
     QStringList referencenames;

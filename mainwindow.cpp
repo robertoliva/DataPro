@@ -1243,6 +1243,17 @@ void MainWindow::ResetBackup(){ // When new files are opened, we clear all previ
 
 //*********FORMAT FUNCTIONS**********
 
+int MainWindow::estimateRowNums(QString importname, double step){
+    double difference, rowNumsDouble;
+    QVector<QVector<QVector<QVector<double>>>> TempArr;
+    TempArr.resize(1);
+    if (getOneData(importname, TempArr)==0){ // If there's no error. BTW. this should create TempArr.
+        difference = fabs(TempArr[0][0][0][0] - TempArr[0][0][0][TempArr[0][0][0].size()-1]);
+    }
+    rowNumsDouble = fabs(difference/step);
+    return round(rowNumsDouble);
+}
+
 void MainWindow::createNewStep(QString importname, QString exportname, double desiredStep){
     bool equal=false; // checks if an output X value is identical to input X value
     bool found = false;
@@ -1354,10 +1365,21 @@ void MainWindow::DeleteTempFolder(QString importnames){
     QFileInfo inputprelputinfo(importnames);
     QString output2 = inputprelputinfo.path() + Tempfolder + "/" + inputprelputinfo.completeBaseName() + "." + inputprelputinfo.suffix();
     QFileInfo outputprelinfo(output2);
-    if(QDir(outputprelinfo.path()).exists()){
+    while(QDir(outputprelinfo.path()).exists()){    //IT WAS IF!!!! But I changed it to while to avoid errors created if user is in Temp folder (lag issues creating and destroying folders).
         QString check = outputprelinfo.path(); //We want to check if TempPreview exist, and if it does delete it.
         QDir dir(check);
         dir.removeRecursively();
+    }
+}
+
+bool MainWindow::checkTempExists(QString importnames){
+    QFileInfo inputprelputinfo(importnames);
+    QString temp = inputprelputinfo.path() + Tempfolder + "/" + inputprelputinfo.completeBaseName() + "." + inputprelputinfo.suffix();
+    QFileInfo inputinfo(temp);
+    if(QDir(inputinfo.path()).exists()){ //If the output folder doesnt exist we create it.
+        return true;
+    }else{
+        return false;
     }
 }
 
@@ -1366,28 +1388,43 @@ void MainWindow::CreateTempFolderFiles(QString exportnames){
     QFile outputfile(exportnames);
     QFileInfo outputinfo(exportnames);
 
-    if(!QDir(outputinfo.path()).exists()){//If the output folder doesnt exist we create it.
+    //QMessageBox::information(this, "Information", QString("Temp folder will be created if it doesnt exist")  );
+
+    while(!QDir(outputinfo.path()).exists()){ //If the output folder doesnt exist we create it.     //IT WAS IF!!!!
         dir.mkpath(outputinfo.path());
     }
-
-    // Next we create the output files.
-    if (!outputfile.open(QFile::WriteOnly)) { //If we cannot open the output file we create it.
-        outputfile.open(QFile::WriteOnly);  // With a bit of luck this should create the file.
-        inputnames.append(exportnames);  // This will only work for w=0, as desired, see below.
-    }else{
-        inputnames.append(exportnames);  // This will only work for w=0, as desired, see below.
+   // QMessageBox::information(this, "Information", QString("Temp folder should now be created in %1") .arg(outputinfo.path()) );
+/*
+    if (!outputfile.open(QFile::WriteOnly)) {   //If we cannot open the output file we create it.
+       QMessageBox::information(this, "Information", QString("Error, we cannot open %1") .arg(outputfile.fileName()) );
     }
-    outputfile.close(); //Because we opened such file during the previous if.
+*/
+    // Next we create the output files.
+    if (!outputfile.open(QFile::WriteOnly)) {   //If we cannot open the output file we create it.
+        outputfile.open(QFile::WriteOnly);      // With a bit of luck this should create the file.
+        inputnames.append(exportnames);         // This will only work for w=0, as desired, see below.
+        oldinputnames.append(exportnames);         // This will only work for w=0, as desired, see below.
+    }else{
+        inputnames.append(exportnames);         // This will only work for w=0, as desired, see below.
+        oldinputnames.append(exportnames);         // This will only work for w=0, as desired, see below.
+    }
+    outputfile.close();                         //Because we opened such file during the previous if.
 }
 
 void MainWindow::SaveAFA(bool rewritte){
     QString output;
     QDir dir;
+    // To check if Temp folder exists. NOT USED IN THE PRESENT IMPLEMENTAITON, MAYBE USEFUL IN THE FUTURE.
+    // bool checkTemp;
     inputnames.clear();
+    oldinputnames.clear();
     exportnames.clear();
     replacements.resize(importnames.size());
 
-    //If the Temp folder exist we delete it.
+    // We could check if Temp folder exists. NOT USED IN THE PRESENT IMPLEMENTAITON, MAYBE USEFUL IN THE FUTURE.
+    // checkTemp = checkTempExists(importnames[0]);
+
+    // If the Temp folder exist we delete it.
     DeleteTempFolder(importnames[0]);
 
     for(int q=0; q<importnames.size(); q++){ //Run over files
@@ -1396,6 +1433,7 @@ void MainWindow::SaveAFA(bool rewritte){
         if(rewritte){                           // We set the inputnames and exportnames, which are the same if we rewritte.
             exportnames.append(importnames[q]);
             inputnames.append(importnames[q]);
+            oldinputnames.append(importnames[q]);
         }else{                                  // Here I should check if file already exist, and if so, use those as inputs.
             // First we set output filename
             exportnames.append(importnames[q]);
@@ -1407,18 +1445,24 @@ void MainWindow::SaveAFA(bool rewritte){
             CreateTempFolderFiles(exportnames[q]);
         }
 
+        // QMessageBox::information(this, "Information3", QString("Inputnames is %1") .arg(inputnames[q]) );
+
         for(int w=0;w<AllFormatActions.size();w++){  // Run over actions.
-            if(w>=1){
+            if(w==0){
+                inputnames[q] = importnames[q];
+            }else{
                 inputnames[q] = exportnames[q];// We make our operations over the same files. The problem is only to know where the 1st file [0] is in TempPreview or not.
+                //QMessageBox::information(this, "Information", QString("Somehow I got in here. AFA size is %1") .arg(AllFormatActions.size()) );
             }
             int y = AllFormatActions[w][0].toInt();
             switch (y) {
                 case 1:{
+                   // QMessageBox::information(this, "Information", QString("The function is called, input file is: %1\noutput file is %2\nFind string is: %3\nReplace string is: %4") .arg(inputnames[q]) .arg(exportnames[q]) .arg(AllFormatActions[w][1]) .arg(AllFormatActions[w][2]) );
                     replacements[q] = replaceString(inputnames[q],exportnames[q], AllFormatActions[w][1], AllFormatActions[w][2], true);
                 break;
                 case 2:{
                     // QMessageBox::information(this, "Information", QString("Rewritte (save) is true or false: %1 and we want to change this filename\n\n %2\n\nWhich should be\n\n%3\n\n by this\n\n %4\n\n with this extension: %5. \n(Previous extension was %6)") .arg(rewritte) .arg(importnames[q]) .arg(inputnames[q]) .arg(exportnames[q]) .arg(AllFormatActions[w][1]) .arg(AllFormatActions[w][2]));
-                    changeExtension(inputnames[q],exportnames[q],importnames[q], AllFormatActions[w][1], AllFormatActions[w][2], rewritte);
+                    changeExtension(oldinputnames[q],exportnames[q],importnames[q], AllFormatActions[w][1], AllFormatActions[w][2], rewritte);
                 break;
                 }
                 case 3:{
@@ -1458,9 +1502,13 @@ int MainWindow::replaceString(QString nameOfFile, QString nameOfOutputFile, QStr
     if(writteResult){   //We writte the solution if replaceQ is true. Else this function only finds and counts number of characters.
         text.replace(find, replace);
 
+      //  QMessageBox::information(this, "Information", QString("The error will come soon for %1") .arg(outputfile.fileName()));
+
         // Write file
         if (!outputfile.open(QFile::WriteOnly)) {
             qDebug() << "Error opening for write: " << outputfile.errorString();
+
+         //   QMessageBox::information(this, "Information", QString("The file %1 cannot be opened now") .arg(outputfile.fileName()));
         }
         outputfile.write(codec->fromUnicode(text));
         outputfile.close();
@@ -1601,6 +1649,7 @@ void MainWindow::on_actionExport_data_triggered(){
     dir.removeRecursively();
     AllFormatActions.clear();
     prevExt.clear();
+    importnames.clear(); // This is optional, and might be annoying for the user to import the files each time after export, but I think it will prevent errors, specially with the UNDO option.
 }
 
 void MainWindow::on_actionImport_data_triggered(){
@@ -2099,6 +2148,14 @@ void MainWindow::on_actionColumns_to_files_triggered(){
 }
 
 void MainWindow::on_actionExit_triggered(){
+
+    if (importnames.size()>0){ //We want to check if TempPreview exist, and if it does delete it.
+        QFileInfo inputputinfo(importnames[0]);
+        QString check = inputputinfo.path() + Tempfolder;
+        QDir dir(check);
+        dir.removeRecursively();
+    }
+
     qApp->quit();
 }
 
@@ -3011,12 +3068,18 @@ void MainWindow::on_actionSet_step_triggered(){
     // First we check what is the step in the files, and wether it is constant or not. Then we ask what is the desired step.
     double stepnum= stepNum(importnames[0], true);
     double desiredStep;
-    bool constant=true;     //We assume all files have the same step number from begging to end. We check if it is true below.
-    bool equalFiles = true; //We assume all files are equal in terms of step. We check if it is true below.
+    bool constant=true;         // We assume all files have the same step number from begging to end. We check if it is true below.
+    bool equalFiles = true;     // We assume all files are equal in terms of step. We check if it is true below.
+    bool rowNums = true;        // We assume that the number of rows coincides with the starting and ending points plus detected step value. If it does not coincide and equalFiles is true, performing the step action is highly recommended to correct missing rows.
 
     if (stepNum(importnames[0], true) != stepNum(importnames[0], false)){ //IF the step at the beggining of the file is different than at the end, then the step is not constant.
-        constant=false;
+        constant = false;
+        rowNums = false;
     }
+    if (RowNums(importnames[0]) != estimateRowNums(importnames[0], stepNum(importnames[0], true)) ) {
+        rowNums = false;
+    }
+    //QMessageBox::information(this, "Information", QString("The number of rows is %1 and estimated rows is %2") .arg(RowNums(importnames[0])) .arg(estimateRowNums(importnames[0], stepNum(importnames[0], true))) );
 
     if(importnames.size()>1){
         for (int q =1; q<importnames.size(); q++){
@@ -3026,24 +3089,32 @@ void MainWindow::on_actionSet_step_triggered(){
             stepnum = stepNum(importnames[q], true);
             if (stepNum(importnames[q], true) != stepNum(importnames[q], false)){ //IF the step at the beggining of the file is different than at the end, then the step is not constant.
                 constant=false;
+                rowNums = false;
+            }
+            if (RowNums(importnames[q]) != estimateRowNums(importnames[q], stepNum(importnames[q], true)) ) {
+                rowNums = false;
             }
         }
     }
-    QString message1, message2, message3;
+
+    QString message1, message2, message3, message4;
     if (constant == false){
         message1 = "Some datafile(s) do not have a constant step. ";
     }
-    if(equalFiles == false){
+    if (equalFiles == false){
         message2 = "Some datafile(s) do not share the same step. ";
     }
-    if(start == false){
+    if (start == false){
         message3= "Some datafile(s) start at different x values. ";
     }
+    if ((rowNums == false) && (constant == true) && (equalFiles == true)){
+        message4= QString("Some datafile(s) exhibit a different number of rows then their expected value from the detected step. \nHence, setting the step to %1 is highly recommended in order to restore missing rows in the datafile(s).") .arg(stepNum(importnames[0], true));
+    }
 
-    if(constant && equalFiles && start){
+    if(constant && equalFiles && start && rowNums){
         desiredStep = getMyDouble(QString("The current step of the X variable (1st column) is: %1. \nIntroduce new step:\n(Warning! This action will modify the number of rows of the imported files. If you introduce a lower step number, the information of the datafile(s) will be permanently decreased)") .arg(stepnum) );
-    }else if((constant && !equalFiles) || (constant && !start) ){
-        desiredStep = getMyDouble(QString("Some warning(s) have been detected: %1%2%3 \nThe current step of the X variable (1st column) is: %4. \nIntroduce new step:\n(Warning! This action will modify the number of rows of the imported files. If you introduce a lower step number, the information of the datafile(s) will be permanently decreased).") .arg(message1) .arg(message2) .arg(message3) .arg(stepnum) );
+    }else if((constant && !equalFiles) || (constant && !start) || (constant && !rowNums) ){
+        desiredStep = getMyDouble(QString("Some warning(s) have been detected: %1%2%3%4 \nThe detected step of the X variable (1st column) is: %5. \nIntroduce new step:\n(Warning! This action will modify the number of rows of the imported files. If you introduce a lower step number, the information of the datafile(s) will be permanently decreased).") .arg(message1) .arg(message2) .arg(message3) .arg(message4) .arg(stepnum) );
     }else{
         int reply = QMessageBox::question(this, "Attention!", "It has been detected that some datafile(s) do not exhibit a constant step of the X variable (1st column). Performing this action is not advised. Are you sure you want to proceed with this action?",
                                       QMessageBox::Yes|QMessageBox::No);
@@ -3051,6 +3122,11 @@ void MainWindow::on_actionSet_step_triggered(){
             return;
         }
         desiredStep = getMyDouble(QString("Some warning(s) have been detected: %1%2%3 \nThe current step of the X variable (1st column) is around: %4. \nSince the step value of X is not constant, performing this action is not advised.\nIntroduce new step:\n(Warning! This action will modify the number of rows of the imported files. If you introduce a lower step number, the information of the datafile(s) will be permanently decreased).") .arg(message1) .arg(message2) .arg(message3) .arg(stepnum) );
+    }
+
+    if(desiredStep == 0){
+        QMessageBox::warning(this, "Warning!", QString("The introduced step value must be non zero. A suggested value should be around %1") .arg(stepnum) );
+        return;
     }
 
     // Here I should call the function of step number (to be created), with desiredStep, then implement AFA. The funcion will modify all columns and change the number of rows (either increase or decrease it if desiredStep is higher or lower than intional step).

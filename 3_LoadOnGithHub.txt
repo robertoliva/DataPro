@@ -3,7 +3,7 @@
 3- Click Commit tab (up left)					
 4- Writte Commit changes and click Commit (bottom right)	(load to Git)
 5- Click Push							(load to GitHub)
-
+6- View changes in "master" on the left panel.
 
 Sense sourcetree (m'hauria d'instalar la consola de commands Git, o al "Terminal de SourceTree):
 la comanda de Git es: 
