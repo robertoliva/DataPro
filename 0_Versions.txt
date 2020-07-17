@@ -32,30 +32,26 @@ PPE_v0_2_4_1	Can undo format actions. Can Find and replace characters, UNDO opti
 PPE_v0_2_4_2	F.V. Format->Rename->Extensions extension can be exported and undone. 
 PPE_github	v0_2_4_2	This version has been set to be uploaded in github.
 PPE_github	Format->Modfy datapoint numbers -> Set step is working and can be undone. Also it checks if number of rows coincides with expected value from detected constant step.
+		Format->Modfy datapoint numbers fully works. Many errors have been corrected also.
+		All format options have been set and improved.
+
+
 
 To Do in the future:
 
-
- * ERROR! When I make two consecutive replacements, the first file in TempFolder disappears. Not so serious since after saving everything seems to work, but this mistake should be corrected.
- * Format->Modfy datapoint numbers -> Set number should be implemented with UNDO (AFA). This should be really easy since by merelly calculating the step you can reuse the previous functions and call them.
- * 
-
- * Implement AFA in other Format options such as those that modify the filename and extension.
-	- Must work now on Format->Rename->Filenames. (I'm not sure it is worth it, it is kind of complicated and time consuming and not really useful for the user).
-
- * Keep working on Format options. Improve the instructions for the developer showing how AFA must be implemented for each Format option.
-
+ * Allow user to CANCELL in different options of the program (sometimes user is forced to introduce a value).
  * Columns -> "Delete all columns except..." option
  * Columns -> "Average all columns" option, the result should be shown in a new column.
 
+ - Program should be able to operate all columns simultaneously.
  - It should be able to change units (e.g. nm to eV, Kilo, Mega, Giga, nano, pico... ...).
 	- Change magnitudes
 	- Energy/spectroscopy (Joules + http://halas.rice.edu/conversions)
 	- Temperature
 	- Time
 	- Change optical spectroscopic units
-
  - Units should be visible in the Axis, also in the headers of the columns (header read+writte must be implemented).
+ - Implement functions to change row numbers to facilitate operations of dividing spectra by reference file (this function is yet to be implemented in the future)
 
  - Consider making the /TempPreview folder invisible, and then preview the changes in Format with a popup panel. (future versions should have a file explorer foldable panel and a data preview foldable panel)
  - When operating pairs of spectra, it should check number of columns, and that spectra starts and ends at the same x point.
@@ -114,10 +110,7 @@ To Do in the future:
 
 
 Bugs:
-- Mystery crash! If I replace newlines with letter q, and then delete letter q, then I cannot open such file no matter how well the data looks like. The file is corrupted not for notepad, but for my program only.
-	I think I know what happens. The program replaces \n and only \r is left. Then the program only reads new lines if there is \r\n or \n.
-	I tried to fix it unsuccsefully, but it should not be a problem. Users don't need to do that, and it is highly unlikelly they would. However, it would be nice to solve this issue just in case the program tries to
-	open a file with \r instead of \r\n. Maybe I could try a safeGetline function (https://stackoverflow.com/questions/6089231/getting-std-ifstream-to-handle-lf-cr-and-crlf), but it is kind of difficult.
+- (not important) Replacing newlines is kind of buggy and tricky. When trying to replace empty rows, typically the replaced newlines undergo a WINDOWS (CRLF) to MACINTOSH (CR) or UNIX (LF) transformation. But this is not a really important bug since the program is able to detect and delete newlines automatically by opening the file, or in Format option to delete empty lines (to be implemented).
 
 Typical errors:
 - When QT reports "The program has unexpectedly finished" and cannot make a build, it is better to 

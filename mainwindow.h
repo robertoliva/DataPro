@@ -112,6 +112,15 @@ public:
     void createNewStep(QString importname, QString exportname, double desiredStep);
     int estimateRowNums(QString importname, double step); // Estimates the number of rows from the first and last digit of 1st column and step.
     bool checkTempExists(QString importnames); // checks if Temp folder exist.
+    void setRows(QString inputname, QString exportname, int desiredRows);
+    int cleanDatafile(QString datafile, QString outputdatafile, int caption);   // Deletes lines with errors, respecting or not the caption. Returns number of rows deteled.
+    void deleteFirstLines(QString datafile, QString outputdatafile, int lines);
+    void deleteLastLines(QString datafile, QString outputdatafile, int lines);
+    bool ascendingOrder(QString datafile, QString outputdatafile, int ignoreLines);
+    bool checkAscendingOrder(QString datafile); //returns true if order is ascending.
+    bool descendingOrder(QString datafile, QString outputdatafile, int ignoreLines);
+    void invertOrder(QString datafile, QString outputdatafile);
+
 
 
     QString x_axis;
@@ -136,6 +145,7 @@ public:
     int plotNumLim = 10; //Max number of visible plots, 0 => all files are plotted. The user will be able to select this number, by defect it is 10. Larger numbers imply more RAM being used.
     int plotNum;        //Number of files opened
     bool log = false;   //Whether y axis is in log scale.
+    bool cancell = false; //If cancell is pressed in input options.
     //AllData is only used for plotting porpuses.
     QVector<int> FileColNums, FileRowNums; // [0]=0 (1) files have equal, error flag = 0, (different, error flag = 1) num of rows/cols, [1] min num of rows/files, [2] max num of rows/files
     QVector<QVector<QVector<QVector<double>>>> AllData; //4D Vector for plotting only. [Historical][files][columns][rows], historical [0] is active plot. [1] is older plot, up to [5].
@@ -145,6 +155,7 @@ public:
     // AllFormatActions[0][0] = 1 corresponds replace of string [][1] by new string [][2] inside each datafile.
     // AllFormatActions[0][0] = 2 corresponds to modify extension to [][1].
     // AllFormatActions[0][0] = 3 corresponds to modify the step of the first column, therefore changing the number of rows for each datafile.
+    // AllFormatActions[0][0] = 4 corresponds to set row number, therefore changing the number of rows for each datafile.
 
     QVector<QVector<int>> AllActions; //First indice for a new action, second index [0][0] for number of action, next indexes [0][1]... for data necessary to perform the action.
     // AllActions[0][0] = 1 corresponds to new column selected. AllActions[0][1]= column number selected. AllActions[0][2]= previous column value.
@@ -226,6 +237,13 @@ private slots:
     void on_actionExport_data_triggered();
     void on_actionModify_units_2_triggered();
     void on_actionSet_step_triggered();
+    void on_actionSet_number_triggered();
+    void on_actionDelete_lines_without_data_triggered();
+    void on_actionDelete_first_lines_triggered();
+    void on_actionDelete_last_lines_triggered();
+    void on_actionAscending_triggered();
+    void on_actionDescending_triggered();
+    void on_actionInvert_all_order_triggered();
 
 private:
     Ui::MainWindow *ui;

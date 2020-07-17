@@ -42,7 +42,9 @@ Step-by-step instruction to include a new function into the program.
 		a) Include a new case.
 	6. Modify GetBackup if the plotted column number changed after the action.
 	7. Unclick shallow build in project (this also helps update UI)
- - IF the function is included in the "Format" tab.
+
+ - IF the function is to be included in the "Format" tab.
+
 	0. Same as latter case (see above)
 	1. Same as latter case (see above)
 	2. Same as latter case (see above)
