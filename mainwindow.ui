@@ -104,13 +104,6 @@
     <property name="title">
      <string>&amp;Prepare data</string>
     </property>
-    <widget class="QMenu" name="menuCombine_all_files">
-     <property name="title">
-      <string>Combine &amp;all files...</string>
-     </property>
-     <addaction name="actionAdd_2"/>
-     <addaction name="actionAverage"/>
-    </widget>
     <widget class="QMenu" name="menuBaseline_2">
      <property name="title">
       <string>&amp;Baseline...</string>
@@ -129,6 +122,7 @@
       </property>
       <addaction name="actionTo_one"/>
       <addaction name="actionTo_first_file"/>
+      <addaction name="actionTo_first_column_Area"/>
      </widget>
      <widget class="QMenu" name="menuGlobal_maximum">
       <property name="title">
@@ -136,15 +130,23 @@
       </property>
       <addaction name="actionTo_one_2"/>
       <addaction name="actionTo_first_file_2"/>
+      <addaction name="actionTo_first_column_Max"/>
      </widget>
      <addaction name="menuIntegrated_area"/>
      <addaction name="menuGlobal_maximum"/>
     </widget>
-    <addaction name="menuBaseline_2"/>
+    <widget class="QMenu" name="menuModify_units">
+     <property name="title">
+      <string>&amp;x Axis...</string>
+     </property>
+     <addaction name="actionEnergy_units"/>
+     <addaction name="actionCallibrate_data"/>
+    </widget>
     <addaction name="actionTrim"/>
-    <addaction name="actionCallibrate_data"/>
     <addaction name="actionClean_spikes"/>
-    <addaction name="menuCombine_all_files"/>
+    <addaction name="menuModify_units"/>
+    <addaction name="separator"/>
+    <addaction name="menuBaseline_2"/>
     <addaction name="menuNormalize"/>
    </widget>
    <widget class="QMenu" name="menuAbout">
@@ -189,7 +191,6 @@
     <addaction name="menuPlot"/>
     <addaction name="actionRescale"/>
     <addaction name="actionUndo"/>
-    <addaction name="actionSpline"/>
     <addaction name="menuLegend"/>
     <addaction name="menuVertical_arrangement"/>
     <addaction name="menuVertical_scale"/>
@@ -235,6 +236,7 @@
      </property>
      <addaction name="actionSet_step"/>
      <addaction name="actionSet_number"/>
+     <addaction name="actionSet_start_of_Col_1"/>
     </widget>
     <addaction name="menuRename"/>
     <addaction name="menuDecrease_datapoints"/>
@@ -256,7 +258,6 @@
       <addaction name="actionMultiply_constant_3"/>
       <addaction name="actionExponenciate"/>
       <addaction name="actionLogarithm_3"/>
-      <addaction name="actionModify_units_2"/>
      </widget>
      <widget class="QMenu" name="menuy_Axis_2">
       <property name="title">
@@ -274,11 +275,27 @@
      <property name="title">
       <string>&amp;Special analysis</string>
      </property>
+     <widget class="QMenu" name="menuModulation_spectroscopy">
+      <property name="title">
+       <string>Modulation spectroscopy</string>
+      </property>
+      <addaction name="actionCalculate_modulus_from_KKA"/>
+      <addaction name="actionX_Y_R_Theta"/>
+      <addaction name="actionR_Theta_X_Y"/>
+     </widget>
      <addaction name="actionClean_interferences_by_FFT"/>
-     <addaction name="actionCalculate_modulus_from_KKA"/>
+     <addaction name="actionLaplacian_smoothing"/>
+     <addaction name="menuModulation_spectroscopy"/>
+    </widget>
+    <widget class="QMenu" name="menu_Operations">
+     <property name="title">
+      <string>&amp;Operations</string>
+     </property>
+     <addaction name="actionIntegrate"/>
+     <addaction name="action_Differentiate"/>
     </widget>
     <addaction name="menuAxis"/>
-    <addaction name="actionIntegrate"/>
+    <addaction name="menu_Operations"/>
     <addaction name="menuSpecial_analysis"/>
    </widget>
    <widget class="QMenu" name="menuFiles_and_columns">
@@ -289,11 +306,11 @@
      <property name="title">
       <string>&amp;Operate with ref. column</string>
      </property>
+     <addaction name="actionAdd_reference_column"/>
      <addaction name="actionAdd_reference"/>
      <addaction name="actionSubtract_2"/>
      <addaction name="actionMultiplu"/>
      <addaction name="actionDivide_2"/>
-     <addaction name="actionCalculate_absorbance_2"/>
     </widget>
     <widget class="QMenu" name="menuColumns_2">
      <property name="title">
@@ -301,17 +318,43 @@
      </property>
      <addaction name="actionSet_x_column"/>
      <addaction name="actionDelete_column"/>
-     <addaction name="actionAdd_reference_column"/>
      <addaction name="actionDuplicate_Column"/>
      <addaction name="actionDelete_all_columns_except"/>
      <addaction name="actionAverage_all_columns"/>
+    </widget>
+    <widget class="QMenu" name="menuOperate_multiple_files">
+     <property name="title">
+      <string>Operate all opened &amp;files</string>
+     </property>
+     <addaction name="actionAddMultFiles"/>
+     <addaction name="actionAverageFiles"/>
+    </widget>
+    <widget class="QMenu" name="menuOperate_with_ref_file_s">
+     <property name="title">
+      <string>Operate with &amp;ref. file(s)</string>
+     </property>
+     <addaction name="actionAdd_ref_file"/>
+     <addaction name="actionSubtract_ref_file_s"/>
+     <addaction name="actionMultiply_ref_files_s"/>
+     <addaction name="actionDivide_by_ref_file_s"/>
+    </widget>
+    <widget class="QMenu" name="menuAutomate_Actions">
+     <property name="title">
+      <string>Automate Actions</string>
+     </property>
+     <addaction name="actionGenerate_code"/>
+     <addaction name="actionIntroduce_code"/>
     </widget>
     <addaction name="actionSet_Plot_Column"/>
     <addaction name="menuColumns_2"/>
     <addaction name="menuOperate_with_ref_column"/>
     <addaction name="separator"/>
     <addaction name="actionAdd_reference_files"/>
-    <addaction name="actionOperate_with_ref_files"/>
+    <addaction name="menuOperate_with_ref_file_s"/>
+    <addaction name="separator"/>
+    <addaction name="menuOperate_multiple_files"/>
+    <addaction name="separator"/>
+    <addaction name="menuAutomate_Actions"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuAnalysis"/>
@@ -339,6 +382,7 @@
    <addaction name="actionRescale"/>
    <addaction name="actionAll_data"/>
    <addaction name="actionOnly_first_datafile"/>
+   <addaction name="actionSet_max_number_of_plots"/>
    <addaction name="actionSet_Plot_Column"/>
    <addaction name="separator"/>
    <addaction name="actionActivated"/>
@@ -462,8 +506,15 @@
    <property name="text">
     <string>Clean &amp;spikes</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
   </action>
   <action name="actionCallibrate_data">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Line-Graph-Wizard-24x24 - copia.png</normaloff>:/Images/24x24/Line-Graph-Wizard-24x24 - copia.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Calibration</string>
    </property>
@@ -487,8 +538,12 @@
    </property>
   </action>
   <action name="actionSet_spectra_to_zero">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Line-Graph-Import-24x24 - copia.png</normaloff>:/Images/24x24/Line-Graph-Import-24x24 - copia.png</iconset>
+   </property>
    <property name="text">
-    <string>&amp;Set spectra to zero</string>
+    <string>&amp;Set plots to zero</string>
    </property>
   </action>
   <action name="actionLinear_baseline">
@@ -549,33 +604,30 @@
    </property>
   </action>
   <action name="actionIntegrate">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Line-Graph-Create-24x24 - copia.png</normaloff>:/Images/24x24/Line-Graph-Create-24x24 - copia.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Integrate</string>
    </property>
   </action>
-  <action name="actionAdd_2">
+  <action name="actionAddMultFiles">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Copy-New-24x24.png</normaloff>:/Images/24x24/Copy-New-24x24.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Add</string>
    </property>
   </action>
-  <action name="actionAverage">
+  <action name="actionAverageFiles">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Copy-Refresh-24x24.png</normaloff>:/Images/24x24/Copy-Refresh-24x24.png</iconset>
+   </property>
    <property name="text">
     <string>A&amp;verage</string>
-   </property>
-  </action>
-  <action name="actionSort_data">
-   <property name="text">
-    <string>Sort vertically</string>
-   </property>
-  </action>
-  <action name="actionDelete_datapoints">
-   <property name="text">
-    <string>Delete datapoints</string>
-   </property>
-  </action>
-  <action name="actionSpline">
-   <property name="text">
-    <string>&amp;Create spline</string>
    </property>
   </action>
   <action name="actionSave_in">
@@ -610,6 +662,9 @@
    <property name="text">
     <string>&amp;Make backup</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+B</string>
+   </property>
   </action>
   <action name="actionAll_data">
    <property name="icon">
@@ -619,6 +674,9 @@
    <property name="text">
     <string>&amp;All data</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+0</string>
+   </property>
   </action>
   <action name="actionOnly_first_datafile">
    <property name="icon">
@@ -626,7 +684,10 @@
      <normaloff>:/Images/24x24/Line-Graph-Close-24x24 - copia.png</normaloff>:/Images/24x24/Line-Graph-Close-24x24 - copia.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Only first datafile</string>
+    <string>&amp;Only first data file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+1</string>
    </property>
   </action>
   <action name="actionSubtract_2">
@@ -656,11 +717,6 @@
     <string>&amp;Divide by reference</string>
    </property>
   </action>
-  <action name="actionCalculate_absorbance_2">
-   <property name="text">
-    <string>&amp;Calculate absorbance</string>
-   </property>
-  </action>
   <action name="actionModify_units_2">
    <property name="icon">
     <iconset resource="MyRes.qrc">
@@ -678,27 +734,42 @@
    <property name="text">
     <string>&amp;Add constant</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl++</string>
+   </property>
   </action>
   <action name="actionMultiply_constant_3">
    <property name="icon">
     <iconset resource="MyRes.qrc">
-     <normaloff>:/Images/24x24/Line-Graph-Up-24x24 - copia.png</normaloff>:/Images/24x24/Line-Graph-Up-24x24 - copia.png</iconset>
+     <normaloff>:/Images/24x24/Line-Graph-Next-24x24 - copia.png</normaloff>:/Images/24x24/Line-Graph-Next-24x24 - copia.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Multiply constant</string>
    </property>
   </action>
   <action name="actionExponenciate">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Line-Graph-Next-24x24 - copia.png</normaloff>:/Images/24x24/Line-Graph-Next-24x24 - copia.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Exponenciate</string>
    </property>
   </action>
   <action name="actionLogarithm_3">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Line-Graph-Previous-24x24 - copia.png</normaloff>:/Images/24x24/Line-Graph-Previous-24x24 - copia.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Logarithm</string>
    </property>
   </action>
   <action name="actionAdd_constant_4">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Line-Graph-Right-24x24 - copia.png</normaloff>:/Images/24x24/Line-Graph-Right-24x24 - copia.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Add constant</string>
    </property>
@@ -711,13 +782,24 @@
    <property name="text">
     <string>&amp;Multiply constant</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+*</string>
+   </property>
   </action>
   <action name="actionExponenciate_2">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Line-Graph-Export-24x24 - copia.png</normaloff>:/Images/24x24/Line-Graph-Export-24x24 - copia.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Exponenciate</string>
    </property>
   </action>
   <action name="actionLogarithm_4">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Line-Graph-Down-a-level-24x24 - copia.png</normaloff>:/Images/24x24/Line-Graph-Down-a-level-24x24 - copia.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Logarithm</string>
    </property>
@@ -741,6 +823,9 @@
    </property>
    <property name="text">
     <string>&amp;Set &quot;y&quot; Column data</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Return</string>
    </property>
   </action>
   <action name="actionAdd_reference_column">
@@ -768,11 +853,6 @@
    </property>
    <property name="text">
     <string>Set &amp;number of rows</string>
-   </property>
-  </action>
-  <action name="actionVisually_sort">
-   <property name="text">
-    <string>Visually sort</string>
    </property>
   </action>
   <action name="actionDelete_column">
@@ -808,7 +888,7 @@
      <normaloff>:/Images/24x24/Folder-Create-24x24 - copia.png</normaloff>:/Images/24x24/Folder-Create-24x24 - copia.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Add reference files</string>
+    <string>&amp;Add reference file(s)</string>
    </property>
   </action>
   <action name="actionTo_one">
@@ -855,6 +935,9 @@
    <property name="text">
     <string>&amp;Show</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Up</string>
+   </property>
   </action>
   <action name="actionHide">
    <property name="icon">
@@ -863,6 +946,9 @@
    </property>
    <property name="text">
     <string>&amp;Hide</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Down</string>
    </property>
   </action>
   <action name="actionActivated">
@@ -945,10 +1031,8 @@
    <property name="text">
     <string>&amp;Set max. number of plots</string>
    </property>
-  </action>
-  <action name="actionOperate_with_ref_files">
-   <property name="text">
-    <string>Operate with &amp;ref. files</string>
+   <property name="shortcut">
+    <string>Ctrl+2</string>
    </property>
   </action>
   <action name="actionDuplicate_Column">
@@ -987,7 +1071,7 @@
      <normaloff>:/Images/24x24/Notepad-Import-24x24.png</normaloff>:/Images/24x24/Notepad-Import-24x24.png</iconset>
    </property>
    <property name="text">
-    <string>Ascending</string>
+    <string>&amp;Ascending</string>
    </property>
   </action>
   <action name="actionDescending">
@@ -996,17 +1080,25 @@
      <normaloff>:/Images/24x24/Notepad-Export-24x24.png</normaloff>:/Images/24x24/Notepad-Export-24x24.png</iconset>
    </property>
    <property name="text">
-    <string>Descending</string>
+    <string>&amp;Descending</string>
    </property>
   </action>
   <action name="actionDelete_all_columns_except">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Table-Delete-24x24.png</normaloff>:/Images/24x24/Table-Delete-24x24.png</iconset>
+   </property>
    <property name="text">
-    <string>Delete all columns except...</string>
+    <string>Delete all columns &amp;except...</string>
    </property>
   </action>
   <action name="actionAverage_all_columns">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Table-New-24x24.png</normaloff>:/Images/24x24/Table-New-24x24.png</iconset>
+   </property>
    <property name="text">
-    <string>Average all columns</string>
+    <string>&amp;Average all columns</string>
    </property>
   </action>
   <action name="actionInvert_all_order">
@@ -1015,7 +1107,133 @@
      <normaloff>:/Images/24x24/Notepad-Refresh-24x24.png</normaloff>:/Images/24x24/Notepad-Refresh-24x24.png</iconset>
    </property>
    <property name="text">
-    <string>Invert all order</string>
+    <string>&amp;Invert all order</string>
+   </property>
+  </action>
+  <action name="actionLaplacian_smoothing">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Line-Graph-Tick-24x24 - copia.png</normaloff>:/Images/24x24/Line-Graph-Tick-24x24 - copia.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Laplacian smoothing</string>
+   </property>
+  </action>
+  <action name="action_Differentiate">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Line-Graph-Create-24x24 - copia.png</normaloff>:/Images/24x24/Line-Graph-Create-24x24 - copia.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Differentiate</string>
+   </property>
+  </action>
+  <action name="actionEnergy_units">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Line-Graph-Refresh-24x24 - copia.png</normaloff>:/Images/24x24/Line-Graph-Refresh-24x24 - copia.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Energy units</string>
+   </property>
+  </action>
+  <action name="actionSet_start_of_Col_1">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Ruler-Create-24x24.png</normaloff>:/Images/24x24/Ruler-Create-24x24.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set s&amp;tart of Col 1</string>
+   </property>
+  </action>
+  <action name="actionX_Y_R_Theta">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Table-Settings-24x24.png</normaloff>:/Images/24x24/Table-Settings-24x24.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;X Y -&gt; R Theta</string>
+   </property>
+  </action>
+  <action name="actionR_Theta_X_Y">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Table-Settings-24x24.png</normaloff>:/Images/24x24/Table-Settings-24x24.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;R Theta -&gt; X Y</string>
+   </property>
+  </action>
+  <action name="actionAdd_ref_file">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Copy-New-24x24.png</normaloff>:/Images/24x24/Copy-New-24x24.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Add ref. file(s)</string>
+   </property>
+  </action>
+  <action name="actionSubtract_ref_file_s">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Copy-Down-24x24.png</normaloff>:/Images/24x24/Copy-Down-24x24.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Subtract ref. file(s)</string>
+   </property>
+  </action>
+  <action name="actionMultiply_ref_files_s">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Copy-Up-a-level-24x24.png</normaloff>:/Images/24x24/Copy-Up-a-level-24x24.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Multiply to ref. file(s)</string>
+   </property>
+  </action>
+  <action name="actionDivide_by_ref_file_s">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Copy-Down-a-level-24x24.png</normaloff>:/Images/24x24/Copy-Down-a-level-24x24.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Divide by ref. file(s)</string>
+   </property>
+  </action>
+  <action name="actionTo_first_column_Area">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Line-Graph-Open-24x24 - copia.png</normaloff>:/Images/24x24/Line-Graph-Open-24x24 - copia.png</iconset>
+   </property>
+   <property name="text">
+    <string>To first column</string>
+   </property>
+  </action>
+  <action name="actionTo_first_column_Max">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Line-Graph-Open-24x24 - copia.png</normaloff>:/Images/24x24/Line-Graph-Open-24x24 - copia.png</iconset>
+   </property>
+   <property name="text">
+    <string>To first column</string>
+   </property>
+  </action>
+  <action name="actionGenerate_code">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Blu-Ray-24x24.png</normaloff>:/Images/24x24/Blu-Ray-24x24.png</iconset>
+   </property>
+   <property name="text">
+    <string>Generate code</string>
+   </property>
+  </action>
+  <action name="actionIntroduce_code">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Computer-Down-24x24 - copia.png</normaloff>:/Images/24x24/Computer-Down-24x24 - copia.png</iconset>
+   </property>
+   <property name="text">
+    <string>Introduce code</string>
    </property>
   </action>
  </widget>

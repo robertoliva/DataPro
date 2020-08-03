@@ -51,23 +51,27 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void plotall(int q);
+    //Miscelaneous subfunctions
+    bool checkFileNames();
+    int ColNums(QString fitxer);
+    int RowNums(QString fitxer);
+
+    //Rest of subfunctions
+    void plotall();
     void getData(QStringList fitxer, QVector<QVector<QVector<QVector<double>>>> &InputData);
     void findColRowNums(QStringList fitxer);
     int getSingleData(QString fitxer, int i, QVector<QVector<QVector<QVector<double>>>> &InputData);
     int getOneSingleData(QString fitxer, QVector<QVector<double>> &InputData);
-    void rescale_rob(int flag);
+    void rescale_rob();
     void AddConstant(QVector<QVector<double>> &vec, int colPlot, double result); //We pass by reference so that the 4D vector can be modified in the function.
     int ColorFunc(int i, double p);
-    int ColNums(QString fitxer);
-    int RowNums(QString fitxer);
     void Backup();
     void GetBackup();
     void ResetBackup();
     void GetBackupFunc();
-    void SaveAll(QStringList fitxers, QStringList fitxersSavedAt, QVector<QVector<int>> Actions);
-    void SaveData(QString fitxer, QVector<QVector<QVector<QVector<double>>>> &data);
-    void SaveSingleData(QString fitxer, QVector<QVector<double>> &data);
+    void SaveAll(QStringList fitxers, QStringList fitxersSavedAt);
+    void SaveData(QString fitxer, QVector<QVector<QVector<QVector<double>>>> data);
+    void SaveSingleData(QString fitxer, QVector<QVector<double>> data);
     int getOneData(QString OneFitxer, QVector<QVector<QVector<QVector<double>>>> &InputData);
     void SubtractColumns(QVector<QVector<double>> &vec,int colPlot,int RefCol);
     void AddColumns(QVector<QVector<double>> &vec,int colPlot,int RefCol);
@@ -83,6 +87,9 @@ public:
     double Integrate(QVector<QVector<double>> &vec, int col);
     double Maxy(QVector<QVector<double>> &vec, int col);
     void MultConsty(QVector<QVector<double>> &vec, double value, int col);
+    void MultConsty1(QVector<QVector<double>> &vec, int col);
+    void MultConsty2(QVector<QVector<double>> &vec, int col);
+    void MultConsty3(QVector<QVector<double>> &vec, double value, int col);
     int spikinator(QVector<QVector<double>> &vec, int points, int col, double sigmas, int modify);
     void linearfit(QVector<QVector<double>> vec, QVector<double> &result, int points, int firstpoint, int col);
     double expectedy(QVector<QVector<double>> vec, QVector<double> result, int points, int firstpoint);
@@ -92,7 +99,6 @@ public:
     void VerticalStack(QVector<QVector<double>> &vec, int q, double VerticalShift);
     void toClipboard(const std::string &s);
     void BallBaseline(QVector<QVector<double>> &vec, int col, double radii);
-    double getMyDouble(QString message);
     void Filter(QVector<QVector<double>> &a1, int Col, double lowfreq1, double highfreq1);
     void KKA(QVector<QVector<double>> &vec, int columnPlot);
     double FindMin(QVector<QVector<double>> &vec);
@@ -120,7 +126,57 @@ public:
     bool checkAscendingOrder(QString datafile); //returns true if order is ascending.
     bool descendingOrder(QString datafile, QString outputdatafile, int ignoreLines);
     void invertOrder(QString datafile, QString outputdatafile);
-
+    void LaplacianSmooth(QVector<QVector<double>> &vec, int colPlot, int times);
+    void differentiate(QVector<QVector<double>> &vec, int colPlot);
+    void integrate(QVector<QVector<double>> &vec, int colPlot);
+    void AddConstantX(QVector<QVector<double>> &vec, double result);
+    void ExponentiateX(QVector<QVector<double>> &vec, double result);
+    void logarithm(QVector<QVector<double>> &vec, int colPlot, double result);
+    void logarithmX(QVector<QVector<double>> &vec, double result);
+    void Exponentiate(QVector<QVector<double>> &vec, int colPlot, double result);
+    void UnitsEnergy(QVector<QVector<double>> &vec, int previousUnit, int newUnit);
+    void setPlotToZero(QVector<QVector<double>> &vec, int colPlot);
+    double FindGlobalMinY(QVector<QVector<double>> vec, int colPlot);
+    int DeleteExceptCol(QVector<QVector<double>> &vec, int result);
+    void startValue(QString datafile, QString outputdatafile, double start);
+    void averageAllCols(QVector<QVector<double>> &vec);
+    void RTheta(QVector<QVector<double>> &vec, int X, int Y);
+    void XY(QVector<QVector<double>> &vec, int R, int T);
+    void addFiles(QString outFilename, int col, double average);
+    double getFirstX(QString file);
+    double getLastX(QString file);
+    bool checkBackupExists(QString openedNames);
+    int RawLineNumbers(QString fitxer);
+    bool checkOperateRef();
+    bool checkRefFiles();
+    bool checkRefColumn();
+    bool checkRefNumber();
+    bool checkProperRanges();
+    void AddReference(QVector<QVector<double>> &vec, int fileNumber, int colPlot, int refCol);
+    bool equalDoubles(double double1, double double2, double step, double tolerance);
+    void MultiplyReference(QVector<QVector<double>> &vec, int fileNumber, int colPlot, int refCol);
+    void SubtractReference(QVector<QVector<double>> &vec, int fileNumber, int colPlot, int refCol);
+    void DivideReference(QVector<QVector<double>> &vec, int fileNumber, int colPlot, int refCol);
+    void scaleMargins(int colPlot);
+    void findMargins(int file, int col);
+    void findGlobalMargins();
+    void getMyMargins(double &minx, double &maxx, double &miny, double &maxy);
+    void updateMyMargins(double &minx, double &maxx, double &miny, double &maxy);
+    void MultConstyAreaCol1(QVector<QVector<double>> &vec);
+    void MultConstyMaxCol1(QVector<QVector<double>> &vec);
+    bool ActionsPerformed(); // Says if actions are performed or not.
+    int spikinator1Column(QVector<QVector<double>> &vec, int points, int col, double sigmas, int modify);
+    void BallBaseline1Column(QVector<QVector<double>> &vec, int col, double radii);
+    bool DivideColumns1Column(QVector<QVector<double>> &vec,int colPlot,int RefCol);
+    QString GenerateCode();
+    void AppendStrings(QString &code, QVector<QVector<QString>> Actions);
+    void ReadCode(QString code);
+    void RunOverActions(QVector<QVector<double>> &TemporalArr, int q, int &TempCol, int &TempColRef);
+    void PerformCodeActions();
+    void CheckExectuedCode(QString code); // checks that code has been properly executed and sets plot variables.
+    void MultiplyConstantX(QVector<QVector<double>> &vec, double result);
+    bool getDoubleNum(double &num1, QString message); // to get a double value from the user.
+    bool getIntNum(int &num1, int min, int max, QString message);
 
 
     QString x_axis;
@@ -134,19 +190,29 @@ public:
     QStringList referencenames;
 
     bool ZoomDrag =1;
-    int flag1;
+    int flag1; // (0 => 1 file, 1 => all files plotted)
+    int deletedLines;
     QVector<int> replacements;
-    int columnPlot = 2; //column number to plot by default is 2.
-    int previouscolPlot; //column number to plot by default is 2.
-    int ReferenceColumn = 2; //reference column number is by default 2.
     double VerticalShift=0;
     int ColumnSize, RowSize, ColumnMinSize;  //Number of columns and rows in datafiles. Minimum number of columns in AllData[][]
     int undo = 5; //Maximum amount of times the program allows to undo actions.
+
     int plotNumLim = 10; //Max number of visible plots, 0 => all files are plotted. The user will be able to select this number, by defect it is 10. Larger numbers imply more RAM being used.
-    int plotNum;        //Number of files opened
+    int plotNum;        // Number of files opened
+    int currFilePlotNum;    // Current number of files plotted.
+    bool AllColumns = false; // Used to remember previous status. True => AllColumn mode.
+    int columnPlot = 2; //column number to plot by default is 2, if it is 0 it will plot all columns.
+
+    int referenceCol = 2; //column number to plot by default is 2.
+    int previouscolPlot; //column number to plot by default is 2.
+    int ReferenceColumn = 2; //reference column number is by default 2.
+
+    int numActions =0; // remembers the previous number of actions before undo.
+    int UndoableActions =0; // number of undoable actions.
     bool log = false;   //Whether y axis is in log scale.
     bool cancell = false; //If cancell is pressed in input options.
     //AllData is only used for plotting porpuses.
+    QVector<double> Plot_margins; // [0], [1], [2] and [3] are: min_abs_x, max_abs_x, min_abs_y, max_abs_y
     QVector<int> FileColNums, FileRowNums; // [0]=0 (1) files have equal, error flag = 0, (different, error flag = 1) num of rows/cols, [1] min num of rows/files, [2] max num of rows/files
     QVector<QVector<QVector<QVector<double>>>> AllData; //4D Vector for plotting only. [Historical][files][columns][rows], historical [0] is active plot. [1] is older plot, up to [5].
     QVector<QVector<double>> RememberInv; //Used to store double data that cannot be stored in AllActions since that's integer.
@@ -157,7 +223,8 @@ public:
     // AllFormatActions[0][0] = 3 corresponds to modify the step of the first column, therefore changing the number of rows for each datafile.
     // AllFormatActions[0][0] = 4 corresponds to set row number, therefore changing the number of rows for each datafile.
 
-    QVector<QVector<int>> AllActions; //First indice for a new action, second index [0][0] for number of action, next indexes [0][1]... for data necessary to perform the action.
+    QVector<int> ActionCol; // Action number that is run over a single columnPlot, and that can be run over all columns (if columnPlot =0 or AllColumns = true).
+    QVector<QVector<QString>> AllActions; //First indice for a new action, second index [0][0] for number of action, next indexes [0][1]... for data necessary to perform the action.
     // AllActions[0][0] = 1 corresponds to new column selected. AllActions[0][1]= column number selected. AllActions[0][2]= previous column value.
     // AllActions[0][0] = 2 corresponds to add constant. AllActions[0][1]= constant number to be added.
     // AllActions[0][0] = 3 corresponds to select column reference. AllActions[0][1]= column number used as reference.
@@ -180,7 +247,27 @@ public:
     // AllActions[0][0] = 20 corresponds to Filter interferences by fast fourier transform analysis. AllActions[0][1]=columnPlot. RememberInv[0][0]= low frequency, RememberInv[0][1]= high frequency.
     // AllActions[0][0] = 21 corresponds to calculate the modulus of the spectra by means of Kramers Kronig relations (see article Scientific Reports | 6:26663 | DOI: 10.1038/srep26663)
     // AllActions[0][0] = 22 corresponds to duplicate columns. AllActions[0][1]= column number.
-
+    // AllActions[0][0] = 23 corresponds to Laplacian smoothing.
+    // AllActions[0][0] = 24 corresponds to Differentiate
+    // AllActions[0][0] = 25 corresponds to Integrate
+    // AllActions[0][0] = 26 corresponds to add a constant to X axis.
+    // AllActions[0][0] = 27 corresponds to exponentiate X axis.
+    // AllActions[0][0] = 28 corresponds to logarithm of a column Y.
+    // AllActions[0][0] = 29 corresponds to exponentiate column X.
+    // AllActions[0][0] = 30 corresponds to exponentiate a column Y.
+    // AllActions[0][0] = 31 corresponds to change of units.
+    // AllActions[0][0] = 32 corresponds to calibration.
+    // AllActions[0][0] = 33 corresponds to baseline to zero.
+    // AllActions[0][0] = 34 corresponds to delete all columns except one.
+    // AllActions[0][0] = 35 corresponds to average all columns.
+    // AllActions[0][0] = 36 corresponds to calculate R and Theta from X and Y.
+    // AllActions[0][0] = 37 corresponds to calculate X and Y from R and Theta.
+    // AllActions[0][0] = 38 corresponds to add reference files.
+    // AllActions[0][0] = 39 corresponds to multiply reference files.
+    // AllActions[0][0] = 40 corresponds to subtract reference files.
+    // AllActions[0][0] = 41 corresponds to divide reference files.
+    // AllActions[0][0] = 42 corresponds to normalize cols to 1st col by area.
+    // AllActions[0][0] = 43 corresponds to normalize cols to 1st col by max.
 
 private slots:
 
@@ -244,6 +331,34 @@ private slots:
     void on_actionAscending_triggered();
     void on_actionDescending_triggered();
     void on_actionInvert_all_order_triggered();
+    void on_actionLaplacian_smoothing_triggered();
+    void on_action_Differentiate_triggered();
+    void on_actionIntegrate_triggered();
+    void on_actionAdd_constant_4_triggered();
+    void on_actionExponenciate_triggered();
+    void on_actionLogarithm_4_triggered();
+    void on_actionLogarithm_3_triggered();
+    void on_actionExponenciate_2_triggered();
+    void on_actionEnergy_units_triggered();
+    void on_actionCallibrate_data_triggered();
+    void on_actionSet_spectra_to_zero_triggered();
+    void on_actionDelete_all_columns_except_triggered();
+    void on_actionSet_start_of_Col_1_triggered();
+    void on_actionAverage_all_columns_triggered();
+    void on_actionX_Y_R_Theta_triggered();
+    void on_actionR_Theta_X_Y_triggered();
+    void on_actionAddMultFiles_triggered();
+    void on_actionAverageFiles_triggered();
+    void on_actionBackup_triggered();
+    void on_actionAdd_ref_file_triggered();
+    void on_actionSubtract_ref_file_s_triggered();
+    void on_actionMultiply_ref_files_s_triggered();
+    void on_actionDivide_by_ref_file_s_triggered();
+    void on_actionTo_first_column_Area_triggered();
+    void on_actionTo_first_column_Max_triggered();
+    void on_actionGenerate_code_triggered();
+    void on_actionIntroduce_code_triggered();
+    void on_actionMultiply_constant_3_triggered();
 
 private:
     Ui::MainWindow *ui;

@@ -34,48 +34,45 @@ PPE_github	v0_2_4_2	This version has been set to be uploaded in github.
 PPE_github	Format->Modfy datapoint numbers -> Set step is working and can be undone. Also it checks if number of rows coincides with expected value from detected constant step.
 		Format->Modfy datapoint numbers fully works. Many errors have been corrected also.
 		All format options have been set and improved.
+		Created LaplaceSmoothing action. Can integrate and differentiate the spectra. Can convert spectroscopic units. Can "average all columns" and "set start of Col 1". Can convert XY to and from R Theta. Operates multiple files (adds and averages). Undo options improved. Can normalize to first column. Legend improved. Changing between "allColumn mode" to single column mode is allowed and save, also works with UNDO option. 'export/import actions code' option is also available and working. It can now multiply X axis.
+
+		- Note: I commented some last lines of ui_mainwindow.h to solve some compiling errors that could be related with the fact that I deleted some unused actions in mainwindow.ui defined in previous versions. Can make backup (in File menu). Can operate opened files with reference file(s).
+
+
+To Do in the near future:
+
+
+ * Record 'User manual' and upload in a youtube video. Include the youtube link in About -> 'User manual'.
+ * Make a facebook page for users to comment about the program. About -> 'Contact'. Delete my whatsapp number in About -> Info.
+ * Create a donation site? maybe I can make a fundraise in About -> Info.
+ * Consider deleting ActionCol since I think it is never used.
 
 
 
-To Do in the future:
+////////////////////////////////////////END OF VERSION 1.0 BETTA///////////////////////////////////////////////
 
- * Allow user to CANCELL in different options of the program (sometimes user is forced to introduce a value).
- * Columns -> "Delete all columns except..." option
- * Columns -> "Average all columns" option, the result should be shown in a new column.
+IDEAS FOR FUTURE VERSIONS:
 
- - Program should be able to operate all columns simultaneously.
- - It should be able to change units (e.g. nm to eV, Kilo, Mega, Giga, nano, pico... ...).
-	- Change magnitudes
-	- Energy/spectroscopy (Joules + http://halas.rice.edu/conversions)
-	- Temperature
-	- Time
-	- Change optical spectroscopic units
+ - Consider saving data inside the program's folder (hard drive instead of RAM) so that the user can safe his own codes, or the program can remember some other options like start with legend ON or OFF.
+ - It should be able to change other type of units such as magnitudes (e.g. nm to eV, Kilo, Mega, Giga, nano, pico... ...), temperature, Raman or time.
  - Units should be visible in the Axis, also in the headers of the columns (header read+writte must be implemented).
- - Implement functions to change row numbers to facilitate operations of dividing spectra by reference file (this function is yet to be implemented in the future)
-
  - Consider making the /TempPreview folder invisible, and then preview the changes in Format with a popup panel. (future versions should have a file explorer foldable panel and a data preview foldable panel)
- - When operating pairs of spectra, it should check number of columns, and that spectra starts and ends at the same x point.
- - When operating with spectra, it should check that, if the step is constant, there are a number of expected lines.
  - When correcting lines authomateically at load, check the percentage of corrected lines, if it is below a yield, such as 20%, should be able to interpolate the deleted lines from adjacent lines.
  - Include progress bar to check progresss of long operations. (Probably difficult and time consuming.)
- - Alt+Letters to open file tabs.
+ 	- "Please wait option for time consuming operations" + abort?
  - Rescale option in a user-defined range (will be superuseful to rescale to a certain peak or area of interest in the spectra).
  - make fast files backup and recover backup option (copy to/from a folder /backup)
  - Analysis on x and y axis => make log, exponentitate 10^x, and make power x^10.
  - The program should give the name of a selected spectra in the lower bar in a priority upon showing the position of the cursor. Alternativelly, the position should be shown only upon double click. 
- - The program crashes when tries to open an empty file.
+
+ - Add noise option? (this option is quite shady, and might have bad scientific uses).
  - The program crashes when I go back too many times, after subtracting baseline and stacking.
  - The program crashes when I try to delete column 2 while viewing col 4 (total cols 4).
  - Everything crashes if no file is opened. Avoid program crashing due to the fact that no file is opened, and show message that files must be opened before performing such action.
  - Save in new column option.
  - Normalize option to a certain range so you don't have to trim the spectra.
- - Check if a file is empty while trying to open, or dont have any valid number.
  - Should be able to detect if a non-valid data column on top has labels for each column. My program should be able to include and read a first text row with the column names.
- - Should be able to limit amount of plotable data to 10 spectra.
- - "Prepare data" options.
  - Work on error evaluators (i.e. proper number of row sizes, formats...)
- - "Analysis" options
- - "Graph" options
  - Add fitting option
 	- Linear
 	- Polinomial
@@ -83,39 +80,40 @@ To Do in the future:
 		- Multipeak
 	- Lorentzian
 		- Multipeak
-
  - Improve the ordering of the code. Include additional .cpp files for the actions and for the subfunctions.
- - Re-think how to put all options in the menu file. Consider making option to select columns easier. 
- - Put program in Github
- - "Please wait option for time consuming operations" + abort?
- - Should be able to convert whole program to an .exe
- - Should be able to convert whole program to a setup.exe for the installation in other computers
+ - Should be able to convert whole program to a setup.exe for the installation in other computers?
  - Improve data acquisition:
  	- Also, read column's titles?
 	- Consider adding "disable datacheck acquisition" option for faster processing.
 		- i.e. skipp checking that each input value is a double number.
  - (Not important) Show dots instead of lines option.
- - Modify order of rows (flip order of all rows) option (maybe in format?).
  - Future versions should be able to trim only one column instead of all. For this option, I should check if it is possible to set NULL or void to a value of QVector<double> in the trimmed column, and verify that these voids won't cause trouble for operations.
- - The program should be able to preserve first caption not-numerical lines, if there are.
- - Column mode (Complicated!)
-	- Instead of running over files, the program should be able to run and apply Actions over columns.
- 	- Plot all columns of a file 
  - Improve bugs and errors (e.g. program crashes if I click certain actions before opening datafiles).
  - Make an option to import or open all files with a certain extension from a folder.
  - Consider if I should use the function InputAction, or simply delete it. I might help make the code more organized and smaller. maybe because x decrease.
  - Insert a expandable menu on the leftside of the graph where you can track the Files inside the folders in real time, select them there instead of open and import. (Difficult)
- - Add noise option? (this option is quite shady, and might have bad scientific uses).
  - Create a foldable panel at the right side with three subpanels where the Opened and Imported files can be seen (each in a subpanel). A third subpanel would be use to previsualize the contents a selected datafile. It should be possible to open and import datafiles as well by dragging files into these panels.
 
 
-Bugs:
-- (not important) Replacing newlines is kind of buggy and tricky. When trying to replace empty rows, typically the replaced newlines undergo a WINDOWS (CRLF) to MACINTOSH (CR) or UNIX (LF) transformation. But this is not a really important bug since the program is able to detect and delete newlines automatically by opening the file, or in Format option to delete empty lines (to be implemented).
+////////////////////////////////////////  BUGS ///////////////////////////////////////////////
 
-Typical errors:
+
+
+Bugs:
+ 
+ * plotall works very slowly for large files, or multiple files after actions such as Differentiate or integrate a few times for raw data.
+	- I think it is a problem of the QTCustomPlot, it cannot deal properly with plots that are very spiky. I think there is nothing I can do about it.
+ - Following the User Manual the program crashed after trying to "Save in" in the "First steps…" Chapter. Somehow it seems to be solved now, but it would be nice to double check by repeating the instructions in the Manual and checking whether the program crashes or not.
+
+ - (not important) Replacing newlines is kind of buggy and tricky. When trying to replace empty rows, typically the replaced newlines undergo a WINDOWS (CRLF) to MACINTOSH (CR) or UNIX (LF) transformation. But this is not a really important bug since the program is able to detect and delete newlines automatically by opening the file, or in Format option to delete empty lines (to be implemented). It would be nice that the user is able to replace invisible characters such as "\n\r" and similars.
+
+
+////////////////////////////////////////Typical errors///////////////////////////////////////////////
+
 - When QT reports "The program has unexpectedly finished" and cannot make a build, it is better to 
 	1- Eliminate the folder build-PPE_v1-Desktop_Qt_5_14_2_MinGW_32_bit-Debug
 	2- Restart computer
 	3- Try putting projects in different folders
 	4- Try first compiling older versions, then make Build -> Clean All Projects
 	5- You can also play with Project Build Settings.
+
