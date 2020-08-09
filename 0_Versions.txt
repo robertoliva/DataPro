@@ -34,7 +34,10 @@ PPE_github	v0_2_4_2	This version has been set to be uploaded in github.
 PPE_github	Format->Modfy datapoint numbers -> Set step is working and can be undone. Also it checks if number of rows coincides with expected value from detected constant step.
 		Format->Modfy datapoint numbers fully works. Many errors have been corrected also.
 		All format options have been set and improved.
-		Created LaplaceSmoothing action. Can integrate and differentiate the spectra. Can convert spectroscopic units. Can "average all columns" and "set start of Col 1". Can convert XY to and from R Theta. Operates multiple files (adds and averages). Undo options improved. Can normalize to first column. Legend improved. Changing between "allColumn mode" to single column mode is allowed and save, also works with UNDO option. 'export/import actions code' option is also available and working. It can now multiply X axis.
+		Created LaplaceSmoothing action. Can integrate and differentiate the spectra. Can convert spectroscopic units. Can "average all columns" and "set start of Col 1". Can convert XY to and from R Theta. Operates multiple files (adds and averages). Undo options improved. Can normalize to first column. Legend improved. Changing between "allColumn mode" to single column mode is allowed and save, also works with UNDO option. 'export/import actions code' option is also available and working. It can now multiply X axis. It shows in the
+status bar the name of the graph if it has been selected. It can delete a few columns simultaneously. It can maximize a channel for PR measurements. Int double get data from user
+can be cancelled, and also shows a suggested value. Can plot selected data file rather than just first. Can make a few more operations on X and Y columns (analysis). Can recalculate
+X and Y with user-defined phase. Can create dummy column. Allows user to plot a particular datafile. Allows to delete all files. Allows to drag and drop files to be opened. Plots much faster because now it first scales and then plots the modified spectra. Some extra bugs have been corrected.
 
 		- Note: I commented some last lines of ui_mainwindow.h to solve some compiling errors that could be related with the fact that I deleted some unused actions in mainwindow.ui defined in previous versions. Can make backup (in File menu). Can operate opened files with reference file(s).
 
@@ -42,11 +45,11 @@ PPE_github	Format->Modfy datapoint numbers -> Set step is working and can be und
 To Do in the near future:
 
 
- * Record 'User manual' and upload in a youtube video. Include the youtube link in About -> 'User manual'.
- * Make a facebook page for users to comment about the program. About -> 'Contact'. Delete my whatsapp number in About -> Info.
- * Create a donation site? maybe I can make a fundraise in About -> Info.
  * Consider deleting ActionCol since I think it is never used.
+ * Try to replace RememberInv by AllActions. It should be doable.
 
+ * Consider whether ColumnMinSize should or is modified when the CODE is applied, if it is not, decide if it can be important to do so to prevent errors.
+ * Allow user to plot a particular datafile.
 
 
 ////////////////////////////////////////END OF VERSION 1.0 BETTA///////////////////////////////////////////////

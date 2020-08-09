@@ -28,6 +28,6 @@ B) In order to build working .exe from previous versions.
 1- Click Projects, then "Edit build configutation" set to "Release", then unclick "Shadow build".
 2- Build -> Build all projects
 3- Build -> Clean all projects
-4- Copy folders and .dll files from C:\Users\Acer\Desktop\Work\0_Programacio\Deployment to the release folder (e.g. C:\Users\Acer\Desktop\Work\0_Programacio\PPE_v0_2_4_2\release)
+4- Copy folders and .dll files from C:\Users\Acer\Desktop\Work\0_Programacio\Deployment to the release folder (e.g. C:\Users\Acer\Desktop\Work\0_Programacio\PPE_github\release)
 5- Thats it, it should work!
 

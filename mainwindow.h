@@ -128,7 +128,7 @@ public:
     void invertOrder(QString datafile, QString outputdatafile);
     void LaplacianSmooth(QVector<QVector<double>> &vec, int colPlot, int times);
     void differentiate(QVector<QVector<double>> &vec, int colPlot);
-    void integrate(QVector<QVector<double>> &vec, int colPlot);
+    void integrateFunc(QVector<QVector<double>> &vec, int colPlot);
     void AddConstantX(QVector<QVector<double>> &vec, double result);
     void ExponentiateX(QVector<QVector<double>> &vec, double result);
     void logarithm(QVector<QVector<double>> &vec, int colPlot, double result);
@@ -175,25 +175,44 @@ public:
     void PerformCodeActions();
     void CheckExectuedCode(QString code); // checks that code has been properly executed and sets plot variables.
     void MultiplyConstantX(QVector<QVector<double>> &vec, double result);
-    bool getDoubleNum(double &num1, QString message); // to get a double value from the user.
+    bool getDoubleNum(double &num1, QString message, bool messageCols = false); // to get a double value from the user.
     bool getIntNum(int &num1, int min, int max, QString message);
+    bool getIntNums(QVector<int> &colsToDelete, int colMin, int colMax); //returns true if user selected valid cols to be deleted.
+    QString showString(QVector<int> toShow); //used to debug.
+    void DeleteCols(QVector<QVector<double>> &vec, QVector<int> results);
+    int Max_X(QVector<QVector<double>> &vec,int Xcol,int Ycol, double energy); // Maximize the X channel for PR.
+    void Copy2DIntVector(QVector<QVector<double>> original, QVector<QVector<double>> &created);
+    void Change_XY(QVector<QVector<double>> &vec, int Xcol, int Ycol, double theta);
+    void AddDummy(QVector<QVector<double>> &vec); // adds a dummy column.
+    QVector<int> QStringIntoQVectorInt (QString input);
+    void Power(QVector<QVector<double>> &vec, int colPlot, double result);
+    void sinus(QVector<QVector<double>> &vec, int colPlot);
+    void cosinus(QVector<QVector<double>> &vec, int colPlot);
+    void arccosine(QVector<QVector<double>> &vec, int colPlot);
+    void arcsine(QVector<QVector<double>> &vec, int colPlot);
+    void absoluteValue(QVector<QVector<double>> &vec, int colPlot);
+    void clearAllGlobals();
+    void DeleteAll(QStringList files);    
+    void dragEnterEvent(QDragEnterEvent *e);
+    void dropEvent(QDropEvent *e);
+    void openPlotFiles(QStringList tempFilenames);
 
 
-    QString x_axis;
-    QString y_axis;
-    QString rememberExt;
+    QString x_axis, y_axis, rememberExt;
+    QString startingDirectory = "C://";
     QVector<QString> prevExt; //remember previous extension.
     QString Tempfolder ="/TempPreview";
     QStringList filenames, inputnames, oldinputnames, importnames, exportnames;
     QStringList newFileNames;
     QString newFileDirectory, Logo; //the ones chosen to save as...
-    QStringList referencenames;
+    QStringList referencenames, graphNamesLegend;
 
     bool ZoomDrag =1;
     int flag1; // (0 => 1 file, 1 => all files plotted)
     int deletedLines;
     QVector<int> replacements;
     double VerticalShift=0;
+    double previousTheta =0; // Used for function change X Y, in a similar way to VerticalShift, but for angles.
     int ColumnSize, RowSize, ColumnMinSize;  //Number of columns and rows in datafiles. Minimum number of columns in AllData[][]
     int undo = 5; //Maximum amount of times the program allows to undo actions.
 
@@ -206,6 +225,7 @@ public:
     int referenceCol = 2; //column number to plot by default is 2.
     int previouscolPlot; //column number to plot by default is 2.
     int ReferenceColumn = 2; //reference column number is by default 2.
+    int plottedSingleFile =0; // It is the number of plotted file when we want to plot a different file than the first one. Default is 0.
 
     int numActions =0; // remembers the previous number of actions before undo.
     int UndoableActions =0; // number of undoable actions.
@@ -268,6 +288,21 @@ public:
     // AllActions[0][0] = 41 corresponds to divide reference files.
     // AllActions[0][0] = 42 corresponds to normalize cols to 1st col by area.
     // AllActions[0][0] = 43 corresponds to normalize cols to 1st col by max.
+    // AllActions[0][0] = 44 MultiplyConstantX.
+    // AllActions[0][0] = 45 corresponds to delete a few columns.
+    // AllActions[0][0] = 46 maximalize X channel.
+    // AllActions[0][0] = 47 recalculate X Y channels for a new theta.
+    // AllActions[0][0] = 48 Power
+    // AllActions[0][0] = 49 Power
+    // AllActions[0][0] = 50 Sinus Col Y
+    // AllActions[0][0] = 51 Sinus Col X
+    // AllActions[0][0] = 52 cosinus
+    // AllActions[0][0] = 53 cosinus
+    // AllActions[0][0] = 54 arcsine
+    // AllActions[0][0] = 55 arccosine
+    // AllActions[0][0] = 56 arcsine
+    // AllActions[0][0] = 57 arccosine col X
+
 
 private slots:
 
@@ -289,7 +324,7 @@ private slots:
     void on_actionMultiplu_triggered();
     void on_actionMerge_files_triggered();
     void on_actionAdd_reference_files_triggered();
-    void on_actionDelete_column_triggered();
+   // void on_actionDelete_column_triggered(); //This function has been replaced by Add dummy column.
     void on_actionSet_x_column_triggered();
     void on_actionTrim_triggered();
     void on_actionLinear_baseline_triggered();
@@ -302,8 +337,6 @@ private slots:
     void on_actionHide_triggered();
     void on_actionActivated_triggered();
     void on_actionDisactivated_triggered();
-    void clickedGraph(QMouseEvent *event);
-    void doubleclickedGraph(QMouseEvent *event);
     void on_actionBall_like_baseline_triggered();
     void on_actionlogarithmic_triggered();
     void on_actionLinear_triggered();
@@ -359,6 +392,26 @@ private slots:
     void on_actionGenerate_code_triggered();
     void on_actionIntroduce_code_triggered();
     void on_actionMultiply_constant_3_triggered();
+    void clickedGraph(QMouseEvent *event);
+    void selectedGraph();
+    void doubleclickedGraph(QMouseEvent *event);
+    void on_actionDelete_Columns_triggered();
+    void on_actionMaximize_X_at_particular_energy_triggered();
+    void on_actionSingle_data_file_triggered();
+    void on_actionRecalculate_X_Y_for_given_Theta_triggered();
+    void on_actionAdd_Dummy_column_triggered();
+    void on_actionPower_triggered();
+    void on_actionSinus_triggered();
+    void on_actionCosinus_triggered();
+    void on_actionPower_2_triggered();
+    void on_actionSinus_2_triggered();
+    void on_actionCosinus_2_triggered();
+    void on_actionArc_sinus_triggered();
+    void on_actionArcosine_triggered();
+    void on_actionArcsine_triggered();
+    void on_actionArccosine_triggered();
+    void on_actionAbsolute_value_triggered();
+    void on_actionDelete_opened_files_triggered();
 
 private:
     Ui::MainWindow *ui;

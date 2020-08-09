@@ -97,6 +97,7 @@
     <addaction name="actionExport_data"/>
     <addaction name="actionBackup"/>
     <addaction name="menuFile_operations"/>
+    <addaction name="actionDelete_opened_files"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -165,6 +166,7 @@
      </property>
      <addaction name="actionAll_data"/>
      <addaction name="actionOnly_first_datafile"/>
+     <addaction name="actionSingle_data_file"/>
      <addaction name="actionSet_max_number_of_plots"/>
     </widget>
     <widget class="QMenu" name="menuLegend">
@@ -258,6 +260,11 @@
       <addaction name="actionMultiply_constant_3"/>
       <addaction name="actionExponenciate"/>
       <addaction name="actionLogarithm_3"/>
+      <addaction name="actionPower_2"/>
+      <addaction name="actionSinus_2"/>
+      <addaction name="actionCosinus_2"/>
+      <addaction name="actionArcsine"/>
+      <addaction name="actionArccosine"/>
      </widget>
      <widget class="QMenu" name="menuy_Axis_2">
       <property name="title">
@@ -267,6 +274,12 @@
       <addaction name="actionMultiply_constant_4"/>
       <addaction name="actionExponenciate_2"/>
       <addaction name="actionLogarithm_4"/>
+      <addaction name="actionPower"/>
+      <addaction name="actionSinus"/>
+      <addaction name="actionCosinus"/>
+      <addaction name="actionArc_sinus"/>
+      <addaction name="actionArcosine"/>
+      <addaction name="actionAbsolute_value"/>
      </widget>
      <addaction name="menux_axis"/>
      <addaction name="menuy_Axis_2"/>
@@ -277,11 +290,13 @@
      </property>
      <widget class="QMenu" name="menuModulation_spectroscopy">
       <property name="title">
-       <string>Modulation spectroscopy</string>
+       <string>&amp;Modulation spectroscopy</string>
       </property>
       <addaction name="actionCalculate_modulus_from_KKA"/>
       <addaction name="actionX_Y_R_Theta"/>
       <addaction name="actionR_Theta_X_Y"/>
+      <addaction name="actionMaximize_X_at_particular_energy"/>
+      <addaction name="actionRecalculate_X_Y_for_given_Theta"/>
      </widget>
      <addaction name="actionClean_interferences_by_FFT"/>
      <addaction name="actionLaplacian_smoothing"/>
@@ -317,8 +332,9 @@
       <string>&amp;Columns...</string>
      </property>
      <addaction name="actionSet_x_column"/>
-     <addaction name="actionDelete_column"/>
      <addaction name="actionDuplicate_Column"/>
+     <addaction name="actionAdd_Dummy_column"/>
+     <addaction name="actionDelete_Columns"/>
      <addaction name="actionDelete_all_columns_except"/>
      <addaction name="actionAverage_all_columns"/>
     </widget>
@@ -855,13 +871,16 @@
     <string>Set &amp;number of rows</string>
    </property>
   </action>
-  <action name="actionDelete_column">
+  <action name="actionAdd_Dummy_column">
    <property name="icon">
     <iconset resource="MyRes.qrc">
-     <normaloff>:/Images/24x24/Table-Close-24x24.png</normaloff>:/Images/24x24/Table-Close-24x24.png</iconset>
+     <normaloff>:/Images/24x24/Table-New-24x24.png</normaloff>:/Images/24x24/Table-New-24x24.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Delete Column</string>
+    <string>&amp;Add dummy Column</string>
+   </property>
+   <property name="toolTip">
+    <string>Add dummy Column</string>
    </property>
   </action>
   <action name="actionSet_x_column">
@@ -959,6 +978,9 @@
    <property name="text">
     <string>Stacking &amp;activated</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+V</string>
+   </property>
   </action>
   <action name="actionDisactivated">
    <property name="icon">
@@ -1032,7 +1054,7 @@
     <string>&amp;Set max. number of plots</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+2</string>
+    <string>Ctrl+3</string>
    </property>
   </action>
   <action name="actionDuplicate_Column">
@@ -1089,7 +1111,7 @@
      <normaloff>:/Images/24x24/Table-Delete-24x24.png</normaloff>:/Images/24x24/Table-Delete-24x24.png</iconset>
    </property>
    <property name="text">
-    <string>Delete all columns &amp;except...</string>
+    <string>Delete all Columns &amp;except...</string>
    </property>
   </action>
   <action name="actionAverage_all_columns">
@@ -1098,7 +1120,7 @@
      <normaloff>:/Images/24x24/Table-New-24x24.png</normaloff>:/Images/24x24/Table-New-24x24.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Average all columns</string>
+    <string>&amp;Average all Columns</string>
    </property>
   </action>
   <action name="actionInvert_all_order">
@@ -1234,6 +1256,156 @@
    </property>
    <property name="text">
     <string>Introduce code</string>
+   </property>
+  </action>
+  <action name="actionDelete_Columns">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Table-Close-24x24.png</normaloff>:/Images/24x24/Table-Close-24x24.png</iconset>
+   </property>
+   <property name="text">
+    <string>Delete &amp;Columns...</string>
+   </property>
+  </action>
+  <action name="actionMaximize_X_at_particular_energy">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Table-Settings-24x24.png</normaloff>:/Images/24x24/Table-Settings-24x24.png</iconset>
+   </property>
+   <property name="text">
+    <string>Maximize X at particular &amp;energy</string>
+   </property>
+  </action>
+  <action name="actionSingle_data_file">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Line-Graph-Edit-24x24 - copia.png</normaloff>:/Images/24x24/Line-Graph-Edit-24x24 - copia.png</iconset>
+   </property>
+   <property name="text">
+    <string>Single data file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+2</string>
+   </property>
+  </action>
+  <action name="actionRecalculate_X_Y_for_given_Theta">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Table-Settings-24x24.png</normaloff>:/Images/24x24/Table-Settings-24x24.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Recalculate X Y for given phase</string>
+   </property>
+  </action>
+  <action name="actionPower">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Line-Graph-Up-a-level-24x24 - copia.png</normaloff>:/Images/24x24/Line-Graph-Up-a-level-24x24 - copia.png</iconset>
+   </property>
+   <property name="text">
+    <string>Power</string>
+   </property>
+  </action>
+  <action name="actionSinus">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Line-Graph-Refresh-24x24 - copia.png</normaloff>:/Images/24x24/Line-Graph-Refresh-24x24 - copia.png</iconset>
+   </property>
+   <property name="text">
+    <string>Sine</string>
+   </property>
+  </action>
+  <action name="actionCosinus">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Line-Graph-Refresh-24x24 - copia.png</normaloff>:/Images/24x24/Line-Graph-Refresh-24x24 - copia.png</iconset>
+   </property>
+   <property name="text">
+    <string>Cosine</string>
+   </property>
+  </action>
+  <action name="actionPower_2">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Line-Graph-Up-a-level-24x24 - copia.png</normaloff>:/Images/24x24/Line-Graph-Up-a-level-24x24 - copia.png</iconset>
+   </property>
+   <property name="text">
+    <string>Power</string>
+   </property>
+  </action>
+  <action name="actionSinus_2">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Line-Graph-Refresh-24x24 - copia.png</normaloff>:/Images/24x24/Line-Graph-Refresh-24x24 - copia.png</iconset>
+   </property>
+   <property name="text">
+    <string>Sine</string>
+   </property>
+  </action>
+  <action name="actionCosinus_2">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Line-Graph-Refresh-24x24 - copia.png</normaloff>:/Images/24x24/Line-Graph-Refresh-24x24 - copia.png</iconset>
+   </property>
+   <property name="text">
+    <string>Cosine</string>
+   </property>
+  </action>
+  <action name="actionArc_sinus">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Line-Graph-Refresh-24x24 - copia.png</normaloff>:/Images/24x24/Line-Graph-Refresh-24x24 - copia.png</iconset>
+   </property>
+   <property name="text">
+    <string>Arcsine</string>
+   </property>
+  </action>
+  <action name="actionArcosine">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Line-Graph-Refresh-24x24 - copia.png</normaloff>:/Images/24x24/Line-Graph-Refresh-24x24 - copia.png</iconset>
+   </property>
+   <property name="text">
+    <string>Arccosine</string>
+   </property>
+  </action>
+  <action name="actionArcsine">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Line-Graph-Refresh-24x24 - copia.png</normaloff>:/Images/24x24/Line-Graph-Refresh-24x24 - copia.png</iconset>
+   </property>
+   <property name="text">
+    <string>Arcsine</string>
+   </property>
+  </action>
+  <action name="actionArccosine">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Line-Graph-Refresh-24x24 - copia.png</normaloff>:/Images/24x24/Line-Graph-Refresh-24x24 - copia.png</iconset>
+   </property>
+   <property name="text">
+    <string>Arccosine</string>
+   </property>
+  </action>
+  <action name="actionAbsolute_value">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Line-Graph-Tick-24x24 - copia.png</normaloff>:/Images/24x24/Line-Graph-Tick-24x24 - copia.png</iconset>
+   </property>
+   <property name="text">
+    <string>Absolute value</string>
+   </property>
+  </action>
+  <action name="actionDelete_opened_files">
+   <property name="icon">
+    <iconset resource="MyRes.qrc">
+     <normaloff>:/Images/24x24/Delete-24x24 - copia.png</normaloff>:/Images/24x24/Delete-24x24 - copia.png</iconset>
+   </property>
+   <property name="text">
+    <string>Delete opened files</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
    </property>
   </action>
  </widget>

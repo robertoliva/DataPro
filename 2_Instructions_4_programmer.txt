@@ -24,7 +24,7 @@ Step-by-step instruction to include a new function into the program.
 		b) Make a backup of the data: Backup();
 		c) Call functions that will do the job, first Ref to AllData the integers, etc: AddConstant(result, AllData);
 			- The function should be designed to modify a singe file at a time, so a for loop will be needed.
-		c.2) If the number of modifyied, ColumnMinSize must be increased/decreased accordingly.
+		c.2) If the number of columns is modified, ColumnMinSize must be increased/decreased accordingly.
 		d) Replot if a change is expected: plotall(flag1);
 		e) Update statusbar message: ui->statusbar->showMessage(QString("Constant %1 has been added to all plots").arg(result),10000);
 		f) Update Allactions:

@@ -3,10 +3,10 @@
 #include<QInputDialog>
 using namespace std;
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
-{
+MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow){
+
+    setAcceptDrops(true);
+
     ui->setupUi(this);
     this->setWindowTitle("DataPro (DP)");
     Logo =":/Images/logo/logo4.ico";
@@ -44,6 +44,7 @@ MainWindow::MainWindow(QWidget *parent)
     //connect(ui->plot, SIGNAL(keyPressEvent(MainWindow::QKeyEvent*event2)), ui->plot, SLOT(keyPressed(MainWindow::QKeyEvent*event2)));
 
     connect(ui->plot, SIGNAL(mousePress(QMouseEvent*)), SLOT(clickedGraph(QMouseEvent*)));
+    connect(ui->plot, SIGNAL(selectionChangedByUser()), SLOT(selectedGraph()));
     connect(ui->plot, SIGNAL(mouseDoubleClick(QMouseEvent*)), SLOT(doubleclickedGraph(QMouseEvent*)));
 
  //I think this would allow to drag plot instead of zooming with mouse.
@@ -78,18 +79,22 @@ void MainWindow::RunOverActions(QVector<QVector<double>> &TemporalArr, int q, in
             }
             case 4:{
                 SubtractColumns(TemporalArr, AllActions[w][1].toInt(), AllActions[w][2].toInt());
+                    ColumnMinSize=ColumnMinSize+AllActions[w][3].toInt();
             break;
             }
             case 5:{
                 DivideColumns(TemporalArr, AllActions[w][1].toInt(), AllActions[w][2].toInt());
+                    ColumnMinSize=ColumnMinSize+AllActions[w][3].toInt();
             break;
             }
             case 6:{
                 MultiplyColumns(TemporalArr, AllActions[w][1].toInt(), AllActions[w][2].toInt());
+                ColumnMinSize=ColumnMinSize+AllActions[w][3].toInt();
             break;
             }
             case 7:{
-                DeleteCol(TemporalArr, AllActions[w][1].toInt());
+                AddDummy(TemporalArr);
+                ColumnMinSize++;
             break;
             }
             case 8:{
@@ -97,7 +102,7 @@ void MainWindow::RunOverActions(QVector<QVector<double>> &TemporalArr, int q, in
             break;
             }
             case 9:{
-                 Trim(TemporalArr, RememberInv[w][0], RememberInv[w][1]);
+                 Trim(TemporalArr, AllActions[w][1].toDouble(), AllActions[w][2].toDouble());
             break;
             }
             case 10:{
@@ -129,7 +134,7 @@ void MainWindow::RunOverActions(QVector<QVector<double>> &TemporalArr, int q, in
             break;
             }
             case 17:{
-                VerticalStack(TemporalArr, q, RememberInv[w][0]);
+                VerticalStack(TemporalArr, q,  AllActions[w][1].toDouble()-AllActions[w][2].toDouble());
             break;
             }
             case 18:{
@@ -138,6 +143,7 @@ void MainWindow::RunOverActions(QVector<QVector<double>> &TemporalArr, int q, in
             }
             case 19:{
                 AddColumns(TemporalArr, AllActions[w][1].toInt(), AllActions[w][2].toInt());
+                ColumnMinSize=ColumnMinSize+AllActions[w][3].toInt();
             break;
             }
             case 20:{
@@ -150,6 +156,7 @@ void MainWindow::RunOverActions(QVector<QVector<double>> &TemporalArr, int q, in
             }
             case 22:{
                 DuplicateCol(TemporalArr, AllActions[w][2].toInt());
+                ColumnMinSize++;
             break;
             }
             case 23:{
@@ -161,7 +168,7 @@ void MainWindow::RunOverActions(QVector<QVector<double>> &TemporalArr, int q, in
             break;
             }
             case 25:{
-                integrate(TemporalArr, AllActions[w][1].toInt());
+                integrateFunc(TemporalArr, AllActions[w][1].toInt());
             break;
             }
             case 26:{
@@ -199,14 +206,17 @@ void MainWindow::RunOverActions(QVector<QVector<double>> &TemporalArr, int q, in
             }
             case 34:{
                 DeleteExceptCol(TemporalArr,AllActions[w][1].toInt());
+                ColumnMinSize=2;
             break;
             }
             case 35:{
                 averageAllCols(TemporalArr);
+                ColumnMinSize++;
             break;
             }
             case 36:{
                 RTheta(TemporalArr,AllActions[w][1].toInt(),AllActions[w][2].toInt());
+                ColumnMinSize=ColumnMinSize+2;
             break;
             }
             case 37:{
@@ -241,6 +251,66 @@ void MainWindow::RunOverActions(QVector<QVector<double>> &TemporalArr, int q, in
                 MultiplyConstantX(TemporalArr,RememberInv[w][0]);
             break;
             }
+            case 45:{
+                DeleteCols(TemporalArr,QStringIntoQVectorInt(AllActions[w][1]));
+                ColumnMinSize=ColumnMinSize-AllActions[w][3].toInt();
+            break;
+            }
+            case 46:{
+                Max_X(TemporalArr,AllActions[w][1].toInt(),AllActions[w][2].toInt(),AllActions[w][3].toDouble());
+            break;
+            }
+            case 47:{
+                Change_XY(TemporalArr,AllActions[w][1].toInt(),AllActions[w][2].toInt(),AllActions[w][3].toDouble()-AllActions[w][4].toDouble());
+            break;
+            }
+            case 48:{
+                Power(TemporalArr,AllActions[w][1].toInt(),AllActions[w][2].toDouble());
+            break;
+            }
+            case 49:{
+                Power(TemporalArr,AllActions[w][1].toInt(),AllActions[w][2].toDouble());
+            break;
+            }
+            case 50:{
+                sinus(TemporalArr,AllActions[w][1].toInt()); //for Y columns
+            break;
+            }
+            case 51:{
+                sinus(TemporalArr,AllActions[w][1].toInt()); //for X column (1)
+            break;
+            }
+            case 52:{
+                cosinus(TemporalArr,AllActions[w][1].toInt()); //for Y columns
+            break;
+            }
+            case 53:{
+                cosinus(TemporalArr,AllActions[w][1].toInt()); //for X column (1)
+            break;
+            }
+            case 54:{
+                arcsine(TemporalArr,AllActions[w][1].toInt()); //for X column (1)
+            break;
+            }
+            case 55:{
+                arccosine(TemporalArr,AllActions[w][1].toInt()); //for X column (1)
+            break;
+            }
+            case 56:{
+                arcsine(TemporalArr,AllActions[w][1].toInt()); //for X column (1)
+            break;
+            }
+            case 57:{
+                arccosine(TemporalArr,AllActions[w][1].toInt()); //for X column (1)
+            break;
+            }
+            case 58:{
+                absoluteValue(TemporalArr,AllActions[w][1].toInt());
+            break;
+            }
+
+
+
 
 //                AllActions[AllActions.size()-1].resize(1);
 //                AllActions[AllActions.size()-1][0]=17;
@@ -273,10 +343,15 @@ void MainWindow::SaveAll(QStringList fitxers, QStringList fitxersSavedAt){
 
     for(int q=0; q<fitxers.size(); q++){            // Run over all files
         TemporalArr.resize(1);
-        error += getOneData(fitxers.at(q), TemporalArr);     // Get TemporalArr[0][0][col][rows] IDEALLY should call getData, but it was faster to make a new function.
+        int tempNum =getOneData(fitxers.at(q), TemporalArr);
+        if(tempNum==1){
+            error=1;
+        }else if(tempNum==2){
+            QMessageBox::warning(this, "Warning", QString("The following file no longer exist in its path, no data could be saved:\n\n - %1") .arg(fitxers.at(q)) );
+            return;
+        }
         int TempCol =2;                             // Working column, default 1.
         int TempColRef = 2;                         // Reference column, default 1.
-
         RunOverActions(TemporalArr[0][0], q, TempCol, TempColRef);
 
         //SAVE FILE HERE***********************************************************************************************
@@ -284,7 +359,7 @@ void MainWindow::SaveAll(QStringList fitxers, QStringList fitxersSavedAt){
         TemporalArr.clear();                        // TemporalArr is reset.
     }
 
-    if (error >=1){
+    if (error ==1){
         QMessageBox::information(this,"Information", QString("Warning: Empty lines or lines with invalid data have been detected in %1 files. Saved results automatically corrected some of the errors in the files.") .arg(error) );
     }
 }
@@ -442,7 +517,127 @@ bool MainWindow::checkBackupExists(QString openedNames){
     }
 }
 
+void MainWindow::DeleteAll(QStringList files){
+    for(int i =0; i< files.size(); i++){
+        QFile file (files.at(i));
+        file.remove();
+    }
+}
+
+void MainWindow::openPlotFiles(QStringList tempFilenames){
+
+    //We plot the first file
+    if(tempFilenames.isEmpty()){
+        ui->statusbar->showMessage("No data files were opened.",10000);
+        return;
+    }else{
+        if(tempFilenames.size()>0){
+            for(int q=0; q<tempFilenames.size(); q++){ // We check that AllData has been loaded properly
+                if(ColNums(tempFilenames.at(q))<2){
+                    QMessageBox::warning(this, tr("Warning!"), tr("Files could not be opened due to the presence of corrupted files.\n(Tip #1: Check that there are no empty datafiles, and their numbers contain dots instead of commas as decimals without thousand separators)\n(Tip #2: In order to modify the format from 'Format' options first import files from 'Import datafile(s)')") );
+                    return;
+                }
+            }
+            clearAllGlobals();
+            filenames=tempFilenames;
+            QFileInfo inputputinfo(tempFilenames.at(0));
+            startingDirectory = inputputinfo.path();
+        }else{
+            //QMessageBox msgBox;
+            //msgBox.setInformativeText("Warning: No valid file could be opened");
+            //msgBox.Information(1)
+            //msgBox.exec();
+            ui->plot->clearGraphs();
+            ui->plot->replot();
+            QMessageBox::warning(
+                this,
+                tr("Warning!"),
+                tr("No file could be opened") );
+        }
+    }
+
+    if (filenames.size()>0){
+        findColRowNums(filenames); //Now we know if all files have or don't have the same amount of rows and columns, and their ranges. Info stored in FileRowNums[] and FileColNums[].
+        ColumnMinSize=FileColNums[1]; //From now on we use ColumnMinSize since some functions will modify the num of columns in AllData[][][][] without modifying filenames.
+
+        flag1=0; //We only want to plot the first graph.
+        VerticalShift=0; //reset some parameters in case they were manipulated before opening this new files.
+        ResetBackup();
+        columnPlot = 2;      //column number to plot by default is 2.
+        ReferenceColumn = 2; //reference column number is by default 2.
+        getData(filenames, AllData);
+
+        if(log){    //If log scale was previously selected, when opening a new file we go back to linear scale to prevent errors with negative numbers.
+            ui->plot->yAxis->setScaleType(QCPAxis::ScaleType::stLinear);
+            QSharedPointer<QCPAxisTicker> mLinTicker (new QCPAxisTicker);
+            log = false;
+            ui->plot->yAxis->setTicker(mLinTicker);
+            rescale_rob();
+            ui->plot->replot();
+            ui->plot->update();
+        }
+
+        plotall();
+
+        ui->plot->legend->setVisible(true); // We show legend by default.
+        ui->plot->replot();
+
+        if(filenames.size()==1){
+            ui->statusbar->showMessage("Column 2 is ploted.",10000);
+        }else{
+            ui->statusbar->showMessage("First plot is plotted. In order to plot up to first 10 plots select option Graph->Plot->All data. In order to change the 10 plot limit select option Graph->Plot->Set max. number of plots.",10000);
+        }
+    }
+}
+
 //*********MISCELLANEOUS FUNCTIONS***************
+
+void MainWindow::clearAllGlobals(){
+    ActionCol.clear();
+    AllActions.clear();
+    AllFormatActions.clear();
+    AllData.clear();
+    columnPlot=2;
+
+    filenames.clear();
+    FileColNums.clear();
+    FileRowNums.clear();
+
+    importnames.clear();
+    numActions =0;
+    plottedSingleFile =0;
+    Plot_margins.clear();
+    plotNumLim = 10;
+    previousTheta =0;
+    RememberInv.clear();
+    referenceCol = 2;
+    ReferenceColumn = 2;
+    UndoableActions =0;
+    VerticalShift=0;
+
+    if(log){    //If log scale was previously selected, when opening a new file we go back to linear scale to prevent errors with negative numbers.
+        ui->plot->yAxis->setScaleType(QCPAxis::ScaleType::stLinear);
+        QSharedPointer<QCPAxisTicker> mLinTicker (new QCPAxisTicker);
+        log = false;
+        ui->plot->yAxis->setTicker(mLinTicker);
+        ui->plot->xAxis->setRange(0, 5);
+        ui->plot->yAxis->setRange(0, 5);
+        //rescale_rob();
+        ui->plot->replot();
+        ui->plot->update();
+    }
+    cancell = false; //If cancell is pressed in input options.
+    AllColumns = false; // Used to remember previous status. True => AllColumn mode.
+}
+
+QVector<int> MainWindow::QStringIntoQVectorInt(QString input){
+    QStringList inputList = input.split(","); // converting a QStringList into QVector<int>.
+    QVector<int> tempInts;
+    for(int q=0; q< inputList.size();q++){
+        tempInts.append(inputList.at(q).toInt());
+    }
+    return tempInts;
+}
 
 double MainWindow::getFirstX(QString file){
     QVector<QVector<QVector<QVector<double>>>> TempArr;
@@ -566,12 +761,18 @@ void MainWindow::getData(QStringList fitxer, QVector<QVector<QVector<QVector<dou
         //QMessageBox::information(this,"Information", QString("Number of files is %1 and rows is %2") .arg(i) .arg(m) );
     }
     if(error==1){
-      QMessageBox::warning(this,"Warning!", QString("Empty lines or lines with invalid data have been detected. Please make sure that the datafiles content exhibit proper format and numbers.") );
+      QMessageBox::warning(this,"Warning!", QString(" - Empty lines or lines with invalid data have been detected.\n - Please make sure that the data file's content exhibit proper format and numbers.\n\n(Tip: Upon Save, Ctrl+S, DataPro will automatically correct these format errors)") );
     }
 }
 
 int MainWindow::getOneData(QString OneFitxer, QVector<QVector<QVector<QVector<double>>>> &InputData){ //IDEALLY This function should be replaced by GetData function, but it was easier to make this one than adapt the other for plotting and saving purposes.
         int error =0;
+        QFileInfo check_file(OneFitxer);
+        // check if file exists and if yes: Is it really a file and no directory?
+        if (!check_file.exists() ) {
+            return 2; // This is a serious error.
+        }
+
         QByteArray ba = OneFitxer.toLocal8Bit(); //convert fitxer into char c_str2
         const char *c_str2 = ba.data();
         ifstream obre(c_str2, ios::in);
@@ -726,10 +927,10 @@ bool MainWindow::full_row(const std::string& check) //Checks if a row has data (
     bool answer = false;
     std::istringstream row(check);
     std::string buffers;
-    double buffer2;
+    //double buffer2;
     while (row>>buffers){                           // Run over columns
         if(validate_double(buffers)){             //We check that all input strings are indeed double numbers.
-            buffer2 = atof(buffers.c_str());
+            //buffer2 = atof(buffers.c_str());
             //QMessageBox::information(this,"Information", QString("This: %1 has been validated as a double") .arg(buffer2) );
             answer = true;
         }
@@ -846,13 +1047,22 @@ void MainWindow::SwapCols(QVector<QVector<double>> &vec, int result1, int result
     }
 }
 
-bool MainWindow::getDoubleNum(double &num1, QString message){
-    QString text;
+bool MainWindow::getDoubleNum(double &num1, QString message, bool messageCols){
+    QString text, colMessage;
     bool error1 = 0;
     bool ok;
+    if(messageCols){
+        if(columnPlot==0){
+            colMessage="\n(Operation will be performed to all columns)";
+        }else{
+            colMessage=QString("\n(Operation will be performed only to column %1)") .arg(columnPlot);
+        }
+    }else{
+        colMessage="";
+    }
 
     while(!error1){
-        text = QInputDialog::getText(this, "Input", message,QLineEdit::Normal,"",&ok);
+        text = QInputDialog::getText(this, "Input", message+colMessage,QLineEdit::Normal,"",&ok);
         if(ok){
             if(text != "0"){
                 error1=text.toDouble();
@@ -873,26 +1083,29 @@ bool MainWindow::getDoubleNum(double &num1, QString message){
 
 bool MainWindow::getIntNum(int &num1, int min, int max, QString message){
     QString text;
-    bool error1 = 0;
+    bool error1 = false;
     bool ok;
 
     while(!error1){
-        text = QInputDialog::getText(this, "Input", message, QLineEdit::Normal,"",&ok);
+        text = QInputDialog::getText(this, "Input", message, QLineEdit::Normal,QString("%1") .arg(min),&ok);
         if(ok){
-            if(text != "0"){
+            if(text != "0"){ // Zero is used to plot all columns.
                 error1=text.toInt();
                 if(!error1){
                     QMessageBox::warning(this, "Error", QString("No valid number was introduced.\nIntroduce a valid integer number such as 1.\nPlease, try again."));
                 }
+                if(text.toInt() < min || text.toInt() > max){
+                    QMessageBox::warning(this, "Error", QString("\nIntroduce an integer between %1 and %2.") .arg(min) .arg(max));
+                    error1=false;
+                }
             }else{
-                error1=1;
+                error1=true;
             }
-
         }else{ // Cancell is pressed.
             return false;
         }
     }
-    num1 = text.toDouble();
+    num1 = text.toInt();
     return true;
 }
 
@@ -933,7 +1146,128 @@ bool MainWindow::equalDoubles(double double1, double double2, double step, doubl
     }
 }
 
+//*********DRAG AND DROP FUNCTIONS******
+
+void MainWindow::dragEnterEvent(QDragEnterEvent *e){
+    if (e->mimeData()->hasUrls()) {
+        e->acceptProposedAction();
+    }
+}
+
+void MainWindow::dropEvent(QDropEvent *e){
+    QStringList tempFilenames;
+    foreach (const QUrl &url, e->mimeData()->urls()) {
+        //QString fileName = url.toLocalFile();
+        tempFilenames.append(url.toLocalFile());
+        //qDebug() << "Dropped file:" << fileName;
+    }
+    openPlotFiles(tempFilenames);
+    tempFilenames.clear();
+}
+
 //********* COLUMNS AND FILES  ***************
+
+QString MainWindow::showString(QVector<int> toShow){
+    QString toShowString;
+    for(int q=0; q< toShow.size(); q++){
+        toShowString.append(QString(" %1") .arg(toShow[q]));
+        if(q!=toShow.size()-1){
+            toShowString.append(QString(","));
+        }
+    }
+    return toShowString;
+}
+
+bool MainWindow::getIntNums(QVector<int> &colsToDelete, int colMin, int colMax){
+    QString response, message;
+    QStringList responsesCommas;
+    bool errflag =0;
+    bool ok;
+    while(1){
+        if(errflag){
+            message = QString("Some values introduced were not recognized as valid. Please try again to introduce column(s) to be deleted from %1 to %2.\n(Hint: If you want to delete a few columns you can use commas or dash, such as '2,3,4,6' or '2-4,6')") .arg(colMin) .arg(colMax);
+            errflag = 0;
+        }else{
+            message = QString("Introduce column(s) to be deleted from %1 to %2.\n(Hint: If you want to delete a few columns you can use commas or dash, such as '2,3,4,6' or '2-4,6')") .arg(colMin) .arg(colMax);
+        }
+        response = QInputDialog::getText(this, "Input", message, QLineEdit::Normal,QString("%1") .arg(colMin),&ok);
+        if(ok){
+            colsToDelete.clear();
+            responsesCommas.clear();
+
+            responsesCommas = response.split(",");
+            for(int q=0; q< responsesCommas.size();q++){
+                if(responsesCommas.at(q).toInt()){
+                    colsToDelete.append(responsesCommas.at(q).toInt());
+                }else{ //it might be two values between '-'
+                    QStringList responsesDash = responsesCommas.at(q).split("-");
+                    if(responsesDash.size()==2){
+                        if(responsesDash.at(0).toInt() && responsesDash.at(1).toInt()){
+                            if(responsesDash.at(0).toInt() < responsesDash.at(1).toInt()){
+                                for(int t=responsesDash.at(0).toInt(); t<(responsesDash.at(1).toInt()+1); t++){
+                                   colsToDelete.append(t);
+                                }
+                            }else{
+                                errflag=1;
+                            }
+                        }else{
+                            errflag=1;
+                        }
+                    }else{
+                       errflag=1;
+                    }
+                }
+            }
+            for(int p=0; p<colsToDelete.size();p++){
+                if( (colsToDelete[p]<colMin) || (colsToDelete[p]>colMax) ){
+                    errflag=1;
+                }
+            }
+            if(!errflag){
+               // showString(colsToDelete);
+                return true;
+            }
+         //   showString(colsToDelete);
+        }else{ // Cancell pressed.
+            return false;
+        }
+    }
+}
+
+void MainWindow::DeleteCols(QVector<QVector<double>> &vec, QVector<int> results){
+int e =0;
+    for(int q=0;q<vec.length();q++){                // Run over columns
+         if(!results.contains(q+1)){
+       // if((result-1)!=q){                          // Skips col to be deleted
+            for(int w=0; w<vec[q].length();w++){    // Run over rows
+                vec[e][w]=vec[q][w];
+            }
+            e++;
+        }
+    }
+    vec.resize(vec.size()-results.size());
+}
+
+void MainWindow::DeleteCol(QVector<QVector<double>> &vec, int result){ // Probably this function is not used, since DeleteCols can do the same.
+int e =0;
+    for(int q=0;q<vec.length();q++){                // Run over columns
+        if((result-1)!=q){                          // Skips col to be deleted
+            for(int w=0; w<vec[q].length();w++){    // Run over rows
+                vec[e][w]=vec[q][w];
+            }
+            e++;
+        }
+    }
+    vec.resize(vec.size()-1);
+}
+
+void MainWindow::AddDummy(QVector<QVector<double>> &vec){
+    vec.resize(vec.size()+1);
+    vec[vec.size()-1].resize(vec[0].size());
+    for(int i =0; i< vec[0].size(); i++){ //run over rows
+        vec[vec.size()-1][i] = i*1.0+1; //to convert i into double.
+    }
+}
 
 bool MainWindow::checkOperateRef(){
     if(!checkFileNames() || !checkRefFiles() || !checkRefNumber()){ // We check if filenames or referencenames are empty and if number of files is proper to make operations between them.
@@ -986,7 +1320,7 @@ bool MainWindow::checkRefColumn(){
     }
 
     if(minCols<2){
-        QMessageBox::warning(this, tr("Warning!"), tr("Operations cannot be performed due to the presence of corrupted reference files.\n(Tip #1: Check that there are no empty datafiles, and their numbers contain dots instead of commas as decimals without thousand separators)\n(Tip #2: In order to modify the format from 'Format' options first import files from 'Import datafile(s)')") );
+        QMessageBox::warning(this, tr("Warning!"), tr("Operations cannot be performed due to the presence of corrupted reference files.\n(Tip #1: Check that there are no empty datafiles, and their numbers contain dots instead of commas as decimals without thousand separators)\n(Tip #2: In order to modify the format from 'Format' options first import files from 'Import datafile(s)', Ctrl+I)") );
         return false;
     }else if(minCols==2){
         referenceCol =2;
@@ -1063,19 +1397,6 @@ int MainWindow::DeleteExceptCol(QVector<QVector<double>> &vec, int result){
     }
     vec.resize(2);
     return deletedCols - 2;
-}
-
-void MainWindow::DeleteCol(QVector<QVector<double>> &vec, int result){
-int e =0;
-    for(int q=0;q<vec.length();q++){                // Run over columns
-        if((result-1)!=q){                          // Skips col to be deleted
-            for(int w=0; w<vec[q].length();w++){    // Run over rows
-                vec[e][w]=vec[q][w];
-            }
-            e++;
-        }
-    }
-    vec.resize(vec.size()-1);
 }
 
 void MainWindow::DuplicateCol(QVector<QVector<double>> &vec, int result){
@@ -1234,12 +1555,83 @@ void MainWindow::DivideReference(QVector<QVector<double>> &vec, int fileNumber, 
 
 //*********ANALYSIS FUNCTIONS***************
 
+void MainWindow::Change_XY(QVector<QVector<double>> &vec, int Xcol, int Ycol, double theta){
+
+    RTheta(vec, Xcol, Ycol); // We create R and Theta. Two columns are created.
+    AddConstant(vec, vec.size(), theta*PI/180); // we add the angle to Theta
+    XY(vec, vec.size()-1, vec.size()); // We create back X and Y.
+    SwapCols(vec,Xcol,vec.size()-1); // Put output X col into original position
+    SwapCols(vec,Ycol,vec.size());  // Put output Y col into original position
+    QVector<int> deleteCol;
+    deleteCol.append(vec.size());
+    deleteCol.append(vec.size()-1);
+    deleteCol.append(vec.size()-2);
+    deleteCol.append(vec.size()-3);
+    DeleteCols(vec,deleteCol); // We delete the last 4 columns.
+
+}
+
+void MainWindow::Copy2DIntVector(QVector<QVector<double>> original, QVector<QVector<double>> &created){
+    created.clear();
+    created.resize(original.size());
+    for(int q=0; q<original.size(); q++){
+        created[q].resize(original[q].size());
+    }
+    for(int q=0;q<original.size();q++){ //run over cols
+        for(int w=0; w<original[q].size();w++){
+            created[q][w]=original[q][w];
+        }
+    }
+}
+
+int MainWindow::Max_X(QVector<QVector<double>> &vec,int Xcol,int Ycol, double energy){
+    int position; // row position where energy is located.
+    int maxAngle =0; // Phase angle that maximize the X channel.
+    double maximize; // value to be maximized.
+
+    for(int q=0; q<vec[0].size()-1;q++){// run over rows.
+        if( ((vec[0][q]<=energy)&&(vec[0][q+1]>=energy)) || ((vec[0][q]>=energy)&&(vec[0][q+1]<=energy)) ){
+            position=q;
+            maximize = vec[Xcol-1][q];
+            break;
+        }
+    }
+
+    QVector<QVector<double>> temp;
+    for(int angle = 0; angle<360; angle++){ // We run over all added phases.
+        Copy2DIntVector(vec, temp);
+        RTheta(temp, Xcol, Ycol); // We create R and Theta.
+        AddConstant(temp, temp.size(), angle*PI/180); // we add the angle to Theta
+        XY(temp, temp.size()-1, temp.size()); // We create back X and Y.
+        if(temp[temp.size()-2][position]>maximize){
+            maximize=temp[temp.size()-2][position];
+            maxAngle=angle;
+        }
+    }
+
+    //Now that we know the angle that maximize the X channel we apply our changes to vec.
+
+    RTheta(vec, Xcol, Ycol); // We create R and Theta.
+    AddConstant(vec,vec.size(), maxAngle*PI/180); // we add the angle to Theta
+    XY(vec, vec.size()-1, vec.size()); // We create back X and Y.
+    SwapCols(vec,Xcol,vec.size()-1); // Put output X col into original position
+    SwapCols(vec,Ycol,vec.size());  // Put output Y col into original position
+    QVector<int> deleteCol;
+    deleteCol.append(vec.size());
+    deleteCol.append(vec.size()-1);
+    deleteCol.append(vec.size()-2);
+    deleteCol.append(vec.size()-3);
+    DeleteCols(vec,deleteCol); // We delete the last 4 columns.
+
+    return maxAngle;
+}
+
 void MainWindow::AppendStrings(QString &code, QVector<QVector<QString>> Actions){
     if(!Actions[0].isEmpty()){
         code.append(Actions[0][0]);
         if(Actions[0].size()>1){
             for(int w=1; w< Actions[0].size();w++){
-                code.append(",");
+                code.append("'");
                 code.append(Actions[0][w]);
             }
         }
@@ -1251,7 +1643,7 @@ void MainWindow::AppendStrings(QString &code, QVector<QVector<QString>> Actions)
                 code.append(Actions[q][0]);
                 if(Actions[q].size()>1){
                     for(int w=1; w< Actions[q].size();w++){
-                        code.append(",");
+                        code.append("'");
                         code.append(Actions[q][w]);
                     }
                 }
@@ -1305,7 +1697,7 @@ void MainWindow::ReadCode(QString code){
 
     AllActions.resize(ActionsList.size());
     for(int q =0; q<ActionsList.size(); q++){
-        QStringList SubActionsList = ActionsList.at(q).split(",");
+        QStringList SubActionsList = ActionsList.at(q).split("'");
         AllActions[q].resize(SubActionsList.size());
         for(int w=0; w<SubActionsList.size();w++){
             AllActions[q][w]= SubActionsList.at(w);
@@ -1320,7 +1712,7 @@ void MainWindow::ReadCode(QString code){
 
         RememberInv.resize(RememberList.size());
         for(int q=0; q< RememberList.size(); q++){
-            QStringList SubRememberList = RememberList.at(q).split(",");
+            QStringList SubRememberList = RememberList.at(q).split("'");
             RememberInv[q].resize(SubRememberList.size());
             for(int w=0; w<SubRememberList.size();w++){
                 if(!SubRememberList.at(w).isEmpty()){
@@ -1339,7 +1731,8 @@ void MainWindow::CheckExectuedCode(QString code){
 
     int tempColPlot = SubCodeList.at(0).toInt();
     if(tempColPlot !=columnPlot){
-        QMessageBox::information(this, "Information", QString("Current columnPlot is %1, should be %2.") .arg(columnPlot) .arg(tempColPlot) );
+        qDebug() << QString("Current columnPlot is %1, should be %2.") .arg(columnPlot) .arg(tempColPlot);
+       // QMessageBox::information(this, "Information", QString("Current columnPlot is %1, should be %2.") .arg(columnPlot) .arg(tempColPlot) );
         errors = true;
         columnPlot=tempColPlot;
     }
@@ -1352,9 +1745,9 @@ void MainWindow::CheckExectuedCode(QString code){
     }
 
     if(errors){
-        QMessageBox::information(this, "Information", QString("Some errors were detected during execution of the code."));
+        qDebug() << QString("Some errors were detected during execution of the code.");
+      //  QMessageBox::information(this, "Information", QString("Some errors were detected during execution of the code."));
     }
-
 }
 
 QString MainWindow::GenerateCode(){
@@ -1427,6 +1820,114 @@ void MainWindow::RTheta(QVector<QVector<double>> &vec, int X, int Y){
     }
 }
 
+void MainWindow::sinus(QVector<QVector<double>> &vec, int colPlot){
+    if(colPlot==0){
+        for(int r=1;r<vec.size();r++){   // Run over cols.
+            for (int w = 0; w < vec[0].length(); w++){ //run over rows.
+              vec[r][w] = sin(vec[r][w]);
+            }
+        }
+    }else{
+        for (int w = 0; w < vec[0].length(); w++){
+            vec[colPlot-1][w] = sin(vec[colPlot-1][w]);
+        }
+    }
+}
+
+void MainWindow::absoluteValue(QVector<QVector<double>> &vec, int colPlot){
+    if(colPlot==0){
+        for(int r=1;r<vec.size();r++){   // Run over cols.
+            for (int w = 0; w < vec[0].length(); w++){ //run over rows.
+                    vec[r][w] = abs(vec[r][w]);
+            }
+        }
+    }else{
+        for (int w = 0; w < vec[0].length(); w++){
+                vec[colPlot-1][w] = abs(vec[colPlot-1][w]);
+        }
+    }
+}
+
+void MainWindow::arcsine(QVector<QVector<double>> &vec, int colPlot){
+    if(colPlot==0){
+        for(int r=1;r<vec.size();r++){   // Run over cols.
+            for (int w = 0; w < vec[0].length(); w++){ //run over rows.
+                if(vec[r][w]<1.0 && vec[r][w]>-1.0){
+                    vec[r][w] = asin(vec[r][w]);
+                }else{
+                    vec[r][w] = 0.0; //If outside domain, instead of error just print 0.0.
+                }
+            }
+        }
+    }else{
+        for (int w = 0; w < vec[0].length(); w++){
+            if(vec[colPlot-1][w]<1.0 && vec[colPlot-1][w]>-1.0){
+                vec[colPlot-1][w] = asin(vec[colPlot-1][w]);
+            }else{
+                vec[colPlot-1][w] = 0.0;
+            }
+        }
+    }
+}
+
+void MainWindow::arccosine(QVector<QVector<double>> &vec, int colPlot){
+    if(colPlot==0){
+        for(int r=1;r<vec.size();r++){   // Run over cols.
+            for (int w = 0; w < vec[0].length(); w++){ //run over rows.
+                if(vec[r][w]<1.0 && vec[r][w]>-1.0){
+                    vec[r][w] = acos(vec[r][w]);
+                }else{
+                    vec[r][w] = 0.0;
+                }
+            }
+        }
+    }else{
+        for (int w = 0; w < vec[0].length(); w++){
+            if(vec[colPlot-1][w]<1 && vec[colPlot-1][w]>-1){
+                vec[colPlot-1][w] = acos(vec[colPlot-1][w]);
+            }else{
+                vec[colPlot-1][w] = 0.0;
+            }
+        }
+    }
+}
+
+void MainWindow::cosinus(QVector<QVector<double>> &vec, int colPlot){
+    if(colPlot==0){
+        for(int r=1;r<vec.size();r++){   // Run over cols.
+            for (int w = 0; w < vec[0].length(); w++){ //run over rows.
+              vec[r][w] = cos(vec[r][w]);
+            }
+        }
+    }else{
+        for (int w = 0; w < vec[0].length(); w++){
+            vec[colPlot-1][w] = cos(vec[colPlot-1][w]);
+        }
+    }
+}
+
+void MainWindow::Power(QVector<QVector<double>> &vec, int colPlot, double result){
+    if(colPlot==0){
+        for(int r=1;r<vec.size();r++){   // Run over cols.
+            for (int w = 0; w < vec[0].length(); w++){ //run over rows.
+                if(equalDoubles(result, 0.0, 1, 1e-10)){
+                    vec[r][w] = 0.0;
+                }else{
+                    vec[r][w] = pow(result,vec[r][w]);
+                }
+            }
+        }
+    }else{
+        for (int w = 0; w < vec[0].length(); w++){
+            if(equalDoubles(result, 0.0, 1, 1e-10)){
+                vec[colPlot-1][w] = 0.0;
+            }else{
+                vec[colPlot-1][w] = pow(result,vec[colPlot-1][w]);
+            }
+        }
+    }
+}
+
 void MainWindow::Exponentiate(QVector<QVector<double>> &vec, int colPlot, double result){
     if(colPlot==0){
         for(int r=1;r<vec.size();r++){   // Run over cols.
@@ -1480,7 +1981,7 @@ void MainWindow::MultiplyConstantX(QVector<QVector<double>> &vec, double result)
     }
 }
 
-void MainWindow::integrate(QVector<QVector<double>> &vec, int colPlot){
+void MainWindow::integrateFunc(QVector<QVector<double>> &vec, int colPlot){
 
     if(colPlot==0){
         for(int q =1; q<vec.length();q++){ // run over columns.
@@ -1853,7 +2354,6 @@ void MainWindow::MultConsty1(QVector<QVector<double> > &vec, int col){
             }
         }
     }else{
-
         double num = Integrate(vec, col);
         double value = 1/num;
         for(int q=0;q<vec[col-1].size();q++){
@@ -1884,7 +2384,7 @@ void MainWindow::MultConsty2(QVector<QVector<double> > &vec, int col){
 
 void MainWindow::MultConsty3(QVector<QVector<double> > &vec, double value, int col){
     if(col==0){
-        for(int r=1;r<vec.size();r++){   // Run over cols.
+        for(int r=1;r<vec.size();r++){   // Run over all cols.
             for(int q=0;q<vec[r].size();q++){
                 vec[r][q]=vec[r][q]*value;
             }
@@ -2008,7 +2508,6 @@ void MainWindow::UnitsEnergy(QVector<QVector<double>> &vec, int previousUnit, in
         eV = factor1*pow(vec[0][q],power1); // now it is in eV
         vec[0][q]=factor2*pow(eV,power2);
     }
-
 }
 
 double MainWindow::FindMin(QVector<QVector<double>> &vec){
@@ -2068,7 +2567,8 @@ void MainWindow::BallBaseline1Column(QVector<QVector<double>> &vec, int col, dou
     double pas = fabs((vec[0][lines-1]-vec[0][0])/(lines-1));			// increment x
     int inv; // check whether the X data is inverted in order.
     double minx, maxx; // min and max values of Xi.
-    double xt, yt, yatminx; // Difference x position between ball center and xi.
+    double xt; // Difference x position between ball center and xi.
+   // double yt, yatminx; // Difference x position between ball center and xi.
     QVector<double> baseline;
     baseline.resize(vec[0].size());
 
@@ -2090,12 +2590,12 @@ void MainWindow::BallBaseline1Column(QVector<QVector<double>> &vec, int col, dou
     if(vec[0][0]<vec[0][lines-1]){
         minx = vec[0][0];
         maxx = vec[0][lines-1];
-        yatminx = vec[col-1][0];
+       // yatminx = vec[col-1][0];
         inv = 1;
     }else{
         minx = vec[0][lines-1];
         maxx = vec[0][0];
-        yatminx = vec[col-1][lines-1];
+      //  yatminx = vec[col-1][lines-1];
         inv =-1;
     }
     // factor is used to re-scale the Y dimension, which in general will be different than the X dimension in size.
@@ -2114,12 +2614,12 @@ void MainWindow::BallBaseline1Column(QVector<QVector<double>> &vec, int col, dou
          if(vec[0][0]<vec[0][lines-1]){
              minx = vec[0][0];
              maxx = vec[0][lines-1];
-             yatminx = vec[col-1][0];
+            // yatminx = vec[col-1][0];
              inv = 1;
          }else{
              minx = vec[0][lines-1];
              maxx = vec[0][0];
-             yatminx = vec[col-1][lines-1];
+            // yatminx = vec[col-1][lines-1];
              inv =-1;
          }
       //Note for the programmers: There is a better way to apply the factor shit which does not imply reescaling the whole spectra
@@ -2147,7 +2647,7 @@ void MainWindow::BallBaseline1Column(QVector<QVector<double>> &vec, int col, dou
          }
          //QMessageBox::information(this, "Information", QString("index t is %1 corresponds to x= %2 and y= %3") .arg(t) .arg(vec[0][t]) .arg(vec[col-1][t]) );
             xt = fabs(vec[0][t]-cenx); // distance ball center to point xi.
-            yt = vec[col-1][t]-ceny;
+          //  yt = vec[col-1][t]-ceny;
 
          if(xt<=radii){ // we only need to check the yi data in the range of the ball.
              yballatt=pow(pow(radii,2)-pow(xt,2),0.5)+ceny; //y value of the circle at t point, in absolute terms.
@@ -2200,24 +2700,15 @@ void MainWindow::BallBaseline(QVector<QVector<double>> &vec, int col, double rad
     }
 }
 
-double MainWindow::Integrate(QVector<QVector<double>> &vec, int col){
-
-    if(col==0){
-        for(int r=1;r<vec.size();r++){   // Run over cols.
-            double result=0;
-            for(int q=0; q<vec[r].size()-1; q++){  // run over rows
-                result=result+fabs((vec[0][1]-vec[0][0])*(vec[r][q]+vec[r][q+1])/2);
-            }
-        return result;
-
-        }
-    }else{
-        double result=0;
+double MainWindow::Integrate(QVector<QVector<double>> &vec, int col){    
+    double result=0;
+    if(col!=0){
         for(int q=0; q<vec[col-1].size()-1; q++){  // run over rows
             result=result+fabs((vec[0][1]-vec[0][0])*(vec[col-1][q]+vec[col-1][q+1])/2);
         }
     return result;
     }
+return result; //This should never happen, this function should never be called with col = 0.
 }
 
 double MainWindow::Maxy(QVector<QVector<double>> &vec, int col){
@@ -2486,11 +2977,20 @@ void MainWindow::findGlobalMargins(){
     if(columnPlot ==0){ // CASE 1: We are plotting all columns for a certain number of files.
        // QMessageBox::information(this, "Information", QString("You are in case 3. One or a few files (%1 plotted files) and all columns") .arg(plotNum) );
 
-        findMargins(0, 1); // To get a first values, find margins of file 0 and col 1.
-        getMyMargins(min_x,max_x,min_y,max_y);  // Used only for initialization of these doubles.
-        for(int q=0; q<currFilePlotNum;q++){ // run over plotted files
-            for(int w=1;w<AllData[0][q].size();w++){ // run over all columns
-                findMargins(q, w);
+        if(plottedSingleFile==0){
+            findMargins(0, 1); // To get a first values, find margins of file 0 and col 1.
+            getMyMargins(min_x,max_x,min_y,max_y);  // Used only for initialization of these doubles.
+            for(int q=0; q<currFilePlotNum;q++){ // run over plotted files
+                for(int w=1;w<AllData[0][q].size();w++){ // run over all columns
+                    findMargins(q, w);
+                    updateMyMargins(min_x,max_x,min_y,max_y);
+                }
+            }
+        }else{
+            findMargins(plottedSingleFile, 1); // To get a first values, find margins of file 0 and col 1.
+            getMyMargins(min_x,max_x,min_y,max_y);  // Used only for initialization of these doubles.
+            for(int w=1;w<AllData[0][plottedSingleFile].size();w++){ // run over all columns
+                findMargins(plottedSingleFile, w);
                 updateMyMargins(min_x,max_x,min_y,max_y);
             }
         }
@@ -2498,12 +2998,19 @@ void MainWindow::findGlobalMargins(){
        // QMessageBox::information(this, "Information", QString("You are in case 4. One or a few files (%1 plotted files) and one column") .arg(currFilePlotNum) );
        // QMessageBox::information(this, "Information", QString("The file number is 0 and the column is %1") .arg(columnPlot) );
 
-        findMargins(0, columnPlot-1); // To get a first values, find margins of file 0 and col 1.
-        getMyMargins(min_x,max_x,min_y,max_y);  // Used only for initialization of these doubles.
-        for(int q=0; q<currFilePlotNum;q++){ // run over plotted files
-                findMargins(q, columnPlot-1);
-                updateMyMargins(min_x,max_x,min_y,max_y);
-                //qDebug() << QString("The range of file %1 is x_min= %2, x_max = %3, y_min =%4, y_max=%5") .arg(q) .arg(min_x) .arg(max_x) .arg(min_y) .arg(max_y);
+        if(plottedSingleFile==0){
+            findMargins(0, columnPlot-1); // To get a first values, find margins of file 0 and col 1.
+            getMyMargins(min_x,max_x,min_y,max_y);  // Used only for initialization of these doubles.
+            for(int q=0; q<currFilePlotNum;q++){ // run over plotted files
+                    findMargins(q, columnPlot-1);
+                    updateMyMargins(min_x,max_x,min_y,max_y);
+                    //qDebug() << QString("The range of file %1 is x_min= %2, x_max = %3, y_min =%4, y_max=%5") .arg(q) .arg(min_x) .arg(max_x) .arg(min_y) .arg(max_y);
+            }
+        }else{
+            findMargins(plottedSingleFile, columnPlot-1); // To get a first values, find margins of file 0 and col 1.
+            getMyMargins(min_x,max_x,min_y,max_y);  // Used only for initialization of these doubles.
+            //findMargins(plottedSingleFile, columnPlot-1);
+            updateMyMargins(min_x,max_x,min_y,max_y);
         }
     }
 
@@ -2602,38 +3109,43 @@ void MainWindow::plotall(){
     QStringList pieces;
     QString graphName, colName, testname, oneColName;
     QPen myPen;
+    graphNamesLegend.clear();
     switch(flag1){ // One or all files to be plotted.
         case 0:{ //Only plot one file
             currFilePlotNum =1;
+            flag1 = 0;
+            rescale_rob();
+            ui->plot->replot();
             if(columnPlot>0){ // Only plot one column of one file
                 myPen.setWidth(2);
                 ui->plot->addGraph();
                 ui->plot->graph()->setPen(myPen);
-                ui->plot->graph(0)->setData(AllData[0][0][0],AllData[0][0][columnPlot-1]);
-                pieces = filenames.at(0).split("/");
+                ui->plot->graph(0)->setData(AllData[0][plottedSingleFile][0],AllData[0][plottedSingleFile][columnPlot-1]);
+                pieces = filenames.at(plottedSingleFile).split("/");
                 pieces = pieces.at(pieces.length()-1).split(".");
                 if(ColumnMinSize>2){ // If there are multiple columns.
                     oneColName =QString(" (Col. %1)") .arg(columnPlot);
                     ui->plot->graph()->setName(pieces.at( pieces.length()-2)+oneColName);
+                    graphNamesLegend.append(pieces.at( pieces.length()-2)+oneColName);
                 }else{
                     ui->plot->graph()->setName(pieces.at( pieces.length()-2));
+                    graphNamesLegend.append(pieces.at( pieces.length()-2));
                 }
             }else{ // Plot all columns of one file
-                pieces = filenames.at(0).split("/");
+                pieces = filenames.at(plottedSingleFile).split("/");
                 pieces = pieces.at(pieces.length()-1).split(".");
                 graphName = pieces.at( pieces.length()-2);
-                for (int q =1; q< AllData[0][0].size(); q++){ //run over columns.
+                for (int q =1; q< AllData[0][plottedSingleFile].size(); q++){ //run over columns.
                      myPen.setColor(RGB(ColorFunc(q-1,0.0), ColorFunc(q-1,-0.666667), ColorFunc(q-1,0.666667)));
                      myPen.setWidth(2);
                     ui->plot->addGraph();
                     ui->plot->graph()->setPen(myPen);
-                    ui->plot->graph(q-1)->setData(AllData[0][0][0],AllData[0][0][q]);
+                    ui->plot->graph(q-1)->setData(AllData[0][plottedSingleFile][0],AllData[0][plottedSingleFile][q]);
                     colName=QString(" (Col. %1)") .arg(q+1);
                     ui->plot->graph()->setName(graphName+colName);
+                    graphNamesLegend.append(graphName+colName);
                 }
             }
-            flag1 = 0;
-            rescale_rob();
             ui->plot->replot();
         break;
         }
@@ -2642,6 +3154,9 @@ void MainWindow::plotall(){
         //QMessageBox::information(this, "Info", QString("Gonna plot all files and cols...") );
             //for (int i = 0; i< filenames.size();i++){    // RUN OVER ALL FILES.
 
+        flag1 = 1;
+        rescale_rob();
+        ui->plot->replot();
             for (int i = 0; i< plotNum;i++){    // RUN OVER ALL OPENED FILES.
                // QMessageBox::information(this, "Info", QString("Gonna plot file number i = %1") .arg(i) );
                 if(columnPlot>0){ // Only plot one column of all files
@@ -2657,8 +3172,10 @@ void MainWindow::plotall(){
                     if(ColumnMinSize>2){ // If there are multiple columns.
                         oneColName =QString(" (Col. %1)") .arg(columnPlot);
                         ui->plot->graph()->setName(pieces.at( pieces.length()-2)+oneColName);
+                        graphNamesLegend.append(pieces.at( pieces.length()-2)+oneColName);
                     }else{
                         ui->plot->graph()->setName(pieces.at( pieces.length()-2));
+                        graphNamesLegend.append(pieces.at( pieces.length()-2));
                     }
                 }else{
                     myPen.setColor(RGB(ColorFunc(i,0.0), ColorFunc(i,-0.666667), ColorFunc(i,0.666667)));
@@ -2675,14 +3192,13 @@ void MainWindow::plotall(){
                             ui->plot->graph(q-1+i*(AllData[0][0].size()-1))->setData(AllData[0][i][0],AllData[0][i][q]); // This is quite important. Graphs are sequentially named from 0 to n in steps of x, where x is the number of cols of each file.
                             colName=QString(" (Col. %1)") .arg(q+1);
                             ui->plot->graph()->setName(graphName+colName);
+                            graphNamesLegend.append(graphName+colName);
                            // QMessageBox::information(this, "Information", QString("Adding graphs to plot multiple columns of multiple files.") );
                         }
                 }
                  ui->plot->replot();
             }
             //QMessageBox::information(this, "Information", QString("All plots are set, now it is time to rescale.") );
-            flag1 = 1;
-            rescale_rob();
             ui->plot->replot();
             // ui->plot->update(); // I don't know what update does.
         break;
@@ -2780,10 +3296,9 @@ void MainWindow::GetBackup(){
             GetBackupFunc();                            //This must come BEFORE columnPlot and plotall cuz we need to recover all deleted columns before setting its previous number.
             columnPlot = AllActions[AllActions.size()-1][2].toInt();
             plotall();
-        }else if (AllActions[AllActions.size()-1][0].toInt()==7){ // Delete Column
+        }else if (AllActions[AllActions.size()-1][0].toInt()==7){ // Add dummmy Column
             GetBackupFunc();                            //This must come BEFORE columnPlot and plotall cuz we need to recover all deleted columns before setting its previous number.
-            columnPlot = AllActions[AllActions.size()-1][2].toInt();
-            ColumnMinSize++;
+            ColumnMinSize--;
             plotall();
         }else if (AllActions[AllActions.size()-1][0].toInt()==36 || AllActions[AllActions.size()-1][0].toInt()==37 ){ // Delete Column
             GetBackupFunc();                            //This must come BEFORE columnPlot and plotall cuz we need to recover all deleted columns before setting its previous number.
@@ -2794,6 +3309,16 @@ void MainWindow::GetBackup(){
             columnPlot = AllActions[AllActions.size()-1][2].toInt();
             ColumnMinSize=AllActions[AllActions.size()-1][3].toInt()+2;
             plotall();
+        }else if (AllActions[AllActions.size()-1][0].toInt()==47){ //
+            GetBackupFunc();                            //This must come BEFORE columnPlot and plotall cuz we need to recover all deleted columns before setting its previous number.
+            previousTheta=AllActions[AllActions.size()-1][4].toInt();
+            plotall();
+        }else if (AllActions[AllActions.size()-1][0].toInt()==45){ // Delete a few columns.
+            GetBackupFunc();                            //This must come BEFORE columnPlot and plotall cuz we need to recover all deleted columns before setting its previous number.
+            columnPlot = AllActions[AllActions.size()-1][2].toInt();
+            ColumnMinSize=ColumnMinSize+AllActions[AllActions.size()-1][3].toInt();
+            plotall();
+            //qDebug() << QString("Im here, ColumnMinSize is now %1") .arg(ColumnMinSize);
         }else{                              //Same column as before action is plotted.
             GetBackupFunc();
             plotall();
@@ -3239,9 +3764,10 @@ int MainWindow::estimateRowNums(QString importname, double step){
     TempArr.resize(1);
     if (getOneData(importname, TempArr)==0){ // If there's no error. BTW. this should create TempArr.
         difference = fabs(TempArr[0][0][0][0] - TempArr[0][0][0][TempArr[0][0][0].size()-1]);
+        rowNumsDouble = fabs(difference/step);
+        return round(rowNumsDouble);
     }
-    rowNumsDouble = fabs(difference/step);
-    return round(rowNumsDouble);
+return 1; // This should never reach this stage. Set to avoid warning/issue in QT.
 }
 
 void MainWindow::createNewStep(QString importname, QString exportname, double desiredStep){
@@ -3354,6 +3880,7 @@ double MainWindow::stepNum(QString importname, bool start){
             return fabs(TempArr[0][0][0][TempArr[0][0][0].size()-2] - TempArr[0][0][0][TempArr[0][0][0].size()-1]);
         }
     }
+return 0; // this should never reach this stage. Set to avoid issue/warning in QT.
 }
 
 void MainWindow::DeleteTempFolder(QString importnames){
@@ -3416,11 +3943,10 @@ void MainWindow::setRows(QString inputname, QString exportname, int desiredRows)
 
     if (getOneData(inputname, TempArr)==0){ // If there's no error. BTW. this should create TempArr.
         neededStep=fabs(TempArr[0][0][0][0]-TempArr[0][0][0][TempArr[0][0][0].size()-1])/(desiredRows-1);
+
+        // Now we just call createNewStep function.
+        createNewStep(inputname, exportname, neededStep);
     }
-
-    // Now we just call createNewStep function.
-
-    createNewStep(inputname, exportname, neededStep);
 }
 
 int MainWindow::replaceString(QString nameOfFile, QString nameOfOutputFile, QString find, QString replace, bool writteResult){
@@ -3604,6 +4130,26 @@ bool MainWindow::ActionsPerformed(){
 
 // *********************************************** File actions ***********************************************
 
+void MainWindow::on_actionDelete_opened_files_triggered(){
+    if(filenames.isEmpty()){
+        QMessageBox::warning(this, "Warning", QString("Please, first open new files to proceed with this action.") );
+        return;
+    }
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Attention!", QString("Are you sure you want to DELETE all (%1) opened files?\nThis action is irreversible and will result in lose of data files.") .arg(filenames.size()),
+                                  QMessageBox::Yes|QMessageBox::No);
+    if (reply == QMessageBox::Yes){
+        DeleteAll(filenames);
+        clearAllGlobals();
+        ui->plot->clearGraphs();
+        ui->plot->legend->setVisible(false);
+        ui->plot->xAxis->setRange(0, 5);
+        ui->plot->yAxis->setRange(0, 5);
+        ui->plot->replot();
+        ui->statusbar->showMessage("All Files have been deleted.",10000);
+    }
+}
+
 void MainWindow::on_actionBackup_triggered(){
     // 1- We check if files have been opened or imported.
     if(filenames.isEmpty()){
@@ -3704,12 +4250,18 @@ void MainWindow::on_actionExport_data_triggered(){
 }
 
 void MainWindow::on_actionImport_data_triggered(){
+    if(!filenames.isEmpty()){
+        QMessageBox::warning(this, "Warning", QString("Please, clear opened files before proceeding with this action.\n(Hint: use 'New' by pressing Ctrl+N)") );
+        return;
+    }
+
     QStringList tempImportNames;
+    QString title, message, code, tempOutput;
 
     tempImportNames =QFileDialog::getOpenFileNames(
                 this,
                 tr("Open File"),
-                "C://",
+                startingDirectory,
                 "All files (*.*);;Ascii Files (*.asc)");
     if(tempImportNames.isEmpty()){
         ui->statusbar->showMessage("No data was imported. No valid file name or directory was selected.",10000);
@@ -3720,9 +4272,31 @@ void MainWindow::on_actionImport_data_triggered(){
 
     if (importnames.size()>0){
         if(importnames.size()==1){
-            ui->statusbar->showMessage("One file has been succesfully imported. Operate with this file in the Format menu.",10000);
+            title = "Imported file:";
+            message = "One file has been succesfully imported. Operate this file in the Format menu.";
+            code = importnames[0];
+            QMessageBox Msgbox;
+            Msgbox.setText(message+"\n\n"+title+"\n\n - "+code);
+            Msgbox.exec();
+            ui->statusbar->showMessage("One file has been succesfully imported. Operate this file in the Format menu.",10000);
         }else{
-            ui->statusbar->showMessage(QString("%1 files have been succesfully imported. Operate with these files in the Format menu.") .arg(importnames.size()),10000);
+            title = "Imported files:";
+            message = QString("%1 files have been succesfully imported. Operate these files in the Format menu.") .arg(importnames.size());
+            for(int i=0; i<importnames.size(); i++){
+                code.append("\n - ");
+                code.append(importnames[i]);
+                if(i==3){
+                    break;
+                }
+            }
+            if(importnames.size()>3){
+                code.append("\n - ...");
+            }
+            QMessageBox Msgbox;
+            Msgbox.setText(message+"\n\n"+title+"\n"+code);
+            Msgbox.exec();
+
+            ui->statusbar->showMessage(QString("%1 files have been succesfully imported. Operate these files in the Format menu.") .arg(importnames.size()),10000);
         }
         QFileInfo inputputinfo(importnames[0]);
         QString check = inputputinfo.path() + Tempfolder; //We want to check if TempPreview exist, and if it does delete it.
@@ -3751,9 +4325,12 @@ void MainWindow::on_actionSave_as_triggered(){
     QStringList pieces;
     QString result;
 
+    QFileInfo filenamesinfo(filenames.at(0));
+    QString temp = filenamesinfo.suffix();
+
     //ACTION takes place here.
     newFileDirectory.clear();
-    newFileDirectory = QFileDialog::getSaveFileName(this, tr("Set name for the new file"), "C://", "Text file (*.txt);;Ascii File (*.asc)");
+    newFileDirectory = QFileDialog::getSaveFileName(this, tr("Set name for the new file"), startingDirectory, "Opened file (*."+temp+");;Text file (*.txt);;Ascii File (*.asc);;Data file (*.dat)");
     if(newFileDirectory.isEmpty() || newFileDirectory.isNull()){
         ui->statusbar->showMessage("No file(s) have been saved.",10000);
         return;
@@ -3784,6 +4361,9 @@ void MainWindow::on_actionSave_as_triggered(){
         filenames[i]=newFileNames[i];
     }
 
+   QFileInfo check_file(newFileDirectory);
+   startingDirectory=check_file.path();
+
     newFileNames.clear();
     AllActions.clear();
     VerticalShift=0; //reset some parameters in case they were manipulated.
@@ -3811,7 +4391,7 @@ void MainWindow::on_actionExport_column_to_single_file_triggered(){
 
     //ACTION takes place here.
     newFileDirectory.clear();
-    newFileDirectory = QFileDialog::getSaveFileName(this, tr("Set name for the new file"), "C://", "Text file (*.txt);;Ascii File (*.asc)");
+    newFileDirectory = QFileDialog::getSaveFileName(this, tr("Set name for the new file"), startingDirectory, "Text file (*.txt);;Ascii File (*.asc)");
     if(newFileDirectory.isEmpty() || newFileDirectory.isNull()){
         ui->statusbar->showMessage("No action was performed. No valid file name or directory was introduced.",10000);
         return;
@@ -3846,10 +4426,13 @@ void MainWindow::on_actionExport_column_to_single_file_triggered(){
 }
 
 void MainWindow::on_actionNew_triggered(){
+    clearAllGlobals();
+    ui->plot->legend->setVisible(false);
     ui->plot->clearGraphs();
+    ui->plot->xAxis->setRange(0, 5);
+    ui->plot->yAxis->setRange(0, 5);
     ui->plot->replot();
-    //plot();
-    ui->statusbar->showMessage("Plots are cleared",10000);
+    ui->statusbar->showMessage("All plots and opened/imported files are cleared.",10000);
 }
 
 void MainWindow::on_actionOpen_triggered(){
@@ -3858,68 +4441,11 @@ void MainWindow::on_actionOpen_triggered(){
     tempFilenames =QFileDialog::getOpenFileNames(
                 this,
                 tr("Open File"),
-                "C://",
-                "All files (*.*);;Ascii Files (*.asc)");
-    //We plot the first file
-    if(tempFilenames.isEmpty()){
-        ui->statusbar->showMessage("No data files were opened.",10000);
-        return;
-    }else{
-        filenames=tempFilenames;
-    }
+                startingDirectory,
+                "All files (*.*);;Ascii Files (*.asc);;Data Files (*.dat);;Text Files (*.txt)");
 
-    if (filenames.size()>0){
-        findColRowNums(filenames); //Now we know if all files have or don't have the same amount of rows and columns, and their ranges. Info stored in FileRowNums[] and FileColNums[].
-        ColumnMinSize=FileColNums[1]; //From now on we use ColumnMinSize since some functions will modify the num of columns in AllData[][][][] without modifying filenames.
+    openPlotFiles(tempFilenames);
 
-        flag1=0; //We only want to plot the first graph.
-        VerticalShift=0; //reset some parameters in case they were manipulated before opening this new files.
-        ResetBackup();
-        columnPlot = 2;      //column number to plot by default is 2.
-        ReferenceColumn = 2; //reference column number is by default 2.
-        getData(filenames, AllData);
-
-        for(int q=0; q<filenames.size(); q++){ // We check that AllData has been loaded properly
-            if(ColNums(filenames.at(q))<2){
-                QMessageBox::warning(this, tr("Warning!"), tr("Files could not be opened due to the presence of corrupted files.\n(Tip #1: Check that there are no empty datafiles, and their numbers contain dots instead of commas as decimals without thousand separators)\n(Tip #2: In order to modify the format from 'Format' options first import files from 'Import datafile(s)')") );
-                return;
-            }
-        }
-
-        if(log){    //If log scale was previously selected, when opening a new file we go back to linear scale to prevent errors with negative numbers.
-            ui->plot->yAxis->setScaleType(QCPAxis::ScaleType::stLinear);
-            QSharedPointer<QCPAxisTicker> mLinTicker (new QCPAxisTicker);
-            log = false;
-            ui->plot->yAxis->setTicker(mLinTicker);
-            rescale_rob();
-            ui->plot->replot();
-            ui->plot->update();
-        }
-
-        plotall();
-
-        ui->plot->legend->setVisible(true); // We show legend by default.
-        ui->plot->replot();
-
-        if(filenames.size()==1){
-            ui->statusbar->showMessage("Column 2 is ploted.",10000);
-        }else{
-            ui->statusbar->showMessage("First plot is plotted. In order to plot up to first 10 plots select option Graph->Plot->All data. In order to change the 10 plot limit select option Graph->Plot->Set max. number of plots.",10000);
-        }
-
-    }else{
-        //QMessageBox msgBox;
-        //msgBox.setInformativeText("Warning: No valid file could be opened");
-        //msgBox.Information(1)
-        //msgBox.exec();
-        ui->plot->clearGraphs();
-        ui->plot->replot();
-        QMessageBox::warning(
-            this,
-            tr("Warning!"),
-            tr("No file could be opened") );
-
-    }
 }
 
 void MainWindow::on_actionSave_triggered(){
@@ -3950,7 +4476,7 @@ void MainWindow::on_actionSave_in_triggered(){
         return;
     }*/
     newFileDirectory.clear();
-    newFileDirectory = QFileDialog::getExistingDirectory(this, tr("Set directory"), "C://");
+    newFileDirectory = QFileDialog::getExistingDirectory(this, tr("Set directory"), startingDirectory);
     if(newFileDirectory.isEmpty() || newFileDirectory.isNull()){
         ui->statusbar->showMessage("No file(s) have been saved.",10000);
         return;
@@ -3968,11 +4494,13 @@ void MainWindow::on_actionSave_in_triggered(){
         filenames[i]=newFileNames[i];
     }
 
+    QFileInfo check_file(filenames.at(0));
+    startingDirectory=check_file.path();
+
     newFileNames.clear();
     AllActions.clear();
     VerticalShift=0; //reset some parameters in case they were manipulated.
     ui->statusbar->showMessage("All Files have been saved.",10000);
-
 }
 
 void MainWindow::on_actionMerge_files_triggered(){ //Combines pairs of datafiles (those opened with those selected in reference files)
@@ -4011,7 +4539,7 @@ void MainWindow::on_actionMerge_files_triggered(){ //Combines pairs of datafiles
     reply = QMessageBox::question(this, "Attention!", "Are you sure you want to merge datafiles? Opened files will be overwritten, prior backup is advised.",
                                   QMessageBox::Yes|QMessageBox::No);
     if (reply == QMessageBox::Yes) {
-       reply2 = QMessageBox::question(this, "Question", "Do you want to ignore the first column of the Reference files?",
+       reply2 = QMessageBox::question(this, "Question", "Do you want to ignore the first column (i.e. col X) of the Reference files?\(clicking YES is recommended.)",
                                       QMessageBox::Yes|QMessageBox::No);
         if (reply2 == QMessageBox::Yes) {
             int original; //original number of cols
@@ -4204,7 +4732,7 @@ void MainWindow::on_actionColumns_to_files_triggered(){
 
     //ACTION takes place here.
     newFileDirectory.clear();
-    newFileDirectory = QFileDialog::getExistingDirectory(this, tr("Set directory to save new files"), "C://");
+    newFileDirectory = QFileDialog::getExistingDirectory(this, tr("Set directory to save new files"), startingDirectory);
 
     if(newFileDirectory.isEmpty() || newFileDirectory.isNull()){
         ui->statusbar->showMessage(QString("No action was performed. Invalid directory."),10000);
@@ -4423,7 +4951,8 @@ void MainWindow::on_actionBall_like_baseline_triggered(){
     }
 
     double result;
-    if(!getDoubleNum(result, QString("Set ball radii. Suggested value = %1. Please note that this action can take large computational time: Avoid using too large ball radii."). arg(abs(AllData[0][0][0][0]-AllData[0][0][0][AllData[0][0][0].size()-1])/2))){
+    QString myMessage = QString("Set ball radii. Suggested value = %1. Please note that this action can take large computational time: Avoid using too large ball radii."). arg(abs(AllData[0][0][0][0]-AllData[0][0][0][AllData[0][0][0].size()-1])/2);
+    if(!getDoubleNum(result, myMessage, true)){
         return;
     }
 
@@ -4455,7 +4984,9 @@ void MainWindow::on_actionTrim_triggered(){ // right now this function will trim
     double min,max;
     double AbsMin, AbsMax; //Absolute min and max amongst all spectra
     double minMax, maxMin; //min max is the lowest max value, and max min is the largest lowest value amongst all files.
-    AbsMin = FindMinFile(filenames.at(0));
+
+    // I commented all these because checking all files takes a long time, hence I will simply check opened files.
+ /*   AbsMin = FindMinFile(filenames.at(0));
     AbsMax = FindMaxFile(filenames.at(0));
     minMax=AbsMin;
     maxMin=AbsMax;
@@ -4474,6 +5005,40 @@ void MainWindow::on_actionTrim_triggered(){ // right now this function will trim
         }
         if(maxMin>max){
             maxMin=max;
+        }
+    }
+*/
+     // We run over opened files just in case Trim was performed before.
+    if(AllData[0][0][0][0] > AllData[0][0][0][AllData[0][0][0].size()-1]){
+        AbsMin = AllData[0][0][0][AllData[0][0][0].size()-1];
+        AbsMax = AllData[0][0][0][0];
+    }else{
+        AbsMax = AllData[0][0][0][AllData[0][0][0].size()-1];
+        AbsMin = AllData[0][0][0][0];
+    }
+    minMax=AbsMin;
+    maxMin=AbsMax;
+
+    for(int w=0; w< AllData[0].size();w++){
+        if(AllData[0][w][0][0] > AllData[0][w][0][AllData[0][w][0].size()-1]){
+            min = AllData[0][w][0][AllData[0][w][0].size()-1];
+            max = AllData[0][w][0][0];
+        }else{
+            max = AllData[0][w][0][AllData[0][w][0].size()-1];
+            min = AllData[0][w][0][0];
+        }
+
+        if(min<AbsMin){
+            AbsMin=min;
+        }
+        if(max>AbsMax){
+            AbsMax=max;
+        }
+        if(maxMin>max){
+            maxMin=max;
+        }
+        if(minMax<min){
+            minMax=min;
         }
     }
 
@@ -4534,11 +5099,11 @@ void MainWindow::on_actionClean_spikes_triggered(){
     double sigmas;
     int wpow2=0;
     int points;
-    if(!getIntNum(points, 3, 2147483647, QString("Tolerance parameters: Introduce number of statistical points (recommended %1, minimum 5)") .arg(AllData[0][0][0].size()/20))){
+    if(!getIntNum(points, 3, 2147483647, QString("Tolerance parameter #1 \nIntroduce number of statistical points (recommended %1, minimum 5):") .arg(AllData[0][0][0].size()/20))){
         ui->statusbar->showMessage("No action was performed.",10000);
         return;
     }
-    //int points = QInputDialog::getInt(this, "Input", QString("Tolerance parameters: Introduce number of statistical points (recommended %1, minimum 5)") .arg(AllData[0][0][0].size()/20),0,-2147483647,2147483647,1);
+
     int columnInspect;
 
     if(columnPlot==0){
@@ -4557,11 +5122,11 @@ void MainWindow::on_actionClean_spikes_triggered(){
     }
 
     if(recsigma==0){
-        if(!getDoubleNum(sigmas, "Tolerance parameters: Introduce number sigma tolerance (recommended 8)")){
+        if(!getDoubleNum(sigmas, "Tolerance parameter #2 \nIntroduce number sigma tolerance (recommended 8):", true)){
             return;
         }
     }else{
-        if(!getDoubleNum(sigmas, QString("Tolerance parameters: Introduce number sigma tolerance (recommended %1 or lower)") .arg(recsigma))){
+        if(!getDoubleNum(sigmas, QString("Tolerance parameter #2 \nIntroduce number sigma tolerance (recommended %1 or lower):") .arg(recsigma), true)){
             return;
         }
     }
@@ -5129,6 +5694,34 @@ void MainWindow::on_actionSet_Plot_Column_triggered(){          // Set plot colu
         //columnPlot = QInputDialog::getInt(this, "Input",QString("Current datafiles has %1 columns. Introduce column number (from 1 to %1) to be plotted and operated:") .arg(ColumnMinSize),0,1,ColumnMinSize);
     }
 
+    if(log){ // If log scale is selected.
+        for (int i = 0; i< filenames.size();i++){
+            if(columnPlot == 0){ // All columns are selected.
+                for(int q =0; q< AllData[0][i].size();q++){ // run over columns.
+                    double* min_y = std::min_element(AllData[0][i][q].begin(), AllData[0][i][q].end());
+                       if(*min_y<=0){
+                           columnPlot= previouscolPlot;
+                           QMessageBox::warning(this, "Warning!", QString("Some datafiles contain negative y values. Log scale cannot be represented. Select linear scale before attempting to select column number %1.") .arg(columnPlot) );
+                           return;
+                    }
+                }
+                double* min_y = std::min_element(AllData[0][i][columnPlot-1].begin(), AllData[0][i][columnPlot-1].end());
+                   if(*min_y<=0){
+                       columnPlot= previouscolPlot;
+                       QMessageBox::warning(this, "Warning!", QString("Some datafiles contain negative y values. Log scale cannot be represented. Select linear scale before attempting to select column number %1.") .arg(columnPlot) );
+                       return;
+                }
+            }else{
+             double* min_y = std::min_element(AllData[0][i][columnPlot-1].begin(), AllData[0][i][columnPlot-1].end());
+                if(*min_y<=0){
+                    QMessageBox::warning(this, "Warning!", QString("Some datafiles contain negative y values. Log scale cannot be represented. Select linear scale before attempting to select column number %1.") .arg(columnPlot) );
+                    columnPlot= previouscolPlot;
+                    return;
+             }
+            }
+        }
+    }
+
     if(columnPlot == 0){ // All columns are selected.
         //if(!AllActions.isEmpty()){
         if(ActionsPerformed()){
@@ -5151,17 +5744,6 @@ void MainWindow::on_actionSet_Plot_Column_triggered(){          // Set plot colu
         //AllActions.clear();
         AllColumns = false;
         ui->statusbar->showMessage(QString("Column %1 has been plotted.").arg(columnPlot),10000);
-    }
-
-    if(log){ // If log scale is selected.
-        for (int i = 0; i< filenames.size();i++){
-        double* min_y = std::min_element(AllData[0][i][columnPlot-1].begin(), AllData[0][i][columnPlot-1].end());
-            if(*min_y<=0){
-                QMessageBox::warning(this, "Warning!", QString("Some datafiles contain negative y values. Log scale cannot be represented. Select linear scale before attempting to select column number %1.") .arg(columnPlot) );
-                columnPlot= previouscolPlot;
-                return;
-            }
-        }
     }
 
     plotall();
@@ -5208,46 +5790,106 @@ void MainWindow::on_actionSet_x_column_triggered(){             // Rearange colu
     AllActions[AllActions.size()-1][2]=QString("%1") .arg(result2);
 }
 
-void MainWindow::on_actionDelete_column_triggered(){
+void MainWindow::on_actionDelete_Columns_triggered(){
     if(filenames.isEmpty()){
         QMessageBox::warning(this, "Warning", QString("Please, first open new files to proceed with this action.") );
         return;
     }
 
+    int deletedColumns;
+    QVector<int> colsToDelete;
+    QString resultCols, colsToDeleteString, statusMessage;
+
     if(ColumnMinSize>2){               // If there are more than 2 columns in all files.
-        int result;
-        if(!getIntNum(result, 2, ColumnMinSize, QString("Set column number to delete from 2 to %1") .arg(ColumnMinSize))){
-                ui->statusbar->showMessage("No action was performed.",10000);
+        if(!getIntNums(colsToDelete, 2, ColumnMinSize)){
+            ui->statusbar->showMessage("No action was performed.",10000);
             return;
+        }else{
+            deletedColumns=colsToDelete.size();
+            statusMessage=showString(colsToDelete);
         }
-        //int result = QInputDialog::getInt(this, "Input",QString("Set column number to delete from 2 to %1") .arg(ColumnMinSize), 0, 2, ColumnMinSize, 1);
+
+        for(int q=0; q<deletedColumns; q++){
+            colsToDeleteString.append(QString("%1") .arg(colsToDelete.at(q)));
+            if(q!=deletedColumns-1){
+                colsToDeleteString.append(QString(","));
+            }
+        }
 
         Backup();// It is very important to include the backup BEFORE any data manipulation.
+
         previouscolPlot = columnPlot;
-        if(columnPlot>result){ //The number of cols will be reduced by 1.
-            columnPlot--;
+        int colsBelowColPlot =0;
+        for(int q =0; q< colsToDelete.size();q++){
+            if(columnPlot>colsToDelete[q]){ // if we delete columns with numbers below column being visualized, we need to update the col num of the col we are visualizing.
+                colsBelowColPlot++;
+            }else if(columnPlot==colsToDelete[q]){ // if we delete the column that is being visualized we go to default value 2.
+                columnPlot=2;
+                colsBelowColPlot=0;
+                break;
+            }
         }
-        if(columnPlot==result){ //The number of cols will be reduced by 1.
-            columnPlot=2;
+        if(columnPlot!=0){
+            columnPlot=columnPlot-colsBelowColPlot;
         }
 
         //ACTION takes place here
         for(int q=0; q<AllData[0].size();q++){  //Run over files.
-            DeleteCol(AllData[0][q], result);
+            DeleteCols(AllData[0][q], colsToDelete);
         }
-        ColumnMinSize--;
+
+        ColumnMinSize=ColumnMinSize-deletedColumns;
 
         plotall();
-        ui->statusbar->showMessage(QString("Column %1 has been deleted").arg(result),10000);
+        ui->statusbar->showMessage(QString("%1 column(s) have been deleted per file. These are Col(s): %2.") .arg(deletedColumns) .arg(statusMessage),10000);
 
         AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
-        AllActions[AllActions.size()-1].resize(3);
-        AllActions[AllActions.size()-1][0]="7";
-        AllActions[AllActions.size()-1][1]=QString("%1") .arg(result);
+        AllActions[AllActions.size()-1].resize(4);
+        AllActions[AllActions.size()-1][0]="45";
+        AllActions[AllActions.size()-1][1]=QString("%1") .arg(colsToDeleteString);
         AllActions[AllActions.size()-1][2]=QString("%1") .arg(previouscolPlot);
+        AllActions[AllActions.size()-1][3]=QString("%1") .arg(deletedColumns);
     }else{
         QMessageBox::warning(this, "Warning!", QString("No columns can be deleted. Actual file(s) don't have enough columns. Some files only have %1 columns.") .arg(ColumnMinSize));
     }
+}
+
+void MainWindow::on_actionAdd_Dummy_column_triggered(){
+    if(filenames.isEmpty()){
+        QMessageBox::warning(this, "Warning", QString("Please, first open new files to proceed with this action.") );
+        return;
+    }
+
+    Backup();// It is very important to include the backup BEFORE any data manipulation.
+
+    //ACTION takes place here
+    int min, max;
+    min=AllData[0][0][0].size();
+    max=min;
+    for(int q=0; q<AllData[0].size();q++){  //Run over files.
+        AddDummy(AllData[0][q]);
+
+        if(AllData[0][q][0].size()<min){
+            min=AllData[0][q][0].size();
+        }
+        if(AllData[0][q][0].size()>max){
+            max=AllData[0][q][0].size();
+        }
+    }
+
+    ColumnMinSize++;
+
+    plotall();
+
+    if(min==max){
+        ui->statusbar->showMessage(QString("A dummy column (values ranging from 1 to %1) has been added at the end of each data file(s).") .arg(min+1), 10000);
+    }else{
+        ui->statusbar->showMessage(QString("A dummy column (values ranging from 1 to %1-%2) has been added at the end of each data file(s).") .arg(min+1) .arg(max+1), 10000);
+    }
+
+    AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
+    AllActions[AllActions.size()-1].resize(1);
+    AllActions[AllActions.size()-1][0]="7";
 }
 
 void MainWindow::on_actionDuplicate_Column_triggered(){
@@ -5278,7 +5920,6 @@ void MainWindow::on_actionDuplicate_Column_triggered(){
     if(ColumnMinSize==1){
         QMessageBox::warning(this, "Warning!", QString("Files have a different number of columns. The duplicated column will be added as a new column at the end of each datafile, hence its position won't be the same for all files.") );
     }
-
 
     if(columnPlot!=0){
         columnPlot = AllData[0][0].size();
@@ -5544,7 +6185,7 @@ void MainWindow::on_actionAdd_reference_files_triggered(){
     referencenames =QFileDialog::getOpenFileNames(
                 this,
                 tr("Open File"),
-                "C://",
+                startingDirectory,
                 "All files (*.*);;Ascii Files (*.asc)");
     if (referencenames.size()>0){
         ui->statusbar->showMessage(QString("%1 reference file(s) have been imported").arg(referencenames.size()),10000);
@@ -5557,6 +6198,337 @@ void MainWindow::on_actionAdd_reference_files_triggered(){
 }
 
 // *********************************************** Analysis actions ***********************************************
+
+void MainWindow::on_actionPower_triggered(){ //Y column
+    // 1- We check if files have been opened.
+    if(filenames.isEmpty()){
+        QMessageBox::warning(this, "Warning", QString("Please, first open new files to proceed with this action.") );
+        return;
+    }
+
+    // 1.2 - Get input.
+    double result;
+    if(!getDoubleNum(result, QString("Set base of power value: \n(Hint: Set 'a' value to calculate: a^(Col. %1) ).") .arg(columnPlot), true)){
+        return;
+    }
+
+    // 2- We make the backup.
+    Backup();// It is very important to include the backup BEFORE any data manipulation.
+
+
+    // 3- We apply the function on the AllData 4Dvector.
+    for(int q=0; q<AllData[0].size(); q++){                                //Run over all files
+        Power(AllData[0][q],columnPlot,result);
+    }
+
+    // 4- We plot all.
+    plotall();
+
+    AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
+    AllActions[AllActions.size()-1].resize(3);
+    AllActions[AllActions.size()-1][0]="48";
+    AllActions[AllActions.size()-1][1]=QString("%1") .arg(columnPlot);
+    AllActions[AllActions.size()-1][2]=QString("%1") .arg(result);
+
+    if(columnPlot==0){
+        ui->statusbar->showMessage(QString("All columns have been set as exponents of the base %1.") .arg(result) ,10000);
+    }else{
+        ui->statusbar->showMessage(QString("Column %1 has been set as an exponent of the base %2.") .arg(columnPlot) .arg(result) ,10000);
+    }
+}
+
+void MainWindow::on_actionSinus_triggered(){ //Y column
+    // 1- We check if files have been opened.
+    if(filenames.isEmpty()){
+        QMessageBox::warning(this, "Warning", QString("Please, first open new files to proceed with this action.") );
+        return;
+    }
+
+    // 2- We make the backup.
+    Backup();// It is very important to include the backup BEFORE any data manipulation.
+
+    // 3- We apply the function on the AllData 4Dvector.
+    for(int q=0; q<AllData[0].size(); q++){                                //Run over all files
+        sinus(AllData[0][q],columnPlot);
+    }
+
+    // 4- We plot all.
+    plotall();
+
+    AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
+    AllActions[AllActions.size()-1].resize(2);
+    AllActions[AllActions.size()-1][0]="50";
+    AllActions[AllActions.size()-1][1]=QString("%1") .arg(columnPlot);
+
+    if(columnPlot==0){
+        ui->statusbar->showMessage(QString("Sinus have been calculated for all columns."),10000);
+    }else{
+        ui->statusbar->showMessage(QString("Sinus has been calculated for column %1.") .arg(columnPlot) ,10000);
+    }
+}
+
+void MainWindow::on_actionCosinus_triggered(){ //Y column
+    // 1- We check if files have been opened.
+    if(filenames.isEmpty()){
+        QMessageBox::warning(this, "Warning", QString("Please, first open new files to proceed with this action.") );
+        return;
+    }
+
+    // 2- We make the backup.
+    Backup();// It is very important to include the backup BEFORE any data manipulation.
+
+    // 3- We apply the function on the AllData 4Dvector.
+    for(int q=0; q<AllData[0].size(); q++){                                //Run over all files
+        cosinus(AllData[0][q],columnPlot);
+    }
+
+    // 4- We plot all.
+    plotall();
+
+    AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
+    AllActions[AllActions.size()-1].resize(2);
+    AllActions[AllActions.size()-1][0]="52";
+    AllActions[AllActions.size()-1][1]=QString("%1") .arg(columnPlot);
+
+    if(columnPlot==0){
+        ui->statusbar->showMessage(QString("Cosinus have been calculated for all columns."),10000);
+    }else{
+        ui->statusbar->showMessage(QString("Cosinus has been calculated for column %1.") .arg(columnPlot) ,10000);
+    }
+}
+
+void MainWindow::on_actionPower_2_triggered(){ //X column
+    // 1- We check if files have been opened.
+    if(filenames.isEmpty()){
+        QMessageBox::warning(this, "Warning", QString("Please, first open new files to proceed with this action.") );
+        return;
+    }
+
+    // 1.2 - Get input.
+    double result;
+    if(!getDoubleNum(result, QString("Set base of power value: \n(Hint: Set 'a' value to calculate: a^(Col. 1) ).") )){
+        return;
+    }
+
+    // 2- We make the backup.
+    Backup();// It is very important to include the backup BEFORE any data manipulation.
+
+
+    // 3- We apply the function on the AllData 4Dvector.
+    for(int q=0; q<AllData[0].size(); q++){                                //Run over all files
+        Power(AllData[0][q],1,result);
+    }
+
+    // 4- We plot all.
+    plotall();
+
+    AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
+    AllActions[AllActions.size()-1].resize(3);
+    AllActions[AllActions.size()-1][0]="49";
+    AllActions[AllActions.size()-1][1]=QString("%1") .arg(1);
+    AllActions[AllActions.size()-1][2]=QString("%1") .arg(result);
+
+    ui->statusbar->showMessage(QString("Column 1 (x Axis) has been set as an exponent of the base %1.") .arg(result) ,10000);
+}
+
+void MainWindow::on_actionSinus_2_triggered(){ //X column
+    // 1- We check if files have been opened.
+    if(filenames.isEmpty()){
+        QMessageBox::warning(this, "Warning", QString("Please, first open new files to proceed with this action.") );
+        return;
+    }
+
+    // 2- We make the backup.
+    Backup();// It is very important to include the backup BEFORE any data manipulation.
+
+    // 3- We apply the function on the AllData 4Dvector.
+    for(int q=0; q<AllData[0].size(); q++){                                //Run over all files
+        sinus(AllData[0][q],1);
+    }
+
+    // 4- We plot all.
+    plotall();
+
+    AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
+    AllActions[AllActions.size()-1].resize(2);
+    AllActions[AllActions.size()-1][0]="51";
+    AllActions[AllActions.size()-1][1]=QString("%1") .arg(1);
+
+     ui->statusbar->showMessage(QString("Sinus have been calculated for column 1 (x Axis)."),10000);
+}
+
+void MainWindow::on_actionCosinus_2_triggered(){ //X column
+    // 1- We check if files have been opened.
+    if(filenames.isEmpty()){
+        QMessageBox::warning(this, "Warning", QString("Please, first open new files to proceed with this action.") );
+        return;
+    }
+
+    // 2- We make the backup.
+    Backup();// It is very important to include the backup BEFORE any data manipulation.
+
+    // 3- We apply the function on the AllData 4Dvector.
+    for(int q=0; q<AllData[0].size(); q++){                                //Run over all files
+        cosinus(AllData[0][q],1);
+    }
+
+    // 4- We plot all.
+    plotall();
+
+    AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
+    AllActions[AllActions.size()-1].resize(2);
+    AllActions[AllActions.size()-1][0]="53";
+    AllActions[AllActions.size()-1][1]=QString("%1") .arg(1);
+
+     ui->statusbar->showMessage(QString("Cosinus have been calculated for column 1 (x Axis)."),10000);
+
+}
+
+void MainWindow::on_actionRecalculate_X_Y_for_given_Theta_triggered(){
+    // 1- We check if files have been opened.
+    if(filenames.isEmpty()){
+        QMessageBox::warning(this, "Warning", QString("Please, first open new files to proceed with this action.") );
+        return;
+    }
+    if(ColumnMinSize < 3){
+        QMessageBox::warning(this, "Warning", QString("Datafiles don't have enough columns. A minimum of 3 columns is required.") );
+        return;
+    }
+
+    int Xcol, Ycol;
+    if(!getIntNum(Xcol, 2, ColumnMinSize, QString("Set X column number from 2 to %1") .arg(ColumnMinSize))){
+            ui->statusbar->showMessage("No action was performed.",10000);
+        return;
+    }
+    if(!getIntNum(Ycol, 3, ColumnMinSize, QString("Set Y column number from 2 to %1") .arg(ColumnMinSize))){
+            ui->statusbar->showMessage("No action was performed.",10000);
+        return;
+    }
+
+    double theta, previousValue;
+    if(!getDoubleNum(theta, QString("Set phase (theta), from 0 to 360:\n(Note: Introduced value is not cumulative.)"), true )){
+            ui->statusbar->showMessage("No action was performed.",10000);
+        return;
+    }
+    if((theta<0) || (theta>360)){
+        QMessageBox::warning(this, "Warning", QString("To perform this operation, only phase values between 0 and 360 are allowed.\nNo action was performed."));
+        ui->statusbar->showMessage("No action was performed.",10000);
+        return;
+    }
+
+    previousValue=previousTheta;
+    previousTheta=theta;
+
+    // 2- We make the backup.
+    Backup();// It is very important to include the backup BEFORE any data manipulation.
+
+    // 3- We apply the function on the AllData 4Dvector.
+
+    for(int q=0; q<AllData[0].size(); q++){                                //Run over all files
+        Change_XY(AllData[0][q], Xcol, Ycol, theta-previousValue);
+    }
+
+    // 4- We plot all.
+    plotall();
+
+    AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
+    AllActions[AllActions.size()-1].resize(5);
+    AllActions[AllActions.size()-1][0]="47";
+    AllActions[AllActions.size()-1][1]=QString("%1") .arg(Xcol);
+    AllActions[AllActions.size()-1][2]=QString("%1") .arg(Ycol);
+    AllActions[AllActions.size()-1][3]=QString("%1") .arg(theta);
+    AllActions[AllActions.size()-1][4]=QString("%1") .arg(previousValue);
+
+    ui->statusbar->showMessage(QString("X and Y channels have been recalculated with a phase of %1 degrees.")  .arg(theta) ,10000);
+}
+
+void MainWindow::on_actionMaximize_X_at_particular_energy_triggered(){
+    // 1- We check if files have been opened.
+    if(filenames.isEmpty()){
+        QMessageBox::warning(this, "Warning", QString("Please, first open new files to proceed with this action.") );
+        return;
+    }
+    if(ColumnMinSize < 3){
+        QMessageBox::warning(this, "Warning", QString("Datafiles don't have enough columns. A minimum of 3 columns is required.") );
+        return;
+    }
+
+    int Xcol, Ycol;
+    if(!getIntNum(Xcol, 2, ColumnMinSize, QString("Set X column number from 2 to %1") .arg(ColumnMinSize))){
+            ui->statusbar->showMessage("No action was performed.",10000);
+        return;
+    }
+    if(!getIntNum(Ycol, 3, ColumnMinSize, QString("Set Y column number from 2 to %1") .arg(ColumnMinSize))){
+            ui->statusbar->showMessage("No action was performed.",10000);
+        return;
+    }
+
+    double min,max;
+    double AbsMin, AbsMax; //Absolute min and max amongst all spectra
+    double minMax, maxMin; //min max is the lowest max value, and max min is the largest lowest value amongst all files.
+    AbsMin = FindMinFile(filenames.at(0));
+    AbsMax = FindMaxFile(filenames.at(0));
+    minMax=AbsMin;
+    maxMin=AbsMax;
+
+    for(int q=1; q<filenames.size();q++){
+        min = FindMinFile(filenames.at(q));
+        max = FindMaxFile(filenames.at(q));
+        if(AbsMin>min){
+            AbsMin=min;
+        }
+        if(AbsMax<max){
+            AbsMax=max;
+        }
+        if(minMax<min){
+            minMax=min;
+        }
+        if(maxMin>max){
+            maxMin=max;
+        }
+    }
+
+    double energy;
+    if(!getDoubleNum(energy, QString("Set energy value to be maximized, from %1 to %2:") .arg(minMax) .arg(maxMin), true )){
+            ui->statusbar->showMessage("No action was performed.",10000);
+        return;
+    }
+
+    // 2- We make the backup.
+    Backup();// It is very important to include the backup BEFORE any data manipulation.
+
+    // 3- We apply the function on the AllData 4Dvector.
+    int phaseMin, phaseMax, phase;
+    phaseMin = Max_X(AllData[0][0],Xcol,Ycol,energy);
+    phaseMax = phaseMin;
+
+    if(AllData[0].size()>1){
+        for(int q=1; q<AllData[0].size(); q++){                                //Run over all files
+            phase = Max_X(AllData[0][q],Xcol,Ycol,energy);
+            if(phase>phaseMax){
+                phaseMax=phase;
+            }else if(phase<phaseMin){
+                phaseMin=phase;
+            }
+        }
+    }
+
+    // 4- We plot all.
+    plotall();
+
+    AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
+    AllActions[AllActions.size()-1].resize(4);
+    AllActions[AllActions.size()-1][0]="46";
+    AllActions[AllActions.size()-1][1]=QString("%1") .arg(Xcol);
+    AllActions[AllActions.size()-1][2]=QString("%1") .arg(Ycol);
+    AllActions[AllActions.size()-1][3]=QString("%1") .arg(energy);
+
+    if(phaseMin==phaseMax){
+        ui->statusbar->showMessage(QString("The X channel has been maximized by upshifting the phase %1 degrees.") .arg(phaseMin) ,10000);
+    }else{
+        ui->statusbar->showMessage(QString("The X channel has been maximized for all data files by upshifting the phase from %1 to %2 degrees.") .arg(phaseMin) .arg(phaseMax) ,10000);
+    }
+}
 
 void MainWindow::on_actionGenerate_code_triggered(){
     if(ActionsPerformed()){
@@ -5687,6 +6659,150 @@ void MainWindow::on_actionX_Y_R_Theta_triggered(){
     ui->statusbar->showMessage(QString("R and Theta have been calculated from X and Y and added as new columns.") ,10000);
 }
 
+void MainWindow::on_actionAbsolute_value_triggered(){
+    // 1- We check if files have been opened.
+    if(filenames.isEmpty()){
+        QMessageBox::warning(this, "Warning", QString("Please, first open new files to proceed with this action.") );
+        return;
+    }
+
+    // 2- We make the backup.
+    Backup();// It is very important to include the backup BEFORE any data manipulation.
+
+    // 3- We apply the function on the AllData 4Dvector.
+    for(int q=0; q<AllData[0].size(); q++){                                //Run over all files
+        absoluteValue(AllData[0][q],columnPlot);
+    }
+
+    // 4- We plot all.
+    plotall();
+
+    AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
+    AllActions[AllActions.size()-1].resize(2);
+    AllActions[AllActions.size()-1][0]="58";
+    AllActions[AllActions.size()-1][1]=QString("%1") .arg(columnPlot);
+
+    if(columnPlot==0){
+        ui->statusbar->showMessage(QString("The absolute value have been calculated for all columns."),10000);
+    }else{
+        ui->statusbar->showMessage(QString("The absolute value has been calculated for column %1.") .arg(columnPlot) ,10000);
+    }
+
+}
+
+void MainWindow::on_actionArc_sinus_triggered(){ // Y cols
+    // 1- We check if files have been opened.
+    if(filenames.isEmpty()){
+        QMessageBox::warning(this, "Warning", QString("Please, first open new files to proceed with this action.") );
+        return;
+    }
+
+    // 2- We make the backup.
+    Backup();// It is very important to include the backup BEFORE any data manipulation.
+
+    // 3- We apply the function on the AllData 4Dvector.
+    for(int q=0; q<AllData[0].size(); q++){                                //Run over all files
+        arcsine(AllData[0][q],columnPlot);
+    }
+
+    // 4- We plot all.
+    plotall();
+
+    AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
+    AllActions[AllActions.size()-1].resize(2);
+    AllActions[AllActions.size()-1][0]="54";
+    AllActions[AllActions.size()-1][1]=QString("%1") .arg(columnPlot);
+
+    if(columnPlot==0){
+        ui->statusbar->showMessage(QString("Arcsine have been calculated for all columns."),10000);
+    }else{
+        ui->statusbar->showMessage(QString("Arcsine has been calculated for column %1.") .arg(columnPlot) ,10000);
+    }
+}
+
+void MainWindow::on_actionArcosine_triggered(){ // Y cols
+    // 1- We check if files have been opened.
+    if(filenames.isEmpty()){
+        QMessageBox::warning(this, "Warning", QString("Please, first open new files to proceed with this action.") );
+        return;
+    }
+
+    // 2- We make the backup.
+    Backup();// It is very important to include the backup BEFORE any data manipulation.
+
+    // 3- We apply the function on the AllData 4Dvector.
+    for(int q=0; q<AllData[0].size(); q++){                                //Run over all files
+        arccosine(AllData[0][q],columnPlot);
+    }
+
+    // 4- We plot all.
+    plotall();
+
+    AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
+    AllActions[AllActions.size()-1].resize(2);
+    AllActions[AllActions.size()-1][0]="55";
+    AllActions[AllActions.size()-1][1]=QString("%1") .arg(columnPlot);
+
+    if(columnPlot==0){
+        ui->statusbar->showMessage(QString("Arccosine have been calculated for all columns."),10000);
+    }else{
+        ui->statusbar->showMessage(QString("Arccosine has been calculated for column %1.") .arg(columnPlot) ,10000);
+    }
+
+}
+
+void MainWindow::on_actionArcsine_triggered(){ // X col
+    // 1- We check if files have been opened.
+    if(filenames.isEmpty()){
+        QMessageBox::warning(this, "Warning", QString("Please, first open new files to proceed with this action.") );
+        return;
+    }
+
+    // 2- We make the backup.
+    Backup();// It is very important to include the backup BEFORE any data manipulation.
+
+    // 3- We apply the function on the AllData 4Dvector.
+    for(int q=0; q<AllData[0].size(); q++){                                //Run over all files
+        arcsine(AllData[0][q],1);
+    }
+
+    // 4- We plot all.
+    plotall();
+
+    AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
+    AllActions[AllActions.size()-1].resize(2);
+    AllActions[AllActions.size()-1][0]="56";
+    AllActions[AllActions.size()-1][1]=QString("%1") .arg(1);
+
+     ui->statusbar->showMessage(QString("Arcsine have been calculated for column 1 (x Axis)."),10000);
+}
+
+void MainWindow::on_actionArccosine_triggered(){ // X col
+    // 1- We check if files have been opened.
+    if(filenames.isEmpty()){
+        QMessageBox::warning(this, "Warning", QString("Please, first open new files to proceed with this action.") );
+        return;
+    }
+
+    // 2- We make the backup.
+    Backup();// It is very important to include the backup BEFORE any data manipulation.
+
+    // 3- We apply the function on the AllData 4Dvector.
+    for(int q=0; q<AllData[0].size(); q++){                                //Run over all files
+        arccosine(AllData[0][q],1);
+    }
+
+    // 4- We plot all.
+    plotall();
+
+    AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
+    AllActions[AllActions.size()-1].resize(2);
+    AllActions[AllActions.size()-1][0]="57";
+    AllActions[AllActions.size()-1][1]=QString("%1") .arg(1);
+
+     ui->statusbar->showMessage(QString("Arccosine have been calculated for column 1 (x Axis)."),10000);
+}
+
 void MainWindow::on_actionExponenciate_2_triggered(){// Pow to Y axis.
     // 1- We check if files have been opened.
     if(filenames.isEmpty()){
@@ -5696,7 +6812,7 @@ void MainWindow::on_actionExponenciate_2_triggered(){// Pow to Y axis.
 
     // 1.2 - Get input.
     double result;
-    if(!getDoubleNum(result, "Set power value: \n(e.g. 1 will lead to no changes, 0.5 will perform square root and 2 will perform square)")){
+    if(!getDoubleNum(result, "Set power value: \n(e.g. 1 will lead to no changes, 0.5 will perform square root and 2 will perform square)", true)){
         return;
     }
 
@@ -5715,7 +6831,6 @@ void MainWindow::on_actionExponenciate_2_triggered(){// Pow to Y axis.
     RememberInv.resize(AllActions.size()+1);
     RememberInv[RememberInv.size()-1].resize(1);
     RememberInv[RememberInv.size()-1][0]=result;
-
 
     ActionCol.resize(ActionCol.size()+1); // because this action can be performed over all columns simultaneously
     ActionCol[ActionCol.size()-1] = 30;
@@ -5776,7 +6891,7 @@ void MainWindow::on_actionLogarithm_4_triggered(){// Log to a Y column.
     }
 
     double result;
-    if(!getDoubleNum(result, "Introduce base of logarithm: \n(e.g. for base 10 introduce 10, for natural log introduce 2.71828182845904523536)")){
+    if(!getDoubleNum(result, "Introduce base of logarithm: \n(e.g. for base 10 introduce 10, for natural log introduce 2.71828182845904523536)", true)){
         return;
     }
 
@@ -5929,7 +7044,7 @@ void MainWindow::on_actionIntegrate_triggered(){
 
     // 3- We apply the function on the AllData 4Dvector.
     for(int q=0; q<AllData[0].size(); q++){                                //Run over all files
-        integrate(AllData[0][q], columnPlot);
+        integrateFunc(AllData[0][q], columnPlot);
     }
 
     // 4- We plot all.
@@ -6025,12 +7140,14 @@ void MainWindow::on_actionClean_interferences_by_FFT_triggered(){
     bool error1=1;
     while(error1){
 
-        if(!getDoubleNum(lowfreq, QString("Introduce lowest frequency to filter (an example value is %1).\nHint: To estimate the frequency of the interference to delete subtract the maximum of two consecutive peaks and take its inverse 1/(x_max(i)-x_max(i+1)).") .arg(0.9*suggestion))){
+        QString myMessage1 = QString("Introduce lowest frequency to filter (an example value is %1):\nHint: To estimate the frequency of the interference to delete subtract the maximum of two consecutive peaks and take its inverse 1/(x_max(i)-x_max(i+1)).") .arg(0.9*suggestion);
+        if(!getDoubleNum(lowfreq, myMessage1, true)){
            ui->statusbar->showMessage("No action was performed.",10000);
            return;
         }
 
-        if(!getDoubleNum(highfreq, QString("Introduce maximum frequency to filter (an example value is %1)") .arg(1.1*suggestion))){
+        QString myMessage2 = QString("Introduce maximum frequency to filter (an example value is %1):") .arg(1.1*suggestion);
+        if(!getDoubleNum(highfreq, myMessage2, true)){
             ui->statusbar->showMessage("No action was performed.",10000);
             return;
         }
@@ -6102,7 +7219,7 @@ void MainWindow::on_actionAdd_constant_3_triggered(){       // It adds a constan
     }
 
     double result;
-    if(!getDoubleNum(result, "Set constant value to be added:")){
+    if(!getDoubleNum(result, "Set constant value to be added:", true)){
         return;
     }
 
@@ -6143,7 +7260,8 @@ void MainWindow::on_actionMultiply_constant_4_triggered(){  // It multiplies a c
     }
 
     double value;
-    if(!getDoubleNum(value, "Introduce multiplication value")){
+
+    if(!getDoubleNum(value, "Introduce multiplication value:", true)){
         return;
     }
 
@@ -6167,7 +7285,6 @@ void MainWindow::on_actionMultiply_constant_4_triggered(){  // It multiplies a c
     AllActions[AllActions.size()-1][1]=QString("%1") .arg(columnPlot);
     AllActions[AllActions.size()-1][2]=QString("%1") .arg(value);
 
-
     ui->statusbar->showMessage(QString("All plots have been multiplied by %1") .arg(value),10000);
 }
 
@@ -6182,9 +7299,42 @@ void MainWindow::on_actionAll_data_triggered(){
         QMessageBox::warning(this, "Warning", QString("Please, first open new files to proceed with this action.") );
         return;
     }
+    if(filenames.size()<2){
+        QMessageBox::warning(this, "Warning", QString("Please, first open multiple files to proceed with this action.") );
+        return;
+    }
     flag1=1;
+    plottedSingleFile=0;
     plotall();
     ui->statusbar->showMessage("All data is plotted. Remember that the number of plotted data can be set in 'Graph->Plot->Set max. number of plots'.",10000);
+}
+
+void MainWindow::on_actionSingle_data_file_triggered(){
+    if(filenames.isEmpty()){
+        QMessageBox::warning(this, "Warning", QString("Please, first open new files to proceed with this action.") );
+        return;
+    }
+    if(filenames.size()<2){
+        QMessageBox::warning(this, "Warning", QString("Please, first open multiple files to proceed with this action.") );
+        return;
+    }
+
+    int Selection;
+    if(!getIntNum(Selection, 1, filenames.size(), QString("Data file to be plotted, from the first to the last (from 1 to %1)") .arg(filenames.size()))){
+            ui->statusbar->showMessage("No action was performed.",10000);
+        return;
+    }
+    if((Selection<1) || (Selection>filenames.size())){
+        QMessageBox::warning(this, "Warning", QString("No valid input was introduced, it should be from 1 to %1.\nNo action was peformed.") .arg(filenames.size()) );
+        return;
+    }
+
+    flag1=0;
+    plottedSingleFile = Selection-1;
+    ui->plot->clearGraphs();
+    ui->plot->addGraph();
+    plotall();
+    ui->statusbar->showMessage("Only first datafile is plotted",10000);
 }
 
 void MainWindow::on_actionOnly_first_datafile_triggered(){
@@ -6193,6 +7343,7 @@ void MainWindow::on_actionOnly_first_datafile_triggered(){
         return;
     }
     flag1=0;
+    plottedSingleFile =0;
     ui->plot->clearGraphs();
     ui->plot->addGraph();
     plotall();
@@ -6213,6 +7364,7 @@ void MainWindow::on_actionSet_max_number_of_plots_triggered(){
             ui->statusbar->showMessage("No action was performed.",10000);
         return;
     }
+    plottedSingleFile=0;
     //plotNumLim = QInputDialog::getInt(this, "Input",QString("Introduce limit of files to be plotted (introduce 0 to plot all files). \nCurrent limit is %1. Current number of opened files is %2.") .arg(plotNumLim) .arg(filenames.size()),0,0,filenames.size()); //Only takes positive numbers.
     VerticalShift=0; //reset some parameters in case they were manipulated before opening this new files.
     ResetBackup();
@@ -6250,14 +7402,16 @@ void MainWindow::on_actionUndo_triggered(){
 
 //    if(AllActions.size()>0){ //This was not the proper undo condition
 
-   if(!AllData[1].empty()){
-//          QMessageBox::information(this, "Information", QString("AllActions size is larger than 0, %1\nThe size of AllData is %2") .arg(AllActions.size()) .arg(AllData.size()) );
-//          QMessageBox::information(this, "Information", QString("AllData is empty for: i =0 (%1), 1(%2), 2(%3), 3(%4), 4(%5), 5(%6)") .arg(AllData[0].empty()) .arg(AllData[1].empty()) .arg(AllData[2].empty()) .arg(AllData[3].empty()) .arg(AllData[4].empty()) .arg(AllData[5].empty()) );
+   if(!filenames.isEmpty()){
+       if(!AllData[1].empty()){
+    //          QMessageBox::information(this, "Information", QString("AllActions size is larger than 0, %1\nThe size of AllData is %2") .arg(AllActions.size()) .arg(AllData.size()) );
+    //          QMessageBox::information(this, "Information", QString("AllData is empty for: i =0 (%1), 1(%2), 2(%3), 3(%4), 4(%5), 5(%6)") .arg(AllData[0].empty()) .arg(AllData[1].empty()) .arg(AllData[2].empty()) .arg(AllData[3].empty()) .arg(AllData[4].empty()) .arg(AllData[5].empty()) );
 
-        GetBackup();
-        plotall();
-        //UndoableActions--;
-        ui->statusbar->showMessage(QString("Last action has been undone. A maximum of %1 actions can be undone.") .arg(undo),10000);
+            GetBackup();
+            plotall();
+            //UndoableActions--;
+            ui->statusbar->showMessage(QString("Last action has been undone. A maximum of %1 actions can be undone.") .arg(undo),10000);
+       }
     }else if (AllFormatActions.size()>0){
         if(AllFormatActions[AllFormatActions.size()-1][0]=="2"){ //This needs to be done for rename extension option.
           prevExt.resize(prevExt.size()-1);
@@ -6324,7 +7478,7 @@ void MainWindow::on_actionActivated_triggered(){
             }
         }
 
-        if(!getDoubleNum(VerticalShift, QString("Set stacking value to vertically shift the plots. Suggested value is %1") .arg(maxVal))){
+        if(!getDoubleNum(VerticalShift, QString("Set stacking value to vertically shift the plots: \n(Suggested value is %1.)") .arg(maxVal))){
             return;
         }
 
@@ -6380,17 +7534,38 @@ void MainWindow::on_actionDisactivated_triggered(){
 }
 
 void MainWindow::on_actionlogarithmic_triggered(){
-
-    for (int i = 0; i< plotNum;i++){
+    if(filenames.isEmpty()){
+        QMessageBox::warning(this, "Warning", QString("Please, first open new files to proceed with this action.") );
+        return;
+    }
+    if(plottedSingleFile==0){ // if the first file, or all files are plotted.
+        for (int i = 0; i< plotNum;i++){ // run over files.
+            if(columnPlot!=0){ // single column mode
+                double* min_y = std::min_element(AllData[0][i][columnPlot-1].begin(), AllData[0][i][columnPlot-1].end());
+                    if(*min_y<=0){
+                        QMessageBox::warning(this, "Warning!", QString("Some datafiles contain negative y values. Log scale cannot be represented.") );
+                        return;
+                    }
+            }else{    //all columns to be plotted
+                for(int q=1; q< AllData[0][i].size();q++){ // run over columns
+                    double* min_y = std::min_element(AllData[0][i][q].begin(), AllData[0][i][q].end());
+                        if(*min_y<=0){
+                            QMessageBox::warning(this, "Warning!", QString("Some datafiles contain negative y values. Log scale cannot be represented.") );
+                            return;
+                        }
+                }
+            }
+        }
+    }else{
         if(columnPlot!=0){
-            double* min_y = std::min_element(AllData[0][i][columnPlot-1].begin(), AllData[0][i][columnPlot-1].end());
+            double* min_y = std::min_element(AllData[0][plottedSingleFile][columnPlot-1].begin(), AllData[0][plottedSingleFile][columnPlot-1].end());
                 if(*min_y<=0){
                     QMessageBox::warning(this, "Warning!", QString("Some datafiles contain negative y values. Log scale cannot be represented.") );
                     return;
                 }
         }else{
-            for(int q=1; q< AllData[0][i].size();q++){
-                double* min_y = std::min_element(AllData[0][i][q].begin(), AllData[0][i][q].end());
+            for(int q=1; q< AllData[0][plottedSingleFile].size();q++){ // run over columns
+                double* min_y = std::min_element(AllData[0][plottedSingleFile][q].begin(), AllData[0][plottedSingleFile][q].end());
                     if(*min_y<=0){
                         QMessageBox::warning(this, "Warning!", QString("Some datafiles contain negative y values. Log scale cannot be represented.") );
                         return;
@@ -6410,6 +7585,10 @@ void MainWindow::on_actionlogarithmic_triggered(){
 }
 
 void MainWindow::on_actionLinear_triggered(){
+    if(filenames.isEmpty()){
+        QMessageBox::warning(this, "Warning", QString("Please, first open new files to proceed with this action.") );
+        return;
+    }
     ui->plot->yAxis->setScaleType(QCPAxis::ScaleType::stLinear);
     QSharedPointer<QCPAxisTicker> mLinTicker (new QCPAxisTicker);
     log = false;
@@ -6451,7 +7630,6 @@ void MainWindow::on_actionSet_start_of_Col_1_triggered(){
    if(!getDoubleNum(startValue, message)){
        return;
    }
-   //QMessageBox::warning(this,"Warning", QString("You have selected %1") .arg(startValue) );
 
         if(!(((start<startValue)&&(startValue<end))||((start>startValue)&&(startValue>end)))){
             QMessageBox::warning(this,"Warning", QString("Starting value must be between %1 and %2. No action has been perfomed.") .arg(start) .arg(end) );
@@ -7113,12 +8291,20 @@ void MainWindow::on_actionInformation_triggered(){
 // ***************************************************** EVENTS *****************************************************
 // ******************************************************************************************************************
 
+void MainWindow::selectedGraph(){
+    for(int q =0; q< ui->plot->graphCount(); q++){
+        if(ui->plot->graph(q) == ui->plot->selectedGraphs().first()){
+            ui->statusbar->showMessage(QString("Selected plot name is: %1") .arg(graphNamesLegend.at(q))  ,10000);
+        }
+    }
+}
+
 void MainWindow::clickedGraph(QMouseEvent *event){
     QPoint point = event->pos();
     double x = ui->plot->xAxis->pixelToCoord(point.x());
     double y = ui->plot->yAxis->pixelToCoord(point.y());
     ui->statusbar->showMessage(QString("x = %1, y = %2. Values copied to clipboard (press Ctrl+V to paste elsewhere).") .arg(x) .arg(y) ,10000);
-    string result =std::to_string(x) + "\t" + std::to_string(y);
+    string result =std::to_string(x) + "\t" + std::to_string(y) + "\r\n";
     toClipboard(result);
 }
 
@@ -7183,3 +8369,6 @@ void MainWindow::toClipboard(const std::string &s){
 //        ui->statusbar->showMessage("No action was performed.",10000);
 //    return;
 //}
+
+
+
