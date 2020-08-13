@@ -329,7 +329,7 @@
     </widget>
     <widget class="QMenu" name="menuColumns_2">
      <property name="title">
-      <string>&amp;Columns...</string>
+      <string>Operate &amp;Columns...</string>
      </property>
      <addaction name="actionSet_x_column"/>
      <addaction name="actionDuplicate_Column"/>
@@ -349,6 +349,7 @@
      <property name="title">
       <string>Operate with &amp;ref. file(s)</string>
      </property>
+     <addaction name="actionAdd_reference_files"/>
      <addaction name="actionAdd_ref_file"/>
      <addaction name="actionSubtract_ref_file_s"/>
      <addaction name="actionMultiply_ref_files_s"/>
@@ -363,11 +364,9 @@
     </widget>
     <addaction name="actionSet_Plot_Column"/>
     <addaction name="menuColumns_2"/>
+    <addaction name="separator"/>
     <addaction name="menuOperate_with_ref_column"/>
-    <addaction name="separator"/>
-    <addaction name="actionAdd_reference_files"/>
     <addaction name="menuOperate_with_ref_file_s"/>
-    <addaction name="separator"/>
     <addaction name="menuOperate_multiple_files"/>
     <addaction name="separator"/>
     <addaction name="menuAutomate_Actions"/>
@@ -380,7 +379,26 @@
    <addaction name="menuFormat"/>
    <addaction name="menuAbout"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QStatusBar" name="statusbar">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>16777215</width>
+     <height>25</height>
+    </size>
+   </property>
+   <property name="baseSize">
+    <size>
+     <width>0</width>
+     <height>0</height>
+    </size>
+   </property>
+  </widget>
   <widget class="QToolBar" name="toolBar">
    <property name="windowTitle">
     <string>toolBar</string>
@@ -907,7 +925,7 @@
      <normaloff>:/Images/24x24/Folder-Create-24x24 - copia.png</normaloff>:/Images/24x24/Folder-Create-24x24 - copia.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Add reference file(s)</string>
+    <string>Set &amp;reference file(s)</string>
    </property>
   </action>
   <action name="actionTo_one">

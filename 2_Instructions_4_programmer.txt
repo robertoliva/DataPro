@@ -9,9 +9,8 @@ Important global variables:
 	7- int plotNum;							// Number of plots in the program.
 	8- QVector<QVector<QVector<QVector<double>>>> AllData;  	// 4D Vector used for plotting only. [Historical][files][columns][rows]
 	9- QVector<QVector<QVector<QVector<double>>>> ReferenceData;	// Idem, for reference data.
-    	10- QVector<QVector<int>> AllActions; 				// Remembers all actions performed to be applied in the moment of saving. [Action#][indexes]
-	11- QVector<QVector<double>> RememberInv;			// Info stored as double that could not be stored in the AllActions cuz that's int only.
-	12- QVector<QVector<QString>> AllFormatActions;			// Remembers all format actions performed to be applied in the moment of exporting. [Action#][indexes] 
+    	10- QVector<QVector<QString>> AllActions; 			// Remembers all actions performed to be applied in the moment of saving. [Action#][indexes]
+	11- QVector<QVector<QString>> AllFormatActions;			// Remembers all format actions performed to be applied in the moment of exporting. [Action#][indexes] 
 
 Step-by-step instruction to include a new function into the program.
  - If the function is meant to modify data upon save option.
@@ -30,16 +29,9 @@ Step-by-step instruction to include a new function into the program.
 		f) Update Allactions:
 		        AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
     			AllActions[AllActions.size()-1].resize(2);
-    			AllActions[AllActions.size()-1][0]=2;
-   			AllActions[AllActions.size()-1][1]=result;
+    			AllActions[AllActions.size()-1][0]="2";
+   			AllActions[AllActions.size()-1][1]=QString("%1").arg(result);
 				Include the new case also as a comment in mainwindow.h under AllActions definition.
-		g) If the function called needs some double parameter, it must be stored in RememberInv[][]:
-			RememberInv.resize(AllActions.size()+1);
-    			RememberInv[RememberInv.size()-1].resize(0);
-		        RememberInv[RememberInv.size()-1][0]=result1;
-		h) If the function can be performed over all columns (AllColumns = true), add:
-   			ActionCol.resize(ActionCol.size()+1); // because this action can be performed over all columns simultaneously
-  			ActionCol[ActionCol.size()-1] = 3;
 	3. Define the function(s) in mainwindow.h. We make it access a 2D vector by reference to manipulate it.
 	4. Introduce function in mainwindow.cpp, calling the class "MainWindow::": void MainWindow::SwapCols(QVector<QVector<double>> &AllData, int result1, int result2){
 		a) In case the function operates on a certain colum, the case where all columns are being operated at the same time must be considered.

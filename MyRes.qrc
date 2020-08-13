@@ -229,5 +229,6 @@
         <file>logo/logo2.ico</file>
         <file>logo/logo3.ico</file>
         <file>logo/logo4.ico</file>
+        <file>24x24/wait_man.gif</file>
     </qresource>
 </RCC>

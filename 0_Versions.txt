@@ -31,13 +31,25 @@ PPE_v0_2_4_1	Can undo format actions. Can Find and replace characters, UNDO opti
 		Format->Rename->Extensions extension can be exported and undone, but after SAVING it seems to have forgotten the updated importnames names.
 PPE_v0_2_4_2	F.V. Format->Rename->Extensions extension can be exported and undone. 
 PPE_github	v0_2_4_2	This version has been set to be uploaded in github.
-PPE_github	Format->Modfy datapoint numbers -> Set step is working and can be undone. Also it checks if number of rows coincides with expected value from detected constant step.
+PPE_github	v_1_0 Format->Modfy datapoint numbers -> Set step is working and can be undone. Also it checks if number of rows coincides with expected value from detected constant step.
 		Format->Modfy datapoint numbers fully works. Many errors have been corrected also.
 		All format options have been set and improved.
 		Created LaplaceSmoothing action. Can integrate and differentiate the spectra. Can convert spectroscopic units. Can "average all columns" and "set start of Col 1". Can convert XY to and from R Theta. Operates multiple files (adds and averages). Undo options improved. Can normalize to first column. Legend improved. Changing between "allColumn mode" to single column mode is allowed and save, also works with UNDO option. 'export/import actions code' option is also available and working. It can now multiply X axis. It shows in the
 status bar the name of the graph if it has been selected. It can delete a few columns simultaneously. It can maximize a channel for PR measurements. Int double get data from user
 can be cancelled, and also shows a suggested value. Can plot selected data file rather than just first. Can make a few more operations on X and Y columns (analysis). Can recalculate
 X and Y with user-defined phase. Can create dummy column. Allows user to plot a particular datafile. Allows to delete all files. Allows to drag and drop files to be opened. Plots much faster because now it first scales and then plots the modified spectra. Some extra bugs have been corrected.
+
+PPE_github	v_1_0_1 Import now updates the startingDirectory. 
+			Format actions have been significantly improved: 
+										Bugs corrected. Can UNDO. All actions can work consecutivelly using tempfile. 													Ctrl+N destroys temp file. Ctrl+I updates startingDirectory. 
+										Filenames cannot be changed if AFA is not empty.
+			ColMinSize bug after saving corrected. 
+			Huge bug corrected: Substituted RememberInv by AllActions, this was causing many troubles after applying another dumb function, undo, and do!
+				RememberInv no longer exists :-D!
+				ActionCol has also been destroyed from the code, it no longer exists, making the code simpler =)
+			Has a Progress bar!!
+
+
 
 		- Note: I commented some last lines of ui_mainwindow.h to solve some compiling errors that could be related with the fact that I deleted some unused actions in mainwindow.ui defined in previous versions. Can make backup (in File menu). Can operate opened files with reference file(s).
 
@@ -56,6 +68,7 @@ To Do in the near future:
 
 IDEAS FOR FUTURE VERSIONS:
 
+ - Allow user to subtract a line defined by two doubleclicks on the graph.
  - Consider saving data inside the program's folder (hard drive instead of RAM) so that the user can safe his own codes, or the program can remember some other options like start with legend ON or OFF.
  - It should be able to change other type of units such as magnitudes (e.g. nm to eV, Kilo, Mega, Giga, nano, pico... ...), temperature, Raman or time.
  - Units should be visible in the Axis, also in the headers of the columns (header read+writte must be implemented).

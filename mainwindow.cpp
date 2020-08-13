@@ -1,6 +1,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include<QInputDialog>
+#include <QInputDialog>
+#include <QtGui>
+#include <QtCore>
+
 using namespace std;
 
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow){
@@ -8,6 +11,16 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
     setAcceptDrops(true);
 
     ui->setupUi(this);
+
+    Statlabel = new QLabel(this);
+    StatProgress = new QProgressBar(this);
+    ui->statusbar->addPermanentWidget(Statlabel);
+    ui->statusbar->addPermanentWidget(StatProgress);
+    Statlabel->setMaximumHeight(10);
+    StatProgress->setMaximumHeight(20);
+    StatProgress->setAlignment(Qt::AlignCenter);
+    StatProgress->setVisible(false);
+
     this->setWindowTitle("DataPro (DP)");
     Logo =":/Images/logo/logo4.ico";
     setWindowIcon(QIcon(Logo));
@@ -63,7 +76,9 @@ MainWindow::~MainWindow(){
 
 void MainWindow::RunOverActions(QVector<QVector<double>> &TemporalArr, int q, int &TempCol, int &TempColRef){
     for(int w=0;w<AllActions.size();w++){                  // Run over all actions
+        myProgress(w, AllActions.size());
         int y = (int) AllActions[w][0].toInt();            // Maybe the (int) was redundant since i think at the beggining actions was a double.
+       // qDebug() << QString("I am performing action num %1. ColumnMinSize is now %2") .arg(y) .arg(ColumnMinSize);
         switch (y) {
             case 1:{
                 TempCol = AllActions[w][1].toInt();
@@ -118,11 +133,11 @@ void MainWindow::RunOverActions(QVector<QVector<double>> &TemporalArr, int q, in
             break;
             }
             case 13:{
-                MultConsty(TemporalArr, RememberInv[w][q], AllActions[w][1].toInt());
+                MultConsty(TemporalArr, AllActions[w][2].split("/").at(q).toDouble(), AllActions[w][1].toInt());
             break;
             }
             case 14:{
-                MultConsty(TemporalArr, RememberInv[w][q], AllActions[w][1].toInt());
+                MultConsty(TemporalArr, AllActions[w][2].split("/").at(q).toDouble(), AllActions[w][1].toInt());
             break;
             }
             case 15:{
@@ -130,15 +145,15 @@ void MainWindow::RunOverActions(QVector<QVector<double>> &TemporalArr, int q, in
             break;
             }
             case 16:{
-                spikinator(TemporalArr, AllActions[w][1].toInt(), AllActions[w][2].toInt(), RememberInv[w][0], 1);
+                spikinator(TemporalArr, AllActions[w][1].toInt(), AllActions[w][2].toInt(), AllActions[w][3].toDouble(), 1);
             break;
             }
             case 17:{
-                VerticalStack(TemporalArr, q,  AllActions[w][1].toDouble()-AllActions[w][2].toDouble());
+                VerticalStack(TemporalArr, q, AllActions[w][1].toDouble()-AllActions[w][2].toDouble());
             break;
             }
             case 18:{
-                BallBaseline(TemporalArr, AllActions[w][1].toInt(), RememberInv[w][0]);
+                BallBaseline(TemporalArr, AllActions[w][1].toInt(), AllActions[w][2].toDouble());
             break;
             }
             case 19:{
@@ -147,7 +162,7 @@ void MainWindow::RunOverActions(QVector<QVector<double>> &TemporalArr, int q, in
             break;
             }
             case 20:{
-                Filter(TemporalArr, AllActions[w][1].toInt(), RememberInv[w][0], RememberInv[w][1]);
+                Filter(TemporalArr, AllActions[w][1].toInt(), AllActions[w][2].toDouble(), AllActions[w][3].toDouble());
             break;
             }
             case 21:{
@@ -172,32 +187,32 @@ void MainWindow::RunOverActions(QVector<QVector<double>> &TemporalArr, int q, in
             break;
             }
             case 26:{
-                AddConstantX(TemporalArr,RememberInv[w][0]);
+                AddConstantX(TemporalArr, AllActions[w][1].toDouble());
             break;
             }
             case 27:{
-                ExponentiateX(TemporalArr,RememberInv[w][0]);
+                ExponentiateX(TemporalArr, AllActions[w][1].toDouble());
             break;
             }
             case 28:{
-                logarithm(TemporalArr,AllActions[w][1].toInt(),RememberInv[w][0]);
+                logarithm(TemporalArr, AllActions[w][1].toInt(), AllActions[w][2].toDouble());
             break;
             }
             case 29:{
-                logarithmX(TemporalArr,RememberInv[w][0]);
+                logarithmX(TemporalArr, AllActions[w][1].toDouble());
             break;
             }
             case 30:{
-                Exponentiate(TemporalArr,AllActions[w][1].toInt(),RememberInv[w][0]);
+                Exponentiate(TemporalArr, AllActions[w][1].toInt(), AllActions[w][2].toDouble());
             break;
             }
             case 31:{
-                UnitsEnergy(TemporalArr,AllActions[w][1].toInt(),AllActions[w][2].toInt());
+                UnitsEnergy(TemporalArr, AllActions[w][1].toInt(), AllActions[w][2].toInt());
             break;
             }
             case 32:{
                 // calibration.
-                AddConstantX(TemporalArr,RememberInv[w][0]);
+                AddConstantX(TemporalArr,AllActions[w][1].toDouble());
             break;
             }
             case 33:{
@@ -248,7 +263,7 @@ void MainWindow::RunOverActions(QVector<QVector<double>> &TemporalArr, int q, in
             break;
             }
             case 44:{
-                MultiplyConstantX(TemporalArr,RememberInv[w][0]);
+                MultiplyConstantX(TemporalArr,AllActions[w][1].toDouble());
             break;
             }
             case 45:{
@@ -310,18 +325,13 @@ void MainWindow::RunOverActions(QVector<QVector<double>> &TemporalArr, int q, in
             }
 
 
-
-
-//                AllActions[AllActions.size()-1].resize(1);
-//                AllActions[AllActions.size()-1][0]=17;
-//                RememberInv[RememberInv.size()-1][0]=VerticalShift
-
         }
     }
 }
 
 void MainWindow::PerformCodeActions(){
     for(int q =0; q<AllData[0].size(); q++){        // Should be running over all files now...
+        myProgress(q,AllData[0].size());
         int TempCol =2;                             // Working column, default 1.
         int TempColRef = 2;                         // Reference column, default 1.
         RunOverActions(AllData[0][q], q, TempCol, TempColRef);
@@ -330,18 +340,14 @@ void MainWindow::PerformCodeActions(){
 }
 
 void MainWindow::SaveAll(QStringList fitxers, QStringList fitxersSavedAt){
-   // QMessageBox::information(this, "Information", QString("The size of actions is %1 and size of rememberInv is %2") .arg(AllActions.size()) .arg(RememberInv.size()));
-   // QMessageBox::information(this, "Information", QString("Operation should be 2, %1, in col. [1], %2 and summed value is %3") .arg(AllActions[0][0].toInt()) .arg(AllActions[0][1].toInt()) .arg(AllActions[0][2].toDouble()));
-
-
-  //  AllActions[AllActions.size()-1][0]=2;
-  //  AllActions[AllActions.size()-1][1]=columnPlot;
-  //  RememberInv[RememberInv.size()-1][0]=result;
-
     QVector<QVector<QVector<QVector<double>>>> TemporalArr;
     int error =0;
 
+    findColRowNums(fitxers); //Now we know if all files have or don't have the same amount of rows and columns, and their ranges. Info stored in FileRowNums[] and FileColNums[].
+
     for(int q=0; q<fitxers.size(); q++){            // Run over all files
+        myProgress(q,fitxers.size());
+        ColumnMinSize=FileColNums[1]; //From now on we use ColumnMinSize since some functions will modify the num of columns in AllData[][][][] without modifying filenames.
         TemporalArr.resize(1);
         int tempNum =getOneData(fitxers.at(q), TemporalArr);
         if(tempNum==1){
@@ -381,7 +387,7 @@ void MainWindow::SaveAFA(bool rewritte){
     DeleteTempFolder(importnames[0]);
 
     for(int q=0; q<importnames.size(); q++){ //Run over files
-
+        myProgress(q, importnames.size());
         QFileInfo info(importnames.at(q));
         if(rewritte){                           // We set the inputnames and exportnames, which are the same if we rewritte.
             exportnames.append(importnames[q]);
@@ -401,7 +407,7 @@ void MainWindow::SaveAFA(bool rewritte){
         // QMessageBox::information(this, "Information3", QString("Inputnames is %1") .arg(inputnames[q]) );
 
         for(int w=0;w<AllFormatActions.size();w++){  // Run over actions.
-            if(w==0){
+            if(w==0){   // For the first action, we take the files from importnames, the next actions will be operated inside the Temp folder.
                 inputnames[q] = importnames[q];
             }else{
                 inputnames[q] = exportnames[q];// We make our operations over the same files. The problem is only to know where the 1st file [0] is in TempPreview or not.
@@ -411,27 +417,27 @@ void MainWindow::SaveAFA(bool rewritte){
             switch (y) {
                 case 1:{
                    // QMessageBox::information(this, "Information", QString("The function is called, input file is: %1\noutput file is %2\nFind string is: %3\nReplace string is: %4") .arg(inputnames[q]) .arg(exportnames[q]) .arg(AllFormatActions[w][1]) .arg(AllFormatActions[w][2]) );
-                    replacements[q] = replaceString(inputnames[q],exportnames[q], AllFormatActions[w][1], AllFormatActions[w][2], true);
+                    replacements[q] = replaceString(inputnames[q], exportnames[q], AllFormatActions[w][1], AllFormatActions[w][2], true);
                 break;
                 }
-                case 2:{
+                case 2:{ // I disabled this option in current version.
                     // QMessageBox::information(this, "Information", QString("Rewritte (save) is true or false: %1 and we want to change this filename\n\n %2\n\nWhich should be\n\n%3\n\n by this\n\n %4\n\n with this extension: %5. \n(Previous extension was %6)") .arg(rewritte) .arg(importnames[q]) .arg(inputnames[q]) .arg(exportnames[q]) .arg(AllFormatActions[w][1]) .arg(AllFormatActions[w][2]));
                     changeExtension(oldinputnames[q],exportnames[q],importnames[q], AllFormatActions[w][1], AllFormatActions[w][2], rewritte);
                 break;
                 }
                 case 3:{
                     // We use importnames instead of inputnames because this way we ensure no information is lost.
-                    createNewStep(importnames[q],exportnames[q], AllFormatActions[w][1].toDouble());
+                    createNewStep(inputnames[q],exportnames[q], AllFormatActions[w][1].toDouble());
                     // QMessageBox::information(this, "Information", QString("We want to create %1 \nfrom %2\n and with a step of %3") .arg(exportnames[q]) .arg(importnames[q]) .arg(AllFormatActions[w][1].toDouble()) );
                 break;
                 }
                 case 4:{
                     // We use importnames instead of inputnames because this way we ensure no information is lost.
-                    setRows(importnames[q], exportnames[q], AllFormatActions[w][1].toInt());
+                    setRows(inputnames[q], exportnames[q], AllFormatActions[w][1].toInt());
                 break;
                 }
                 case 5:{
-                    deletedLines = cleanDatafile(inputnames[q], exportnames[q], AllFormatActions[w][1].toInt());
+                    deletedLines += cleanDatafile(inputnames[q], exportnames[q], AllFormatActions[w][1].toInt());
                 break;
                 }
                 case 6:{
@@ -455,13 +461,12 @@ void MainWindow::SaveAFA(bool rewritte){
                     break;
                 }
                 case 11:{
+                    //qDebug() << QString("Working on start column. Inputnames are %1\nExport names are %2, AFA1 is %3") .arg(inputnames[q]) .arg(exportnames[q]) .arg(AllFormatActions[w][1].toDouble());
                     startValue(inputnames[q], exportnames[q], AllFormatActions[w][1].toDouble());
                     break;
                 }
             }
         }
-        rememberExt.clear();
-       // QMessageBox::information(this, "Information", QString("Import are now: \n\n%1") .arg(importnames[0]) );
     }
 }
 
@@ -524,8 +529,24 @@ void MainWindow::DeleteAll(QStringList files){
     }
 }
 
-void MainWindow::openPlotFiles(QStringList tempFilenames){
+void MainWindow::myProgress(int current, int end){
+    StatProgress->setVisible(true);
+    StatProgress->setTextVisible(false);
 
+    int percent;
+    if(end<=1){
+        StatProgress->setVisible(false);
+    }else{
+        percent = 100*current/(end-1);
+    }
+
+    StatProgress->setValue(percent);
+    if(current == (end-1)){
+        StatProgress->setVisible(false);
+    }
+}
+
+void MainWindow::openPlotFiles(QStringList tempFilenames){
     //We plot the first file
     if(tempFilenames.isEmpty()){
         ui->statusbar->showMessage("No data files were opened.",10000);
@@ -533,6 +554,7 @@ void MainWindow::openPlotFiles(QStringList tempFilenames){
     }else{
         if(tempFilenames.size()>0){
             for(int q=0; q<tempFilenames.size(); q++){ // We check that AllData has been loaded properly
+              //  myProgress(q, tempFilenames.size()); //Not so slow this part.
                 if(ColNums(tempFilenames.at(q))<2){
                     QMessageBox::warning(this, tr("Warning!"), tr("Files could not be opened due to the presence of corrupted files.\n(Tip #1: Check that there are no empty datafiles, and their numbers contain dots instead of commas as decimals without thousand separators)\n(Tip #2: In order to modify the format from 'Format' options first import files from 'Import datafile(s)')") );
                     return;
@@ -593,7 +615,6 @@ void MainWindow::openPlotFiles(QStringList tempFilenames){
 //*********MISCELLANEOUS FUNCTIONS***************
 
 void MainWindow::clearAllGlobals(){
-    ActionCol.clear();
     AllActions.clear();
     AllFormatActions.clear();
     AllData.clear();
@@ -603,13 +624,18 @@ void MainWindow::clearAllGlobals(){
     FileColNums.clear();
     FileRowNums.clear();
 
+    // If the Temp folder exist we delete it.
+    if(!importnames.isEmpty()){
+        if(importnames.size()>0){
+            DeleteTempFolder(importnames[0]);
+        }
+    }
     importnames.clear();
     numActions =0;
     plottedSingleFile =0;
     Plot_margins.clear();
     plotNumLim = 10;
     previousTheta =0;
-    RememberInv.clear();
     referenceCol = 2;
     ReferenceColumn = 2;
     UndoableActions =0;
@@ -711,6 +737,7 @@ void MainWindow::getData(QStringList fitxer, QVector<QVector<QVector<QVector<dou
     InputData[0].resize(plotNum); //Setting proper size for AllData[0] 3D vector.
 
     for (int i = 0; i< plotNum; i++){                                                               // Run over all files
+        myProgress(i,plotNum);
         WorkingFitxer = fitxer.at(i);
         QByteArray ba = WorkingFitxer.toLocal8Bit(); //convert fitxer into char c_str2
         const char *c_str2 = ba.data();
@@ -808,6 +835,33 @@ int MainWindow::getOneData(QString OneFitxer, QVector<QVector<QVector<QVector<do
         }else{
           return 0;
         }
+}
+
+bool MainWindow::isDataValid(QString fitxer, int ignoreFirstLines){
+    QByteArray ba = fitxer.toLocal8Bit(); //convert fitxer into char c_str2
+    const char *c_str2 = ba.data();
+    ifstream obre(c_str2, ios::in);
+    int error =0;
+    int tempcount =0;
+
+    std::string line;
+        while (std::getline(obre, line)) {                  //Run over rows
+            tempcount++;
+            if(tempcount>ignoreFirstLines){
+                if(validate_row(line)){                         // It will ignore empty lines or lines with errors.
+                    std::istringstream row(line);
+                }else{
+                    error=1;
+                }
+            }
+        }
+    obre.close();
+
+    if(error==1){
+         return false;
+    }else{
+        return true;
+    }
 }
 
 int MainWindow::getOneSingleData(QString fitxer, QVector<QVector<double>> &InputData){
@@ -1287,6 +1341,7 @@ bool MainWindow::checkProperRanges(){
 
     // equalDoubles is used to compare doubles in an effective way, since c++ sucks at it.
     for(int q =0; q< filenames.size(); q++){ // run over filenames
+        myProgress(q, filenames.size());
         if( !equalDoubles(FindMinFile(filenames.at(q)), minFilenames, (maxFilenames-minFilenames)/fileRowsDouble, tolerance) || !equalDoubles(FindMaxFile(filenames.at(q)), maxFilenames, (maxFilenames-minFilenames)/fileRowsDouble, tolerance) ){
             QMessageBox::warning(this, "Warning", QString("To perform this action, all opened files must exhibit the same X ranges (column 1).\nIt was detected that the range some opened files (%1, %2) is not from %3 to %4.\nNo action was performed.") .arg(FindMinFile(filenames.at(q))) .arg(FindMaxFile(filenames.at(q))) .arg(minFilenames) .arg(maxFilenames) );
             return false;
@@ -1298,6 +1353,7 @@ bool MainWindow::checkProperRanges(){
     }
 
     for(int w=0; w< referencenames.size();w++){ // run over referencenames
+        myProgress(w, referencenames.size());
         if( !equalDoubles(FindMinFile(referencenames.at(w)), minFilenames, (maxFilenames-minFilenames)/fileRowsDouble, tolerance) || !equalDoubles(FindMaxFile(referencenames.at(w)), maxFilenames, (maxFilenames-minFilenames)/fileRowsDouble, tolerance) ){
             QMessageBox::warning(this, "Warning", QString("To perform this action, all reference file(s) must exhibit the same X ranges (column 1) as the opened files.\nIt was detected that the range some reference file(s) is not from %1 to %2./nNo action was performed.\n(tip: The range of Col 1 of files and reference files can be tailored from the 'Format'->'Modify datapoints' menu options.") .arg(minFilenames) .arg(maxFilenames) );
             return false;
@@ -1314,6 +1370,7 @@ bool MainWindow::checkRefColumn(){
     int minCols = ColNums(referencenames.at(0));
 
     for(int q=0; q< referencenames.size(); q++){
+        myProgress(q, referencenames.size());
         if(ColNums(referencenames.at(q))<minCols){
             minCols = ColNums(referencenames.at(q));
         }
@@ -1353,6 +1410,7 @@ void MainWindow::addFiles(QString outFilename, int col, double average){
     TempArr.resize(1);
 
     for(int q = 0; q<filenames.size(); q++){   //run over files.
+        myProgress(q, filenames.size());
         if (getOneData(filenames[q], TempArr)==0){ // If there's no error. BTW. this should create TempArr.
            for(int e =0; e<VecOut[0].size(); e++){ // run over rows
                     VecOut[0][e]=TempArr[0][0][0][e];   // this is a bit repetitive but code lines are saved.
@@ -1637,12 +1695,12 @@ void MainWindow::AppendStrings(QString &code, QVector<QVector<QString>> Actions)
         }
     }
     if(Actions.size()>1){
-        for(int q =1; q< Actions.size(); q++){
+        for(int q =1; q< Actions.size(); q++){ // run over actions
             code.append(";");
             if(!Actions[q].isEmpty()){
                 code.append(Actions[q][0]);
                 if(Actions[q].size()>1){
-                    for(int w=1; w< Actions[q].size();w++){
+                    for(int w=1; w< Actions[q].size();w++){ // run over data for each action
                         code.append("'");
                         code.append(Actions[q][w]);
                     }
@@ -1705,22 +1763,6 @@ void MainWindow::ReadCode(QString code){
         SubActionsList.clear(); // probably unnecesary but we don't need it anymore.
     }
     ActionsList.clear(); // probably unnecesary but we don't need it anymore.
-
-    // 3- Third and last part of the code is RememberInv.
-    if(codeList.size()==3){
-        QStringList RememberList = codeList.at(2).split(";");
-
-        RememberInv.resize(RememberList.size());
-        for(int q=0; q< RememberList.size(); q++){
-            QStringList SubRememberList = RememberList.at(q).split("'");
-            RememberInv[q].resize(SubRememberList.size());
-            for(int w=0; w<SubRememberList.size();w++){
-                if(!SubRememberList.at(w).isEmpty()){
-                    RememberInv[q][w] = SubRememberList.at(w).toDouble();
-                }
-            }
-        }
-    }
 }
 
 void MainWindow::CheckExectuedCode(QString code){
@@ -1739,7 +1781,8 @@ void MainWindow::CheckExectuedCode(QString code){
 
     int tempColMinSize = SubCodeList.at(1).toInt();
     if(tempColMinSize != ColumnMinSize){
-        QMessageBox::information(this, "Information", QString("Current ColumnMinSize is %1, should be %2.") .arg(ColumnMinSize) .arg(tempColMinSize) );
+        qDebug() << QString("Current ColumnMinSize is %1, should be %2.") .arg(ColumnMinSize) .arg(tempColMinSize);
+        //QMessageBox::information(this, "Information", QString("Current ColumnMinSize is %1, should be %2.") .arg(ColumnMinSize) .arg(tempColMinSize) );
         errors = true;
         ColumnMinSize=tempColMinSize;
     }
@@ -1751,36 +1794,15 @@ void MainWindow::CheckExectuedCode(QString code){
 }
 
 QString MainWindow::GenerateCode(){
-    // The code has the form:       columnPlot : AllActions[q][w] : RememberInv[q][w]
-    // Where AllActions and RememberInv are separated by ; each [q] and by , for each [w].
-    // To decode it, columnPlot will need to be converted back to int, and RememberInv back to double.
-    // Note that RememberInv will leave many empty [q], seen as ;;.
+    // The code has the form:       columnPlot : AllActions[q][w]
+    // Where AllActions is separated by ; each [q].
+    // To decode it, columnPlot will need to be converted back to int.
 
     QString code;
-    QVector<QVector<QString>> RememberInvString;
     QString colPlot = QString("%1;%2;%3;%4") .arg(columnPlot) .arg(ColumnMinSize) .arg(plotNumLim) .arg(flag1);
     code.append(colPlot+":");
 
     AppendStrings(code, AllActions);
-
-    if(!RememberInv.isEmpty()){
-        if(RememberInv.size()>0){
-            code.append(":");
-
-            RememberInvString.resize(RememberInv.size());
-            for(int q=0; q< RememberInv.size(); q++){
-                RememberInvString[q].resize(RememberInv[q].size());
-                for(int w=0; w<RememberInv[q].size(); w++){
-                    RememberInvString[q][w]=QString("%1") .arg(RememberInv[q][w]);
-                }
-            }
-          //  QMessageBox::information(this, "Information", QString("No peta 4. Dimensions of RememberInvString are [%1][%2]") .arg(RememberInvString.size()) .arg(RememberInvString[0].size()) );
-
-            AppendStrings(code, RememberInvString);
-           // QMessageBox::information(this, "Information", QString("No peta 5") );
-        }
-    }
-
     return code;
 }
 
@@ -2021,20 +2043,19 @@ void MainWindow::differentiate(QVector<QVector<double>> &vec, int colPlot){
             for (int w = 0; w < vec[0].length()-1; w++){  // We run over rows.
                 vec[r][w] = (vec[r][w+1]-vec[r][w])/(vec[0][w+1]-vec[0][w]);
             }
-            // The last value is equal to the one before the end.
-            vec[r][vec[0].length()-1] = vec[r][vec[0].length()-2];
+            // The last value is linearly interpolated from the last two values.
+            vec[r][vec[0].length()-1] = 2*vec[r][vec[0].length()-2]-vec[r][vec[0].length()-3];
         }
     }else{
         for (int w = 0; w < vec[0].length()-1; w++){  // We run over rows.
             vec[colPlot-1][w] = (vec[colPlot-1][w+1]-vec[colPlot-1][w])/(vec[0][w+1]-vec[0][w]);
         }
-        // The last value is equal to the one before the end.
-        vec[colPlot-1][vec[0].length()-1] = vec[colPlot-1][vec[0].length()-2];
+        // The last value is linearly interpolated from the last two values.
+        vec[colPlot-1][vec[0].length()-1] = 2*vec[colPlot-1][vec[0].length()-2]-vec[colPlot-1][vec[0].length()-3];
     }
 }
 
 void MainWindow::LaplacianSmooth(QVector<QVector<double>> &vec, int colPlot, int times){
-
     if(colPlot==0){
         for(int r=1;r<vec.size();r++){   // Run over cols.
             for(int q=0;q<times;q++){
@@ -2635,6 +2656,8 @@ void MainWindow::BallBaseline1Column(QVector<QVector<double>> &vec, int col, dou
     double ceny, yballatt;
     int t;
     for(double cenx=(minx-radii); cenx<=(maxx+radii); cenx+=pas){ // The ball runs over X values, centered at cenx.
+        int tempEarly = fabs(100*(cenx-(minx-radii))/((maxx+radii)-(minx-radii)));
+        myProgress(tempEarly, 100);
         //xt = fabs(minx-cenx);						//We set the first y position of the ball. (i=0 from loop below)
         //ycircle = pow(pow(radii,2)-pow(xt,2),0.5);	//We set the first y position of the ball. (i=0 from loop below)
         //maxdify = yatminx - ycircle;				//We set the first y position of the ball. (i=0 from loop below)
@@ -2779,6 +2802,7 @@ int MainWindow::spikinator1Column(QVector<QVector<double>> &vec, int points, int
         result.resize(3);//first for A, second for B, y=A+B*x, third for standard deviation SD
         double expectedyval =0;
             for(int q=0; q<vec[col-1].size()-points; q++){ // run over rows
+              //  myProgress(q,vec[col-1].size()-points);
             linearfit(vec, result, points, q, col);
             SD(vec, result, points, q, col);
             expectedyval = expectedy(vec, result, points, q);
@@ -2802,6 +2826,7 @@ int MainWindow::spikinator1Column(QVector<QVector<double>> &vec, int points, int
             expectedyval =0;
 
             for(int q=0; q<Inversevec[col-1].size()-points; q++){ //We run backwards
+               // myProgress(q,(Inversevec[col-1].size()-points));
             linearfit(Inversevec, result, points, q, col);
             SD(Inversevec, result, points, q, col);
             expectedyval = expectedy(Inversevec, result, points, q);
@@ -2827,6 +2852,7 @@ int MainWindow::spikinator(QVector<QVector<double>> &vec, int points, int col, d
 
     if(col==0){ // must run over all columns.
         for(int q = 1; q< vec.size(); q++){
+            myProgress(q,vec.size());
             spikes = spikes + spikinator1Column(vec, points, q+1, sigmas, modify);
         }
     }else{
@@ -2869,6 +2895,7 @@ int MainWindow::spikinator(QVector<QVector<double>> &vec, int points, int col, d
 void MainWindow::VerticalStack(QVector<QVector<double>> &vec, int q, double VerticalShift){
     if(columnPlot==0){
         for(int e=1; e<vec.size(); e++){
+            myProgress(e,vec.size());
             for(int w=0; w<vec[0].size(); w++){ //run over rows.
                 vec[e][w]=vec[e][w]+(e-1)*VerticalShift;
             }
@@ -3004,7 +3031,6 @@ void MainWindow::findGlobalMargins(){
             for(int q=0; q<currFilePlotNum;q++){ // run over plotted files
                     findMargins(q, columnPlot-1);
                     updateMyMargins(min_x,max_x,min_y,max_y);
-                    //qDebug() << QString("The range of file %1 is x_min= %2, x_max = %3, y_min =%4, y_max=%5") .arg(q) .arg(min_x) .arg(max_x) .arg(min_y) .arg(max_y);
             }
         }else{
             findMargins(plottedSingleFile, columnPlot-1); // To get a first values, find margins of file 0 and col 1.
@@ -3090,7 +3116,6 @@ void MainWindow::rescale_rob(){  // rescale axis
    }
 
    //QMessageBox::information(this, "Information", QString("The range is x_min= %1, x_max = %2, y_min =%3, y_max=%4") .arg(min_abs_x_q) .arg(max_abs_x_q) .arg(min_abs_y_q) .arg(max_abs_y_q)  );
-    //qDebug() << QString("The range is x_min= %1, x_max = %2, y_min =%3, y_max=%4") .arg(min_abs_x_q) .arg(max_abs_x_q) .arg(min_abs_y_q) .arg(max_abs_y_q);
 
     if(xlow==xhigh){
        ui->plot->xAxis->setRange(xlow-1, xhigh+1);
@@ -3282,14 +3307,11 @@ void MainWindow::GetBackup(){
             plotall();
         }else if(AllActions[AllActions.size()-1][0].toInt()==4 || AllActions[AllActions.size()-1][0].toInt()==19 || AllActions[AllActions.size()-1][0].toInt()==5|| AllActions[AllActions.size()-1][0].toInt()==6){
             columnPlot = AllActions[AllActions.size()-1][1].toInt();
-            //qDebug() << QString ("ColumnMinSize was %1") .arg(ColumnMinSize);
             ColumnMinSize=ColumnMinSize-AllActions[AllActions.size()-1][3].toInt(); //the number of columns generated is stored in AllActions.
-            //qDebug() << QString ("ColumnMinSize is %1 because generated cols was %2") .arg(ColumnMinSize) .arg(AllActions[AllActions.size()-1][3].toInt());
             GetBackupFunc();
             plotall();
         }else if(AllActions[AllActions.size()-1][0].toInt()==17){ // If we undo a stacking option.
-            VerticalShift=RememberInv[RememberInv.size()-1][1];
-            RememberInv.resize(RememberInv.size()-1);
+            VerticalShift=AllActions[AllActions.size()-1][2].toDouble();
             GetBackupFunc();
             // plotall();
         }else if (AllActions[AllActions.size()-1][0].toInt()==21){ // KKA number of columns is kept constant.
@@ -3318,7 +3340,6 @@ void MainWindow::GetBackup(){
             columnPlot = AllActions[AllActions.size()-1][2].toInt();
             ColumnMinSize=ColumnMinSize+AllActions[AllActions.size()-1][3].toInt();
             plotall();
-            //qDebug() << QString("Im here, ColumnMinSize is now %1") .arg(ColumnMinSize);
         }else{                              //Same column as before action is plotted.
             GetBackupFunc();
             plotall();
@@ -3328,7 +3349,6 @@ void MainWindow::GetBackup(){
             AllActions.clear();
         }else{
             AllActions.resize(AllActions.size()-1);
-            RememberInv.resize(AllActions.size()-1); //This is because RememberInv should have the same length as AllActions.
         }
  }
 }
@@ -3340,6 +3360,35 @@ void MainWindow::ResetBackup(){ // When new files are opened, we clear all previ
 }
 
 //*********FORMAT FUNCTIONS**********
+
+void MainWindow::makeLogFile(QStringList newNames, QStringList oldNames){
+    // We prepare the output log file.
+
+    QStringList allLines;
+    allLines.append(QString("New file name:\t\tOriginal file name:\n"));
+
+    for(int q=0; q<importnames.size();q++){
+        QFileInfo info(importnames.at(q));
+        allLines.append( newNames.at(q).split("/").at(newNames.at(q).split("/").size()-1) + "\t\t" + oldNames.at(q).split("/").at(oldNames.at(q).split("/").size()-1));
+    }
+
+    QFileInfo inputputinfo(importnames.at(0));
+    QString output = inputputinfo.path() + logFileName;
+    QFileInfo logFile(output);
+    QDir dir;
+
+    dir.mkpath(logFile.path());
+
+    QByteArray be = output.toLocal8Bit(); //convert fitxer into char c_str2
+    const char *c_str3 = be.data();
+    ofstream temp(c_str3, ios::out);
+
+    // We paste all lines in FileNames_log.txt
+    for(int q = 0; q<allLines.length(); q++){
+            temp << allLines.at(q).toUtf8().constData() << endl;
+    }
+    temp.close();
+}
 
 void MainWindow::startValue(QString datafile, QString outputdatafile, double start){
     QVector<QVector<QVector<QVector<double>>>> TempArr;
@@ -3355,16 +3404,21 @@ void MainWindow::startValue(QString datafile, QString outputdatafile, double sta
 
         double currValue = start;
         for(int e0 =0; e0<Answer[0].size(); e0++ ){ // We run over rows
-
             for(int e1 =1; e1<Answer[0].size(); e1++ ){ // We run over rows
                 if( ((currValue<TempArr[0][0][0][e1])&&(currValue>TempArr[0][0][0][e1-1]))||((currValue>TempArr[0][0][0][e1])&&(currValue<TempArr[0][0][0][e1-1])) ){
                     Answer[0][e0] = currValue;
-
-                    for(int r = 1; r< Answer.size(); r++){  // We run over columns
-                        Answer[r][e0] = (Answer[0][e0]-TempArr[0][0][0][e1-1])*(TempArr[0][0][r][e1]-TempArr[0][0][r][e1-1])/(TempArr[0][0][0][e1]-TempArr[0][0][0][e1-1]) + TempArr[0][0][r][e1-1];
-                    }
-                currValue = currValue + (TempArr[0][0][0][e1]-TempArr[0][0][0][e1-1]) ;
-                break;
+                        for(int r = 1; r< Answer.size(); r++){  // We run over columns
+                            Answer[r][e0] = (Answer[0][e0]-TempArr[0][0][0][e1-1])*(TempArr[0][0][r][e1]-TempArr[0][0][r][e1-1])/(TempArr[0][0][0][e1]-TempArr[0][0][0][e1-1]) + TempArr[0][0][r][e1-1];
+                        }
+                    currValue = currValue + (TempArr[0][0][0][e1]-TempArr[0][0][0][e1-1]) ;
+                    break;
+                }else if(currValue==TempArr[0][0][0][e1-1]){ // if the numbers coincide there is no need for interpolation.
+                    Answer[0][e0] = currValue;
+                        for(int r = 1; r< Answer.size(); r++){  // We run over columns
+                            Answer[r][e0] = TempArr[0][0][r][e1-1];
+                        }
+                    currValue = currValue + (TempArr[0][0][0][e1]-TempArr[0][0][0][e1-1]);
+                    break;
                 }
             }
             count ++;
@@ -3373,8 +3427,6 @@ void MainWindow::startValue(QString datafile, QString outputdatafile, double sta
                 break;
             }
         }
-
-
     }else{
         qDebug() << "Error in startValue function, couldnt get one data.";
         return;
@@ -4003,7 +4055,15 @@ bool MainWindow::DetectSomeForbidden(QString word){ // Allows dot character.
     }
 }
 
-void MainWindow::changeExtension(QString inputname, QString exportname, QString &importnames, QString answer1, QString previousExt, bool rewritte){
+void MainWindow::changeExtensionSimple(QString &importedname, QString answer1){
+    QString output;
+    QFileInfo infoExp(importedname);
+    output = infoExp.path() + "/" + infoExp.completeBaseName() + "." + answer1;
+    QFile::rename(importedname, output);
+    importedname=output;
+}
+
+void MainWindow::changeExtension(QString inputname, QString exportname, QString &importnames, QString answer1, QString previousExt, bool rewritte){ // This should no longer be used in the present version.
     QString output, text;
     QTextCodec *codec = QTextCodec::codecForLocale();
     QFile inputfile(inputname);
@@ -4059,8 +4119,6 @@ void MainWindow::changeExtension(QString inputname, QString exportname, QString 
             exportname=output;
             output.clear();
 
-            // 5- I clear rememberExt ( rememberExt.clear() ) after allActions are executed inside SaveAFA.
-
             // 3- I update importnames[q] passed by reference/
             if(rewritte){
                 importnames=exportname;
@@ -4101,7 +4159,6 @@ void MainWindow::changeExtension(QString inputname, QString exportname, QString 
             if(rewritte){
                 importnames=exportname;
             }
-            // 6- I clear rememberExt ( rememberExt.clear() ) after allActions are executed inside SaveAFA.
         }
     }
 }
@@ -4244,7 +4301,7 @@ void MainWindow::on_actionExport_data_triggered(){
     dir.removeRecursively();
     AllFormatActions.clear();
     prevExt.clear();
-    importnames.clear(); // This is optional, and might be annoying for the user to import the files each time after export, but I think it will prevent errors, specially with the UNDO option.
+    //importnames.clear(); // This is optional, and might be annoying for the user to import the files each time after export, but I think it will prevent errors, specially with the UNDO option.
 
     ui->statusbar->showMessage(QString("%1 file(s) have been exported.") .arg(numberImported),10000);
 }
@@ -4268,13 +4325,15 @@ void MainWindow::on_actionImport_data_triggered(){
         return;
     }else{
        importnames= tempImportNames;
+       QFileInfo inputputinfo(tempImportNames[0]);
+       startingDirectory = inputputinfo.path();
     }
 
     if (importnames.size()>0){
         if(importnames.size()==1){
             title = "Imported file:";
             message = "One file has been succesfully imported. Operate this file in the Format menu.";
-            code = importnames[0];
+            code = importnames[0].split("/").at(importnames[0].split("/").size()-1);
             QMessageBox Msgbox;
             Msgbox.setText(message+"\n\n"+title+"\n\n - "+code);
             Msgbox.exec();
@@ -4284,7 +4343,7 @@ void MainWindow::on_actionImport_data_triggered(){
             message = QString("%1 files have been succesfully imported. Operate these files in the Format menu.") .arg(importnames.size());
             for(int i=0; i<importnames.size(); i++){
                 code.append("\n - ");
-                code.append(importnames[i]);
+                code.append(importnames[i].split("/").at(importnames[i].split("/").size()-1));
                 if(i==3){
                     break;
                 }
@@ -4445,7 +4504,6 @@ void MainWindow::on_actionOpen_triggered(){
                 "All files (*.*);;Ascii Files (*.asc);;Data Files (*.dat);;Text Files (*.txt)");
 
     openPlotFiles(tempFilenames);
-
 }
 
 void MainWindow::on_actionSave_triggered(){
@@ -4457,12 +4515,10 @@ void MainWindow::on_actionSave_triggered(){
     reply = QMessageBox::question(this, "Attention!", "Data will be overwritten, prior backup is advised.\nAre you sure you want to save?",
                                   QMessageBox::Yes|QMessageBox::No);
     if (reply == QMessageBox::Yes) {
-        //qDebug() << QString("ColumnMinSize before save is %1") .arg(ColumnMinSize);
         SaveAll(filenames, filenames);
         AllActions.clear();
         VerticalShift=0; //reset some parameters in case they were manipulated.
         ui->statusbar->showMessage("All Files have been saved.",10000);
-        //qDebug() << QString("ColumnMinSize after save is %1") .arg(ColumnMinSize);
     }
 }
 
@@ -4820,9 +4876,6 @@ void MainWindow::on_actionSet_spectra_to_zero_triggered(){
     // 4- We plot all.
     plotall();
 
-    ActionCol.resize(ActionCol.size()+1); // because this action can be performed over all columns simultaneously
-    ActionCol[ActionCol.size()-1] = 33;
-
     AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
     AllActions[AllActions.size()-1].resize(2);
     AllActions[AllActions.size()-1][0]="33";
@@ -4858,10 +4911,6 @@ void MainWindow::on_actionCallibrate_data_triggered(){
 
     // 4- We plot all.
     plotall();
-
-    RememberInv.resize(AllActions.size()+1);
-    RememberInv[RememberInv.size()-1].resize(1);
-    RememberInv[RememberInv.size()-1][0]=shift;
 
     AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
     AllActions[AllActions.size()-1].resize(2);
@@ -4931,10 +4980,6 @@ void MainWindow::on_actionLinear_baseline_triggered(){
 
     plotall();
 
-
-    ActionCol.resize(ActionCol.size()+1); // because this action can be performed over all columns simultaneously
-    ActionCol[ActionCol.size()-1] = 10;
-
     AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
     AllActions[AllActions.size()-1].resize(2);
     AllActions[AllActions.size()-1][0]="10";
@@ -4958,9 +5003,6 @@ void MainWindow::on_actionBall_like_baseline_triggered(){
 
     Backup();
 
-    RememberInv.resize(AllActions.size()+1);
-    RememberInv[RememberInv.size()-1].resize(1);
-
     for(int q=0; q<AllData[0].size();q++){
         BallBaseline(AllData[0][q], columnPlot, result);
     }
@@ -4971,7 +5013,6 @@ void MainWindow::on_actionBall_like_baseline_triggered(){
     AllActions[AllActions.size()-1][0]="18";
     AllActions[AllActions.size()-1][1]=QString("%1") .arg(columnPlot);
     AllActions[AllActions.size()-1][2]=QString("%2") .arg(result);
-    RememberInv[RememberInv.size()-1][0]=result;
     VerticalShift=0; //We reset the vertical stacking
 }
 
@@ -5076,16 +5117,12 @@ void MainWindow::on_actionTrim_triggered(){ // right now this function will trim
 
     plotall();
     ui->statusbar->showMessage(QString("All plots have been trimed from %1 to %2. This action affected all columns.").arg(result1).arg(result2),10000);
-    RememberInv.resize(AllActions.size()+1);
-    RememberInv[RememberInv.size()-1].resize(2);
 
     AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
     AllActions[AllActions.size()-1].resize(3);
     AllActions[AllActions.size()-1][0]="9";
     AllActions[AllActions.size()-1][1]=QString("%1") .arg(result1);
     AllActions[AllActions.size()-1][2]=QString("%1") .arg(result2);
-    RememberInv[RememberInv.size()-1][0]=result1;
-    RememberInv[RememberInv.size()-1][1]=result2;
 }
 
 void MainWindow::on_actionClean_spikes_triggered(){
@@ -5135,16 +5172,10 @@ void MainWindow::on_actionClean_spikes_triggered(){
    Backup();
 
     for (int q=0; q<AllData[0].size();q++){             //run over files
+        myProgress(q,AllData[0].size());
         spikes = spikes + spikinator(AllData[0][q], points, columnPlot, sigmas, 1);
     }
     plotall();
-
-    RememberInv.resize(AllActions.size()+1);
-    RememberInv[RememberInv.size()-1].resize(1);
-    RememberInv[RememberInv.size()-1][0]=sigmas;
-
-    ActionCol.resize(ActionCol.size()+1); // because this action can be performed over all columns simultaneously
-    ActionCol[ActionCol.size()-1] = 16;
 
     AllActions.resize(AllActions.size()+1);
     AllActions[AllActions.size()-1].resize(4);
@@ -5229,9 +5260,6 @@ void MainWindow::on_actionTo_one_triggered(){
 
     plotall();
 
-    ActionCol.resize(ActionCol.size()+1); // because this action can be performed over all columns simultaneously
-    ActionCol[ActionCol.size()-1] = 11;
-
     AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
     AllActions[AllActions.size()-1].resize(2);
     AllActions[AllActions.size()-1][0]="11";
@@ -5251,25 +5279,23 @@ void MainWindow::on_actionTo_first_file_triggered(){
     }
 
     Backup();
-    RememberInv.resize(AllActions.size()+1);
-    RememberInv[RememberInv.size()-1].resize(AllData[0].size());
+
+    AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
+    AllActions[AllActions.size()-1].resize(3);
+    AllActions[AllActions.size()-1][0]="13";
+    AllActions[AllActions.size()-1][1]=QString("%1") .arg(columnPlot);
+    AllActions[AllActions.size()-1][2];
+
     double num, inv, num1st;
     num1st= Integrate(AllData[0][0], columnPlot);
     for (int q=0; q<AllData[0].size();q++){
         num = Integrate(AllData[0][q], columnPlot);
         inv = num1st/num;
-        RememberInv[RememberInv.size()-1][q]=inv;
+        AllActions[AllActions.size()-1][2].append(QString("%1/") .arg(inv));
         MultConsty(AllData[0][q], inv, columnPlot);
     }
     plotall();
 
-    ActionCol.resize(ActionCol.size()+1); // because this action can be performed over all columns simultaneously
-    ActionCol[ActionCol.size()-1] = 13;
-
-    AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
-    AllActions[AllActions.size()-1].resize(2);
-    AllActions[AllActions.size()-1][0]="13";
-    AllActions[AllActions.size()-1][1]=QString("%1") .arg(columnPlot);
 
     ui->statusbar->showMessage(QString("All plots have been normalized. Area of first file was %1") .arg(num1st),10000);
 }
@@ -5285,9 +5311,6 @@ void MainWindow::on_actionTo_one_2_triggered(){
         MultConsty2(AllData[0][q], columnPlot);
     }
     plotall();
-
-    ActionCol.resize(ActionCol.size()+1); // because this action can be performed over all columns simultaneously
-    ActionCol[ActionCol.size()-1] = 12;
 
     AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
     AllActions[AllActions.size()-1].resize(2);
@@ -5307,26 +5330,22 @@ void MainWindow::on_actionTo_first_file_2_triggered(){
         return;
     }
     Backup();
-    RememberInv.resize(AllActions.size()+1);
-    RememberInv[RememberInv.size()-1].resize(AllData[0].size());
+
+    AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
+    AllActions[AllActions.size()-1].resize(3);
+    AllActions[AllActions.size()-1][0]="14";
+    AllActions[AllActions.size()-1][1]=QString("%1") .arg(columnPlot);
+    AllActions[AllActions.size()-1][2];
+
     double num, inv, num1st;
     num1st= Maxy(AllData[0][0], columnPlot);
-    for (int q=0; q<AllData[0].size();q++){
+    for (int q=0; q<AllData[0].size();q++){ // run over files.
         num = Maxy(AllData[0][q], columnPlot);
         inv = num1st/num;
-        RememberInv[RememberInv.size()-1][q]=inv;
+        AllActions[AllActions.size()-1][2].append(QString("%1/").arg(inv));
         MultConsty(AllData[0][q], inv, columnPlot);
     }
     plotall();
-
-
-    ActionCol.resize(ActionCol.size()+1); // because this action can be performed over all columns simultaneously
-    ActionCol[ActionCol.size()-1] = 14;
-
-    AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
-    AllActions[AllActions.size()-1].resize(2);
-    AllActions[AllActions.size()-1][0]="14";
-    AllActions[AllActions.size()-1][1]=QString("%1") .arg(columnPlot);
 
     ui->statusbar->showMessage(QString("All plots have been normalized to one."),10000);
 }
@@ -5349,9 +5368,6 @@ void MainWindow::on_actionAdd_ref_file_triggered(){
     plotall();
 
     // 3- We save the action so that it can be undone, or applied to the datafiles upon saving.
-
-    ActionCol.resize(ActionCol.size()+1); // because this action can be performed over all columns simultaneously
-    ActionCol[ActionCol.size()-1] = 38;
 
     AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
     AllActions[AllActions.size()-1].resize(3);
@@ -5380,8 +5396,6 @@ void MainWindow::on_actionSubtract_ref_file_s_triggered(){
     plotall();
 
     // 3- We save the action so that it can be undone, or applied to the datafiles upon saving.
-    ActionCol.resize(ActionCol.size()+1); // because this action can be performed over all columns simultaneously
-    ActionCol[ActionCol.size()-1] = 40;
 
     AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
     AllActions[AllActions.size()-1].resize(3);
@@ -5410,8 +5424,6 @@ void MainWindow::on_actionMultiply_ref_files_s_triggered(){
     plotall();
 
     // 3- We save the action so that it can be undone, or applied to the datafiles upon saving.
-    ActionCol.resize(ActionCol.size()+1); // because this action can be performed over all columns simultaneously
-    ActionCol[ActionCol.size()-1] = 39;
 
     AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
     AllActions[AllActions.size()-1].resize(3);
@@ -5440,8 +5452,6 @@ void MainWindow::on_actionDivide_by_ref_file_s_triggered(){
     plotall();
 
     // 3- We save the action so that it can be undone, or applied to the datafiles upon saving.
-    ActionCol.resize(ActionCol.size()+1); // because this action can be performed over all columns simultaneously
-    ActionCol[ActionCol.size()-1] = 41;
 
     AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
     AllActions[AllActions.size()-1].resize(3);
@@ -5889,7 +5899,7 @@ void MainWindow::on_actionAdd_Dummy_column_triggered(){
 
     AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
     AllActions[AllActions.size()-1].resize(1);
-    AllActions[AllActions.size()-1][0]="7";
+    AllActions[AllActions.size()-1][0] = "7";
 }
 
 void MainWindow::on_actionDuplicate_Column_triggered(){
@@ -5990,9 +6000,6 @@ void MainWindow::on_actionAdd_reference_triggered(){ //Add columns
         }
         plotall();
 
-        ActionCol.resize(ActionCol.size()+1); // because this action can be performed over all columns simultaneously
-        ActionCol[ActionCol.size()-1] = 19;
-
         AllActions.resize(AllActions.size()+1);
         AllActions[AllActions.size()-1].resize(4);
         AllActions[AllActions.size()-1][0]="19";
@@ -6045,9 +6052,6 @@ void MainWindow::on_actionSubtract_2_triggered(){ // Subtract columns
         }
         plotall();
 
-        ActionCol.resize(ActionCol.size()+1); // because this action can be performed over all columns simultaneously
-        ActionCol[ActionCol.size()-1] = 4;
-
         AllActions.resize(AllActions.size()+1);
         AllActions[AllActions.size()-1].resize(4);
         AllActions[AllActions.size()-1][0]="4";
@@ -6098,13 +6102,8 @@ void MainWindow::on_actionDivide_2_triggered(){
             ColumnMinSize=ColumnMinSize+generatedColumns;
         }
         //QMessageBox::information(this, "Information for debug", QString("Operations made. Now it is time to plot all."));
-        //qDebug() << QString("ColumnMinSize before plot is %1") .arg(ColumnMinSize);
 
         plotall();
-        //qDebug() << QString("ColumnMinSize after plot is %1") .arg(ColumnMinSize);
-
-        ActionCol.resize(ActionCol.size()+1); // because this action can be performed over all columns simultaneously
-        ActionCol[ActionCol.size()-1] = 5;
 
         AllActions.resize(AllActions.size()+1);
         AllActions[AllActions.size()-1].resize(4);
@@ -6159,9 +6158,6 @@ void MainWindow::on_actionMultiplu_triggered(){
         plotall();
 
         //QMessageBox::information(this, "Information for debug", QString("Column %1 is plotted, previous column was %2") .arg(columnPlot) .arg(previouscolumnPlot));
-
-        ActionCol.resize(ActionCol.size()+1); // because this action can be performed over all columns simultaneously
-        ActionCol[ActionCol.size()-1] = 6;
 
         AllActions.resize(AllActions.size()+1);
         AllActions[AllActions.size()-1].resize(4);
@@ -6596,6 +6592,7 @@ void MainWindow::on_actionR_Theta_X_Y_triggered(){
 
     // 3- We apply the function on the AllData 4Dvector.
     for(int q=0; q<AllData[0].size(); q++){                                //Run over all files
+        myProgress(q, AllData[0].size());
         XY(AllData[0][q],Rcol,Tcol);
     }
 
@@ -6642,6 +6639,7 @@ void MainWindow::on_actionX_Y_R_Theta_triggered(){
 
     // 3- We apply the function on the AllData 4Dvector.
     for(int q=0; q<AllData[0].size(); q++){                                //Run over all files
+        myProgress(q, AllData[0].size());
         RTheta(AllData[0][q],Xcol,Ycol);
     }
 
@@ -6828,13 +6826,6 @@ void MainWindow::on_actionExponenciate_2_triggered(){// Pow to Y axis.
     // 4- We plot all.
     plotall();
 
-    RememberInv.resize(AllActions.size()+1);
-    RememberInv[RememberInv.size()-1].resize(1);
-    RememberInv[RememberInv.size()-1][0]=result;
-
-    ActionCol.resize(ActionCol.size()+1); // because this action can be performed over all columns simultaneously
-    ActionCol[ActionCol.size()-1] = 30;
-
     AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
     AllActions[AllActions.size()-1].resize(3);
     AllActions[AllActions.size()-1][0]="30";
@@ -6871,10 +6862,6 @@ void MainWindow::on_actionLogarithm_3_triggered(){ // Log to X axis.
     // 4- We plot all.
     plotall();
 
-    RememberInv.resize(AllActions.size()+1);
-    RememberInv[RememberInv.size()-1].resize(1);
-    RememberInv[RememberInv.size()-1][0]=result;
-
     AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
     AllActions[AllActions.size()-1].resize(2);
     AllActions[AllActions.size()-1][0]="29";
@@ -6906,13 +6893,6 @@ void MainWindow::on_actionLogarithm_4_triggered(){// Log to a Y column.
 
     // 4- We plot all.
     plotall();
-
-    RememberInv.resize(AllActions.size()+1);
-    RememberInv[RememberInv.size()-1].resize(1);
-    RememberInv[RememberInv.size()-1][0]=result;
-
-    ActionCol.resize(ActionCol.size()+1); // because this action can be performed over all columns simultaneously
-    ActionCol[ActionCol.size()-1] = 28;
 
     AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
     AllActions[AllActions.size()-1].resize(3);
@@ -6950,14 +6930,10 @@ void MainWindow::on_actionExponenciate_triggered(){// Pow to X axis.
     // 4- We plot all.
     plotall();
 
-    RememberInv.resize(AllActions.size()+1);
-    RememberInv[RememberInv.size()-1].resize(1);
-
     AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
     AllActions[AllActions.size()-1].resize(2);
     AllActions[AllActions.size()-1][0]="27";
     AllActions[AllActions.size()-1][1]=QString("%1") .arg(result);
-    RememberInv[RememberInv.size()-1][0]=result;
 
     ui->statusbar->showMessage(QString("Column 1 (x Axis) has been raised to the power of %1.") .arg(result) ,10000);
 }
@@ -6984,10 +6960,6 @@ void MainWindow::on_actionMultiply_constant_3_triggered(){       // It multiplie
 
     // 4- We plot all.
     plotall();
-
-    RememberInv.resize(AllActions.size()+1);
-    RememberInv[RememberInv.size()-1].resize(1);
-    RememberInv[RememberInv.size()-1][0]=result;
 
     AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
     AllActions[AllActions.size()-1].resize(2);
@@ -7020,10 +6992,6 @@ void MainWindow::on_actionAdd_constant_4_triggered(){       // It adds a constan
     // 4- We plot all.
     plotall();
 
-    RememberInv.resize(AllActions.size()+1);
-    RememberInv[RememberInv.size()-1].resize(1);
-    RememberInv[RememberInv.size()-1][0]=result;
-
     AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
     AllActions[AllActions.size()-1].resize(2);
     AllActions[AllActions.size()-1][0]="26";
@@ -7049,9 +7017,6 @@ void MainWindow::on_actionIntegrate_triggered(){
 
     // 4- We plot all.
     plotall();
-
-    ActionCol.resize(ActionCol.size()+1); // because this action can be performed over all columns simultaneously
-    ActionCol[ActionCol.size()-1] = 25;
 
     AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
     AllActions[AllActions.size()-1].resize(2);
@@ -7080,9 +7045,6 @@ void MainWindow::on_action_Differentiate_triggered(){
     // 4- We plot all.
     plotall();
 
-    ActionCol.resize(ActionCol.size()+1); // because this action can be performed over all columns simultaneously
-    ActionCol[ActionCol.size()-1] = 24;
-
     AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
     AllActions[AllActions.size()-1].resize(2);
     AllActions[AllActions.size()-1][0]="24";
@@ -7110,14 +7072,12 @@ void MainWindow::on_actionLaplacian_smoothing_triggered(){
 
     // 3- We apply the function on the AllData 4Dvector.
     for(int q=0; q<AllData[0].size(); q++){                                //Run over all files
+        myProgress(q, AllData[0].size());
         LaplacianSmooth(AllData[0][q], columnPlot, times);
     }
 
     // 4- We plot all.
     plotall();
-
-    ActionCol.resize(ActionCol.size()+1); // because this action can be performed over all columns simultaneously
-    ActionCol[ActionCol.size()-1] = 23;
 
     AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
     AllActions[AllActions.size()-1].resize(3);
@@ -7161,20 +7121,13 @@ void MainWindow::on_actionClean_interferences_by_FFT_triggered(){
 
     Backup();
 
-    for(int p=0; p<AllData[0].size();p++){
-        Filter(AllData[0][p], columnPlot, lowfreq, highfreq);
+    for(int q=0; q<AllData[0].size();q++){
+        myProgress(q, AllData[0].size());
+        Filter(AllData[0][q], columnPlot, lowfreq, highfreq);
     }
 
     plotall();
     ui->statusbar->showMessage(QString("Oscillations have been filtered from frequencies %1 to %2. The algorithm used is bare Fourier Transform. Faster FFT method will be implemented in future versions.").arg(lowfreq).arg(highfreq),10000);
-    RememberInv.resize(AllActions.size()+1);
-    RememberInv[RememberInv.size()-1].resize(2);
-    RememberInv[RememberInv.size()-1][0]=lowfreq;
-    RememberInv[RememberInv.size()-1][1]=highfreq;
-
-
-    ActionCol.resize(ActionCol.size()+1); // because this action can be performed over all columns simultaneously
-    ActionCol[ActionCol.size()-1] = 20;
 
     AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
     AllActions[AllActions.size()-1].resize(4);
@@ -7192,17 +7145,15 @@ void MainWindow::on_actionCalculate_modulus_from_KKA_triggered(){
     Backup();
     int previouscolumnPlot = columnPlot; //This is unnecesary since I decided to overwritte the column.
 
-    for(int p=0; p<AllData[0].size();p++){
-        KKA(AllData[0][p], columnPlot);
+    for(int q=0; q<AllData[0].size();q++){
+        myProgress(q, AllData[0].size());
+        KKA(AllData[0][q], columnPlot);
     }
 
 //I commented this because I dont want to output the results in a new column. I think it is better to overwritte in order to prevent errors when working with multiple files with different number of columns. The user should copy the original column if he doesnt want to lose it. Filter option also works like this.
 //    columnPlot = AllData[0][0].size();
     plotall();
     ui->statusbar->showMessage(QString("The modulus has been calculated by means of Kramers–Kronig analysis."),10000);
-
-    ActionCol.resize(ActionCol.size()+1); // because this action can be performed over all columns simultaneously
-    ActionCol[ActionCol.size()-1] = 21;
 
     AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
     AllActions[AllActions.size()-1].resize(3);
@@ -7232,18 +7183,12 @@ void MainWindow::on_actionAdd_constant_3_triggered(){       // It adds a constan
     plotall();
     ui->statusbar->showMessage(QString("Constant %1 has been added to all plots").arg(result),10000);
 
-    RememberInv.resize(AllActions.size()+1);
-    RememberInv[RememberInv.size()-1].resize(1);
-
-    ActionCol.resize(ActionCol.size()+1); // because this action can be performed over all columns simultaneously
-    ActionCol[ActionCol.size()-1] = 2;
-
     AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
     AllActions[AllActions.size()-1].resize(3);
     AllActions[AllActions.size()-1][0]="2";
     AllActions[AllActions.size()-1][1]=QString("%1") .arg(columnPlot);
     AllActions[AllActions.size()-1][2]=QString("%1") .arg(result);
-    RememberInv[RememberInv.size()-1][0]=result;
+
     if(columnPlot==0){
         ui->statusbar->showMessage(QString("Constant %1 has been added to all columns.") .arg(result),10000);
     }else{
@@ -7271,13 +7216,6 @@ void MainWindow::on_actionMultiply_constant_4_triggered(){  // It multiplies a c
         MultConsty3(AllData[0][q], value, columnPlot);
     }
     plotall();
-
-    RememberInv.resize(AllActions.size()+1);
-    RememberInv[RememberInv.size()-1].resize(1);
-    RememberInv[RememberInv.size()-1][0]=value;
-
-    ActionCol.resize(ActionCol.size()+1); // because this action can be performed over all columns simultaneously
-    ActionCol[ActionCol.size()-1] = 15;
 
     AllActions.resize(AllActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
     AllActions[AllActions.size()-1].resize(3);
@@ -7490,11 +7428,6 @@ void MainWindow::on_actionActivated_triggered(){
 
         plotall();
 
-        RememberInv.resize(AllActions.size()+1);
-        RememberInv[RememberInv.size()-1].resize(2);
-        RememberInv[RememberInv.size()-1][0]=VerticalShift;
-        RememberInv[RememberInv.size()-1][1]=previousVerticalshift;
-
         AllActions.resize(AllActions.size()+1);
         AllActions[AllActions.size()-1].resize(3);
         AllActions[AllActions.size()-1][0]="17";
@@ -7529,7 +7462,6 @@ void MainWindow::on_actionDisactivated_triggered(){
         AllActions[AllActions.size()-1].resize(2);
         AllActions[AllActions.size()-1][0]="18";
         AllActions[AllActions.size()-1][1]=QString("%1") .arg(result);
-        RememberInv[RememberInv.size()-1][0]=result;
     }
 }
 
@@ -7601,7 +7533,7 @@ void MainWindow::on_actionLinear_triggered(){
 
 // *********************************************** FORMAT actions ***********************************************
 
-void MainWindow::on_actionSet_start_of_Col_1_triggered(){
+void MainWindow::on_actionSet_number_triggered(){
     if(importnames.isEmpty()){ // We check if some files are imported.
         QMessageBox::warning(this, "Warning", QString("Please, first import new files to proceed with this action.") );
         return;
@@ -7609,32 +7541,299 @@ void MainWindow::on_actionSet_start_of_Col_1_triggered(){
 
     // Here we check that we can read the files.
     QVector<QVector<QVector<QVector<double>>>> TempArr;
-    double start, end;
-    for (int q =0; q<importnames.size(); q++){ // We check if we can read the files.
+
+    // Here we find the input files. If there is a temp folder, the input are the files inside the temp folder.
+    QStringList tempImportnames;
+    if(checkTempExists(importnames.at(0))){ // If format actions were performed, we should check files inside the temp folder.
+        for(int q = 0; q<importnames.size();q++){
+        QStringList temp = importnames.at(q).split("/");
+        QString tempImport_q;
+
+        tempImport_q.append(temp.at(0));
+            for(int w=1; w< temp.size(); w++){
+                if(w<temp.size()-1){
+                    tempImport_q.append("/");
+                    tempImport_q.append(temp.at(w));
+                }else{
+                    tempImport_q.append(Tempfolder);
+                    tempImport_q.append("/");
+                    tempImport_q.append(temp.at(w));
+                }
+            }
+            tempImportnames.append(tempImport_q);
+        }
+    }else{
+        for(int q = 0; q<importnames.size();q++){
+            tempImportnames.append(importnames.at(q));
+        }
+    }
+
+    for (int q =0; q<tempImportnames.size(); q++){ // We check if we can read the files.
         TempArr.resize(1);
-        if(getOneData(importnames[q], TempArr)==1){
+        if(getOneData(tempImportnames[q], TempArr)==1){
             QMessageBox::warning(this,"Warning", QString("Warning: Empty lines or lines with invalid data have been detected in some files. Please, import files with readable format.") );
             return;
-        }
-        if(q==0){
-           start = TempArr[0][0][0][0];
-           end = TempArr[0][0][0][TempArr[0][0][0].size()-1];
         }
         TempArr.resize(0);
     }
 
-   double startValue; // To be introduced by the user.
-   //bool ok; //If the user does not hit cancell.
+    int desiredRows; // To be introduced by the user.
 
-   QString message = QString("First imported file starts at value %1 and ends at value %2.\nIntroduce the desired starting value:") .arg(start) .arg(end);
-   if(!getDoubleNum(startValue, message)){
-       return;
-   }
-
-        if(!(((start<startValue)&&(startValue<end))||((start>startValue)&&(startValue>end)))){
-            QMessageBox::warning(this,"Warning", QString("Starting value must be between %1 and %2. No action has been perfomed.") .arg(start) .arg(end) );
-            return; //We exit the action if no desired row was introduced (cancell) in QInputDialog::getInt.
+        // First we check if all files have the same amount of rows (equalRows)
+        int minRows = RowNums(tempImportnames[0]);
+        int maxRows = minRows;
+        int cache; //to save computational time.
+        for(int w=0; w<tempImportnames.size(); w++){
+            cache = RowNums(tempImportnames[w]);
+            if(cache>maxRows){
+                maxRows = cache;
+            }else if (cache<minRows){
+                minRows = cache;
+            }
         }
+
+        if(minRows == maxRows){
+           QString message = QString("Imported file(s) have %1 rows of data. Introduce the amount of desired rows: \n(Warning! Introducing smaller number of rows will result in loss of information)") .arg(RowNums(tempImportnames[0])+1);
+           if(!getIntNum(desiredRows, 0, 2147483647, message)){
+                   ui->statusbar->showMessage("No action was performed.",10000);
+               return;
+           }
+           //desiredRows = QInputDialog::getInt(this, "Input", message,0,2,2147483647,1,&ok);
+       }else{
+           QString message = QString("Imported files have different number of rows, from %1 to %2. Introduce the amount of desired rows: \n(Warning! Introducing smaller number of rows will result in loss of information)") .arg(minRows+1) .arg(maxRows+1);
+
+           if(!getIntNum(desiredRows, 0, 2147483647, message)){
+                   ui->statusbar->showMessage("No action was performed.",10000);
+               return;
+           }
+           //desiredRows = QInputDialog::getInt(this, "Input", message,0,2,2147483647,1,&ok);
+        }
+
+    AllFormatActions.resize(AllFormatActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
+    AllFormatActions[AllFormatActions.size()-1].resize(2);
+    AllFormatActions[AllFormatActions.size()-1][0]=QString("4");
+    AllFormatActions[AllFormatActions.size()-1][1]=QString("%1").arg(desiredRows);
+
+    SaveAFA(false); //We only set true for Export, when we want to overwritte the data.
+
+    ui->statusbar->showMessage(QString("%1 datafile(s) have been modified. Select Export (Ctrl+E) to save changes. A preview can be found in folder /TempPreview.") .arg(tempImportnames.size()),10000);
+}
+
+void MainWindow::on_actionSet_step_triggered(){
+    if(importnames.isEmpty()){ // We check if some files are imported.
+        QMessageBox::warning(this, "Warning", QString("Please, first import new files to proceed with this action.") );
+        return;
+    }
+    QVector<QVector<QVector<QVector<double>>>> TempArr;
+
+    // Here we find the input files. If there is a temp folder, the input are the files inside the temp folder.
+    QStringList tempImportnames;
+    if(checkTempExists(importnames.at(0))){ // If format actions were performed, we should check files inside the temp folder.
+        for(int q = 0; q<importnames.size();q++){
+        QStringList temp = importnames.at(q).split("/");
+        QString tempImport_q;
+
+        tempImport_q.append(temp.at(0));
+            for(int w=1; w< temp.size(); w++){
+                if(w<temp.size()-1){
+                    tempImport_q.append("/");
+                    tempImport_q.append(temp.at(w));
+                }else{
+                    tempImport_q.append(Tempfolder);
+                    tempImport_q.append("/");
+                    tempImport_q.append(temp.at(w));
+                }
+            }
+            tempImportnames.append(tempImport_q);
+        }
+    }else{
+        for(int q = 0; q<importnames.size();q++){
+            tempImportnames.append(importnames.at(q));
+        }
+    }
+    //*************
+
+    double remember;
+    bool start = true; // To check if all files start with the same number at x.
+        TempArr.resize(1);
+        if(getOneData(tempImportnames[0], TempArr)==1){
+            QMessageBox::warning(this,"Warning", QString("Warning: Empty lines or lines with invalid data have been detected in some files. Please, import files with readable format.") );
+            return;
+        }
+        remember = TempArr[0][0][0][0];
+        TempArr.resize(0);
+
+    if(importnames.size()>1){
+        for (int q =1; q<tempImportnames.size(); q++){ // We check if we can read the files.
+            TempArr.resize(1);
+            if(getOneData(tempImportnames[q], TempArr)==1){
+                QMessageBox::warning(this,"Warning", QString("Warning: Empty lines or lines with invalid data have been detected in some files. Please, import files with readable format.") );
+                return;
+            }
+            if (remember !=TempArr[0][0][0][0]){
+                start = false;
+            }
+            TempArr.resize(0);
+        }
+    }
+
+    // First we check what is the step in the files, and wether it is constant or not. Then we ask what is the desired step.
+    double stepnum= stepNum(tempImportnames[0], true);
+    double desiredStep;
+    bool constant=true;         // We assume all files have the same step number from begging to end. We check if it is true below.
+    bool equalFiles = true;     // We assume all files are equal in terms of step. We check if it is true below.
+    bool rowNums = true;        // We assume that the number of rows coincides with the starting and ending points plus detected step value. If it does not coincide and equalFiles is true, performing the step action is highly recommended to correct missing rows.
+
+    if (stepNum(tempImportnames[0], true) != stepNum(tempImportnames[0], false)){ //IF the step at the beggining of the file is different than at the end, then the step is not constant.
+        constant = false;
+        rowNums = false;
+    }
+    if (RowNums(tempImportnames[0]) != estimateRowNums(tempImportnames[0], stepNum(tempImportnames[0], true)) ) {
+        rowNums = false;
+    }
+    //QMessageBox::information(this, "Information", QString("The number of rows is %1 and estimated rows is %2") .arg(RowNums(importnames[0])) .arg(estimateRowNums(importnames[0], stepNum(importnames[0], true))) );
+
+    if(tempImportnames.size()>1){
+        for (int q =1; q<tempImportnames.size(); q++){
+            if(stepnum!=stepNum(tempImportnames[q], true)){
+                equalFiles = false;
+            }
+            stepnum = stepNum(tempImportnames[q], true);
+            if (stepNum(tempImportnames[q], true) != stepNum(tempImportnames[q], false)){ //IF the step at the beggining of the file is different than at the end, then the step is not constant.
+                constant=false;
+                rowNums = false;
+            }
+            if (RowNums(tempImportnames[q]) != estimateRowNums(tempImportnames[q], stepNum(tempImportnames[q], true)) ) {
+                rowNums = false;
+            }
+        }
+    }
+
+    QString message1, message2, message3, message4;
+    if (constant == false){
+        message1 = "Some datafile(s) do not have a constant step. ";
+    }
+    if (equalFiles == false){
+        message2 = "Some datafile(s) do not share the same step. ";
+    }
+    if (start == false){
+        message3= "Some datafile(s) start at different x values. ";
+    }
+    if ((rowNums == false) && (constant == true) && (equalFiles == true)){
+        message4= QString("Some datafile(s) exhibit a different number of rows then their expected value from the detected step. \nHence, setting the step to %1 is highly recommended in order to restore missing rows in the datafile(s).") .arg(stepNum(tempImportnames[0], true));
+    }
+
+    if(constant && equalFiles && start && rowNums){
+        if(!getDoubleNum(desiredStep, QString("The current step of the X variable (1st column) is: %1. \nIntroduce new step:\n(Warning! This action will modify the number of rows of the imported files. If a lower step number is introduced the information of the datafile(s) will be permanently decreased)") .arg(stepnum))){
+            return;
+        }
+    }else if((constant && !equalFiles) || (constant && !start) || (constant && !rowNums) ){
+        if(!getDoubleNum(desiredStep, QString("Some warning(s) have been detected: %1%2%3%4 \nThe detected step of the X variable (1st column) is: %5. \nIntroduce new step:\n(Warning! This action will modify the number of rows of the imported files. If a lower step number is introduced the information of the datafile(s) will be permanently decreased).") .arg(message1) .arg(message2) .arg(message3) .arg(message4) .arg(stepnum))){
+            return;
+        }
+    }else{
+        int reply = QMessageBox::question(this, "Attention!", "It has been detected that some datafile(s) do not exhibit a constant step of the X variable (1st column). Performing this action is not advised. Are you sure you want to proceed with this action?",
+                                      QMessageBox::Yes|QMessageBox::No);
+        if (reply == QMessageBox::No) {
+            return;
+        }
+        if(!getDoubleNum(desiredStep, QString("Some warning(s) have been detected: %1%2%3 \nThe current step of the X variable (1st column) is around: %4. \nSince the step value of X is not constant, performing this action is not advised.\nIntroduce new step:\n(Warning! This action will modify the number of rows of the imported files. If a lower step number is introduced the information of the datafile(s) will be permanently decreased).") .arg(message1) .arg(message2) .arg(message3) .arg(stepnum) )){
+            return;
+        }
+    }
+
+    if(desiredStep == 0){
+        QMessageBox::warning(this, "Warning!", QString("The introduced step value must be non zero. A suggested value should be around %1") .arg(stepnum) );
+        return;
+    }
+
+    // Here I should call the function of step number (to be created), with desiredStep, then implement AFA. The funcion will modify all columns and change the number of rows (either increase or decrease it if desiredStep is higher or lower than intional step).
+
+    AllFormatActions.resize(AllFormatActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
+    AllFormatActions[AllFormatActions.size()-1].resize(2);
+    AllFormatActions[AllFormatActions.size()-1][0]=QString("3");
+    AllFormatActions[AllFormatActions.size()-1][1]=QString("%1").arg(desiredStep);
+
+    SaveAFA(false); //We only set true for Export, when we want to overwritte the data.
+
+    ui->statusbar->showMessage(QString("%1 datafile(s) have been modified. Select Export (Ctrl+E) to save changes. A preview can be found in folder /TempPreview") .arg(tempImportnames.size()),10000);
+
+    //This was used before AFA was implemented.
+//    for (int q =0; q<importnames.size(); q++){
+//        createNewStep(importnames[q], desiredStep); //This function overwrittes. Should be called from AFA instead.
+//    }
+}
+
+void MainWindow::on_actionSet_start_of_Col_1_triggered(){
+    if(importnames.isEmpty()){ // We check if some files are imported.
+        QMessageBox::warning(this, "Warning", QString("Please, first import new files to proceed with this action.") );
+        return;
+    }
+
+    // Here we check that we can read the files.
+    QVector<QVector<QVector<QVector<double>>>> TempArr;    
+
+    // Here we find the input files. If there is a temp folder, the input are the files inside the temp folder.
+    QStringList tempImportnames;
+    if(checkTempExists(importnames.at(0))){ // If format actions were performed, we should check files inside the temp folder.
+        for(int q = 0; q<importnames.size();q++){
+        QStringList temp = importnames.at(q).split("/");
+        QString tempImport_q;
+
+        tempImport_q.append(temp.at(0));
+            for(int w=1; w< temp.size(); w++){
+                if(w<temp.size()-1){
+                    tempImport_q.append("/");
+                    tempImport_q.append(temp.at(w));
+                }else{
+                    tempImport_q.append(Tempfolder);
+                    tempImport_q.append("/");
+                    tempImport_q.append(temp.at(w));
+                }
+            }
+            tempImportnames.append(tempImport_q);
+        }
+    }else{
+        for(int q = 0; q<importnames.size();q++){
+            tempImportnames.append(importnames.at(q));
+        }
+    }
+    //****************
+
+    double start, end;
+    bool ascends;
+    for (int q =0; q<tempImportnames.size(); q++){ // We check if we can read the files.
+        TempArr.resize(1);
+        if(getOneData(tempImportnames[q], TempArr)==1){
+            QMessageBox::warning(this,"Warning", QString("Warning: Empty lines or lines with invalid data have been detected in some files. Please, import files with readable format.") );
+            return;
+        }
+
+        start = TempArr[0][0][0][0];
+        end = TempArr[0][0][0][TempArr[0][0][0].size()-1];
+        if(q==0 && (start<end)){
+           ascends=true;
+        }else if (q==0 && (start>end)){
+           ascends=false;
+        }
+        if( (ascends && (start>end)) || (!ascends && (start<end)) ){
+            QMessageBox::warning(this,"Warning", QString("It has been detected that some file(s) are in ascending order and other(s) in descending order.\nPlease, before proceeding set all data in either ascending or descending order.\nNo action was performed.") );
+            return;
+        }
+        TempArr.resize(0);
+    }
+
+    double startValue; // To be introduced by the user.
+    //bool ok; //If the user does not hit cancell.
+
+    QString message = QString("First imported file starts at value %1 and ends at value %2.\nIntroduce the desired starting value:") .arg(start) .arg(end);
+    if(!getDoubleNum(startValue, message)){
+       return;
+    }
+    if(!(((start<startValue)&&(startValue<end))||((start>startValue)&&(startValue>end)))){
+        QMessageBox::warning(this,"Warning", QString("Starting value must be between %1 and %2. No action has been perfomed.") .arg(start) .arg(end) );
+        return; //We exit the action if no desired row was introduced (cancell) in QInputDialog::getInt.
+    }
 
     AllFormatActions.resize(AllFormatActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
     AllFormatActions[AllFormatActions.size()-1].resize(2);
@@ -7643,7 +7842,7 @@ void MainWindow::on_actionSet_start_of_Col_1_triggered(){
 
     SaveAFA(false); //We only set true for Export, when we want to overwritte the data.
 
-    ui->statusbar->showMessage(QString("%1 datafile(s) have been modified. Select Export (Ctrl+E) to save changes. A preview can be found in folder /TempPreview.") .arg(importnames.size()),10000);
+    ui->statusbar->showMessage(QString("%1 datafile(s) have been modified. Select Export (Ctrl+E) to save changes. A preview can be found in folder /TempPreview.") .arg(tempImportnames.size()),10000);
 }
 
 void MainWindow::on_actionInvert_all_order_triggered(){
@@ -7667,44 +7866,74 @@ void MainWindow::on_actionDescending_triggered(){
         return;
     }
 
-        // First we check if there is data that needs to be rearranged into descending order.
-    bool ascending = false;
-    for(int q = 0; q<importnames.size();q++){
-        if(checkAscendingOrder(importnames[q])){
-            ascending = true;  // Some data is in ascending order.
-        }
-    }
-
-    if(!ascending){
-        QMessageBox::information(this, "Information", QString("All datafile(s) are already in descending order. No action was performed.") );
-        return;
-    }
-
+    // 1- We ask about the number of caption lines to be respected.
+    int ignoreLines = 0;
     QMessageBox::StandardButton reply;
     reply = QMessageBox::question(this, "Attention!", "Do you want to rearrange rows in descending order?\n(First column is used as reference)",
                                   QMessageBox::Yes|QMessageBox::No);
     if (reply == QMessageBox::Yes) {
-
-        int ignoreLines = 0;
         QString message = QString("Do you want to ignore caption lines? \nIf so, introduce the number of top lines that shall not be moved to the bottom of the file.)" );
-
         if(!getIntNum(ignoreLines, 0, 2147483647, message)){
                 ui->statusbar->showMessage("No action was performed.",10000);
             return;
         }
-        //ignoreLines = QInputDialog::getInt(this, "Input", message,0,0,2147483647);
-
-        AllFormatActions.resize(AllFormatActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
-        AllFormatActions[AllFormatActions.size()-1].resize(2);
-        AllFormatActions[AllFormatActions.size()-1][0]=QString("9");
-        AllFormatActions[AllFormatActions.size()-1][1]=QString("%1") .arg(ignoreLines);
-
-        SaveAFA(false); //We only set true for Export, when we want to overwritte the data.
-
-        ui->statusbar->showMessage(QString("Data rows have been sorted in descending order.  Select Export (Ctrl+E) to save changes. A preview can be found in folder /TempPreview."),10000);
     }else{
         return;
     }
+
+    // 2- We find proper input files folder, then we check if there is data that needs to be rearranged into descending order.
+
+    bool ascending = false;
+    if(AllFormatActions.isEmpty()){ //because it doesnt make sense to check importnames if Format actions have been done, in such case one should check temp folder.
+        for(int q = 0; q<importnames.size();q++){
+            if(!isDataValid(importnames[q], ignoreLines)){
+                QMessageBox::warning(this, "Warning", QString("Empty lines or invalid lines have been detected.\nThis action can only be performed if data exhibits proper numerical columns and rows.\nNo action was performed.") );
+                return;
+            }
+            if(checkAscendingOrder(importnames[q])){
+                ascending = true;  // Some data is in ascending order.
+            }
+        }
+    }else if(checkTempExists(importnames.at(0))){ // If format actions were performed, we should check files inside the temp folder.
+        for(int q = 0; q<importnames.size();q++){
+        QStringList temp = importnames.at(q).split("/");
+        QString importnamesqInTemp;
+            importnamesqInTemp.append(temp.at(0));
+            for(int w=1; w< temp.size(); w++){
+                if(w<temp.size()-1){
+                    importnamesqInTemp.append("/");
+                    importnamesqInTemp.append(temp.at(w));
+                }else{
+                    importnamesqInTemp.append(Tempfolder);
+                    importnamesqInTemp.append("/");
+                    importnamesqInTemp.append(temp.at(w));
+                }
+            }
+            if(!isDataValid(importnamesqInTemp, ignoreLines)){
+                QMessageBox::warning(this, "Warning", QString("Empty lines or invalid lines have been detected.\nThis action can only be performed if data exhibits proper numerical columns and rows.\nNo action was performed.") );
+                return;
+            }
+            if(checkAscendingOrder(importnamesqInTemp)){
+                ascending = true;  // Some data is in ascending order.
+            }
+        }
+    }
+
+    // 3- If data needs is already in descending order we quit.
+    if(!ascending){
+        QMessageBox::warning(this, "Warning", QString("It has been detected that all data files are already in descending order.\nNo acction was performed.") );
+        return;
+    }
+
+    // 4- Else, we perform the action in SaveAFA function.
+    AllFormatActions.resize(AllFormatActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
+    AllFormatActions[AllFormatActions.size()-1].resize(2);
+    AllFormatActions[AllFormatActions.size()-1][0]=QString("9");
+    AllFormatActions[AllFormatActions.size()-1][1]=QString("%1") .arg(ignoreLines);
+
+    SaveAFA(false); //We only set true for Export, when we want to overwritte the data.
+
+    ui->statusbar->showMessage(QString("Data rows have been sorted in descending order.  Select Export (Ctrl+E) to save changes. A preview can be found in folder /TempPreview."),10000);
 }
 
 void MainWindow::on_actionAscending_triggered(){
@@ -7713,45 +7942,72 @@ void MainWindow::on_actionAscending_triggered(){
         return;
     }
 
-        // First we check if there is data that needs to be rearranged into ascending order.
-    bool descending = false;
-    for(int q = 0; q<importnames.size();q++){
-        if(!checkAscendingOrder(importnames[q])){
-            descending = true;  // Some data is in descending order.
-        }
-    }
-
-    if(!descending){
-        QMessageBox::information(this, "Information", QString("All datafile(s) are already in ascending order. No action was performed.") );
-        return;
-    }
-
-
+    // 1- We ask about the number of caption lines to be respected.
+    int ignoreLines = 0;
     QMessageBox::StandardButton reply;
-    reply = QMessageBox::question(this, "Attention!", "Do you want to rearrange rows in ascending order?\n(First column is used as reference)",
+    reply = QMessageBox::question(this, "Attention!", "Do you want to rearrange rows in ascending order?\n(First column, X, is used as reference)",
                                   QMessageBox::Yes|QMessageBox::No);
     if (reply == QMessageBox::Yes) {
-
-        int ignoreLines = 0;
         QString message = QString("Do you want to ignore caption lines? \nIf so, introduce the number of top lines that shall not be moved to the bottom of the file.)" );
-
         if(!getIntNum(ignoreLines, 0,2147483647, message)){
                 ui->statusbar->showMessage("No action was performed.",10000);
             return;
         }
-        //ignoreLines = QInputDialog::getInt(this, "Input", message,0,0,2147483647);
-
-        AllFormatActions.resize(AllFormatActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
-        AllFormatActions[AllFormatActions.size()-1].resize(2);
-        AllFormatActions[AllFormatActions.size()-1][0]=QString("8");
-        AllFormatActions[AllFormatActions.size()-1][1]=QString("%1") .arg(ignoreLines);
-
-        SaveAFA(false); //We only set true for Export, when we want to overwritte the data.
-
-        ui->statusbar->showMessage(QString("Data rows have been sorted in ascending order.  Select Export (Ctrl+E) to save changes. A preview can be found in folder /TempPreview."),10000);
     }else{
         return;
     }
+
+    // 2- We check if there is data that needs to be rearranged into descending order.
+    bool descending = false;
+    if(AllFormatActions.isEmpty()){ //because it doesnt make sence to check importnames if Format actions have been done, in such case one should check temp folder.
+        for(int q = 0; q<importnames.size();q++){
+            if(!isDataValid(importnames[q], ignoreLines)){
+                QMessageBox::warning(this, "Warning", QString("Empty lines or invalid lines have been detected.\nThis action can only be performed if data exhibits proper numerical columns and rows.\nNo action was performed.") );
+                return;
+            }
+            if(!checkAscendingOrder(importnames[q])){
+                descending = true;  // Some data is in descending order.
+            }
+        }
+    }else if(checkTempExists(importnames.at(0))){ // If format actions were performed, we should check files inside the temp folder.
+        for(int q = 0; q<importnames.size();q++){
+        QStringList temp = importnames.at(q).split("/");
+        QString importnamesqInTemp;
+            importnamesqInTemp.append(temp.at(0));
+            for(int w=1; w< temp.size(); w++){
+                if(w<temp.size()-1){
+                    importnamesqInTemp.append("/");
+                    importnamesqInTemp.append(temp.at(w));
+                }else{
+                    importnamesqInTemp.append(Tempfolder);
+                    importnamesqInTemp.append("/");
+                    importnamesqInTemp.append(temp.at(w));
+                }
+            }
+            if(!isDataValid(importnamesqInTemp, ignoreLines)){
+                QMessageBox::warning(this, "Warning", QString("Empty lines or invalid lines have been detected.\nThis action can only be performed if data exhibits proper numerical columns and rows.\nNo action was performed.") );
+                return;
+            }
+            if(!checkAscendingOrder(importnamesqInTemp)){
+                descending = true;  // Some data is in descending order.
+            }
+        }
+    }
+
+    if(!descending){
+        QMessageBox::warning(this, "Warning", QString("It has been detected that all data files are already in ascending order.\nNo acction was performed.") );
+        return;
+    }
+
+    AllFormatActions.resize(AllFormatActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
+    AllFormatActions[AllFormatActions.size()-1].resize(2);
+    AllFormatActions[AllFormatActions.size()-1][0]=QString("8");
+    AllFormatActions[AllFormatActions.size()-1][1]=QString("%1") .arg(ignoreLines);
+
+    SaveAFA(false); //We only set true for Export, when we want to overwritte the data.
+
+    ui->statusbar->showMessage(QString("Data rows have been sorted in ascending order.  Select Export (Ctrl+E) to save changes. A preview can be found in folder /TempPreview."),10000);
+
 }
 
 void MainWindow::on_actionDelete_last_lines_triggered(){
@@ -7830,183 +8086,7 @@ void MainWindow::on_actionDelete_lines_without_data_triggered(){
 
     SaveAFA(false); //We only set true for Export, when we want to overwritte the data.
 
- ui->statusbar->showMessage(QString("%1 lines have been deleted in %2 files.  Select Export (Ctrl+E) to save changes. A preview can be found in folder /TempPreview.") .arg(deletedLines) .arg(importnames.size()),10000);
-}
-
-void MainWindow::on_actionSet_number_triggered(){
-    if(importnames.isEmpty()){ // We check if some files are imported.
-        QMessageBox::warning(this, "Warning", QString("Please, first import new files to proceed with this action.") );
-        return;
-    }
-
-    // Here we check that we can read the files.
-    QVector<QVector<QVector<QVector<double>>>> TempArr;
-    for (int q =0; q<importnames.size(); q++){ // We check if we can read the files.
-        TempArr.resize(1);
-        if(getOneData(importnames[q], TempArr)==1){
-            QMessageBox::warning(this,"Warning", QString("Warning: Empty lines or lines with invalid data have been detected in some files. Please, import files with readable format.") );
-            return;
-        }
-        TempArr.resize(0);
-    }
-
-    int desiredRows; // To be introduced by the user.
-
-        // First we check if all files have the same amount of rows (equalRows)
-        int minRows = RowNums(importnames[0]);
-        int maxRows = minRows;
-        int cache; //to save computational time.
-        for(int w=0; w<importnames.size(); w++){
-            cache = RowNums(importnames[w]);
-            if(cache>maxRows){
-                maxRows = cache;
-            }else if (cache<minRows){
-                minRows = cache;
-            }
-        }
-
-        if(minRows == maxRows){
-           QString message = QString("Imported file(s) have %1 rows of data. Introduce the amount of desired rows: \n(Warning! Introducing smaller number of rows will result in loss of information)") .arg(RowNums(importnames[0])+1);
-           if(!getIntNum(desiredRows, 0, 2147483647, message)){
-                   ui->statusbar->showMessage("No action was performed.",10000);
-               return;
-           }
-           //desiredRows = QInputDialog::getInt(this, "Input", message,0,2,2147483647,1,&ok);
-       }else{
-           QString message = QString("Imported files have different number of rows, from %1 to %2. Introduce the amount of desired rows: \n(Warning! Introducing smaller number of rows will result in loss of information)") .arg(minRows+1) .arg(maxRows+1);
-
-           if(!getIntNum(desiredRows, 0, 2147483647, message)){
-                   ui->statusbar->showMessage("No action was performed.",10000);
-               return;
-           }
-           //desiredRows = QInputDialog::getInt(this, "Input", message,0,2,2147483647,1,&ok);
-        }
-
-    AllFormatActions.resize(AllFormatActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
-    AllFormatActions[AllFormatActions.size()-1].resize(2);
-    AllFormatActions[AllFormatActions.size()-1][0]=QString("4");
-    AllFormatActions[AllFormatActions.size()-1][1]=QString("%1").arg(desiredRows);
-
-    SaveAFA(false); //We only set true for Export, when we want to overwritte the data.
-
-    ui->statusbar->showMessage(QString("%1 datafile(s) have been modified. Select Export (Ctrl+E) to save changes. A preview can be found in folder /TempPreview.") .arg(importnames.size()),10000);
-}
-
-void MainWindow::on_actionSet_step_triggered(){
-    if(importnames.isEmpty()){ // We check if some files are imported.
-        QMessageBox::warning(this, "Warning", QString("Please, first import new files to proceed with this action.") );
-        return;
-    }
-    QVector<QVector<QVector<QVector<double>>>> TempArr;
-    double remember;
-    bool start = true; // To check if all files start with the same number at x.
-        TempArr.resize(1);
-        if(getOneData(importnames[0], TempArr)==1){
-            QMessageBox::warning(this,"Warning", QString("Warning: Empty lines or lines with invalid data have been detected in some files. Please, import files with readable format.") );
-            return;
-        }
-        remember = TempArr[0][0][0][0];
-        TempArr.resize(0);
-
-    if(importnames.size()>1){
-        for (int q =1; q<importnames.size(); q++){ // We check if we can read the files.
-            TempArr.resize(1);
-            if(getOneData(importnames[q], TempArr)==1){
-                QMessageBox::warning(this,"Warning", QString("Warning: Empty lines or lines with invalid data have been detected in some files. Please, import files with readable format.") );
-                return;
-            }
-            if (remember !=TempArr[0][0][0][0]){
-                start = false;
-            }
-            TempArr.resize(0);
-        }
-    }
-
-    // First we check what is the step in the files, and wether it is constant or not. Then we ask what is the desired step.
-    double stepnum= stepNum(importnames[0], true);
-    double desiredStep;
-    bool constant=true;         // We assume all files have the same step number from begging to end. We check if it is true below.
-    bool equalFiles = true;     // We assume all files are equal in terms of step. We check if it is true below.
-    bool rowNums = true;        // We assume that the number of rows coincides with the starting and ending points plus detected step value. If it does not coincide and equalFiles is true, performing the step action is highly recommended to correct missing rows.
-
-    if (stepNum(importnames[0], true) != stepNum(importnames[0], false)){ //IF the step at the beggining of the file is different than at the end, then the step is not constant.
-        constant = false;
-        rowNums = false;
-    }
-    if (RowNums(importnames[0]) != estimateRowNums(importnames[0], stepNum(importnames[0], true)) ) {
-        rowNums = false;
-    }
-    //QMessageBox::information(this, "Information", QString("The number of rows is %1 and estimated rows is %2") .arg(RowNums(importnames[0])) .arg(estimateRowNums(importnames[0], stepNum(importnames[0], true))) );
-
-    if(importnames.size()>1){
-        for (int q =1; q<importnames.size(); q++){
-            if(stepnum!=stepNum(importnames[q], true)){
-                equalFiles = false;
-            }
-            stepnum = stepNum(importnames[q], true);
-            if (stepNum(importnames[q], true) != stepNum(importnames[q], false)){ //IF the step at the beggining of the file is different than at the end, then the step is not constant.
-                constant=false;
-                rowNums = false;
-            }
-            if (RowNums(importnames[q]) != estimateRowNums(importnames[q], stepNum(importnames[q], true)) ) {
-                rowNums = false;
-            }
-        }
-    }
-
-    QString message1, message2, message3, message4;
-    if (constant == false){
-        message1 = "Some datafile(s) do not have a constant step. ";
-    }
-    if (equalFiles == false){
-        message2 = "Some datafile(s) do not share the same step. ";
-    }
-    if (start == false){
-        message3= "Some datafile(s) start at different x values. ";
-    }
-    if ((rowNums == false) && (constant == true) && (equalFiles == true)){
-        message4= QString("Some datafile(s) exhibit a different number of rows then their expected value from the detected step. \nHence, setting the step to %1 is highly recommended in order to restore missing rows in the datafile(s).") .arg(stepNum(importnames[0], true));
-    }
-
-    if(constant && equalFiles && start && rowNums){
-        if(!getDoubleNum(desiredStep, QString("The current step of the X variable (1st column) is: %1. \nIntroduce new step:\n(Warning! This action will modify the number of rows of the imported files. If a lower step number is introduced the information of the datafile(s) will be permanently decreased)") .arg(stepnum))){
-            return;
-        }
-    }else if((constant && !equalFiles) || (constant && !start) || (constant && !rowNums) ){
-        if(!getDoubleNum(desiredStep, QString("Some warning(s) have been detected: %1%2%3%4 \nThe detected step of the X variable (1st column) is: %5. \nIntroduce new step:\n(Warning! This action will modify the number of rows of the imported files. If a lower step number is introduced the information of the datafile(s) will be permanently decreased).") .arg(message1) .arg(message2) .arg(message3) .arg(message4) .arg(stepnum))){
-            return;
-        }
-    }else{
-        int reply = QMessageBox::question(this, "Attention!", "It has been detected that some datafile(s) do not exhibit a constant step of the X variable (1st column). Performing this action is not advised. Are you sure you want to proceed with this action?",
-                                      QMessageBox::Yes|QMessageBox::No);
-        if (reply == QMessageBox::No) {
-            return;
-        }
-        if(!getDoubleNum(desiredStep, QString("Some warning(s) have been detected: %1%2%3 \nThe current step of the X variable (1st column) is around: %4. \nSince the step value of X is not constant, performing this action is not advised.\nIntroduce new step:\n(Warning! This action will modify the number of rows of the imported files. If a lower step number is introduced the information of the datafile(s) will be permanently decreased).") .arg(message1) .arg(message2) .arg(message3) .arg(stepnum) )){
-            return;
-        }
-    }
-
-    if(desiredStep == 0){
-        QMessageBox::warning(this, "Warning!", QString("The introduced step value must be non zero. A suggested value should be around %1") .arg(stepnum) );
-        return;
-    }
-
-    // Here I should call the function of step number (to be created), with desiredStep, then implement AFA. The funcion will modify all columns and change the number of rows (either increase or decrease it if desiredStep is higher or lower than intional step).
-
-    AllFormatActions.resize(AllFormatActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
-    AllFormatActions[AllFormatActions.size()-1].resize(2);
-    AllFormatActions[AllFormatActions.size()-1][0]=QString("3");
-    AllFormatActions[AllFormatActions.size()-1][1]=QString("%1").arg(desiredStep);
-
-    SaveAFA(false); //We only set true for Export, when we want to overwritte the data.
-
-    ui->statusbar->showMessage(QString("%1 datafile(s) have been modified. Select Export (Ctrl+E) to save changes. A preview can be found in folder /TempPreview") .arg(importnames.size()),10000);
-
-    //This was used before AFA was implemented.
-//    for (int q =0; q<importnames.size(); q++){
-//        createNewStep(importnames[q], desiredStep); //This function overwrittes. Should be called from AFA instead.
-//    }
+ ui->statusbar->showMessage(QString("A total of %1 lines have been deleted in %2 files.  Select Export (Ctrl+E) to save changes. A preview can be found in folder /TempPreview.") .arg(deletedLines) .arg(importnames.size()),10000);
 }
 
 void MainWindow::on_actionReplace_characters_triggered(){
@@ -8015,6 +8095,7 @@ void MainWindow::on_actionReplace_characters_triggered(){
         return;
     }
 
+    // 1- Get inputs and check for errors.
     QString answer1, answer2, output;
     answer1 = QInputDialog::getText(this, "Input", "Introduce the character or text string to be searched and replaced.\n(Tip: 'tab' and 'enter' characters can be also pasted below, but caution is advised.)");
     if(answer1.isEmpty()){
@@ -8023,14 +8104,17 @@ void MainWindow::on_actionReplace_characters_triggered(){
     }
     answer2 = QInputDialog::getText(this, "Input", "Introduce the character or text string to be used as replacement.\n(Tip #1: 'tab' and 'enter' characters can be also pasted below, but caution is advised.)\n(Tip #2: Note that dialog below can be left empty to erase the selected string from the datafile.)");
 
+    // 2- Introduce AFA.
     AllFormatActions.resize(AllFormatActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
     AllFormatActions[AllFormatActions.size()-1].resize(3);
     AllFormatActions[AllFormatActions.size()-1][0]=QString("1");
     AllFormatActions[AllFormatActions.size()-1][1]=answer1;
     AllFormatActions[AllFormatActions.size()-1][2]=answer2;
 
+    // 3- Apply changes, output will remain in the Temp folder.
     SaveAFA(false); //We only set true for Export, when we want to overwritte the data.
 
+    // 4- We output the number of replacements made.
     int suma=0; //For information purposes only (see below)
     for(int q = 0; q<importnames.size(); q++){
         suma=suma+replacements[q];
@@ -8045,13 +8129,25 @@ void MainWindow::on_actionExtensions_triggered(){
         return;
     }
 
+    if(!AllFormatActions.isEmpty()){
+        QMessageBox::warning(this, "Warning", QString("Format actions have been detected. Please, export (Ctrl+E) or discard (Ctrl+N) those changes before performing this action.") );
+        return;
+    }else if(AllFormatActions.size()>0){
+        QMessageBox::warning(this, "Warning", QString("Format actions have been detected. Please, export (Ctrl+E) or discard (Ctrl+N) those changes before performing this action.") );
+        return;
+    }
+
     QString answer1, answer2;
     QStringList pieces, nameext;
 
     QMessageBox::StandardButton reply;
-    reply = QMessageBox::question(this, "Question", "Do you want to rename the extensions? If so, changes can be previsualized in the folder /TempPreview and apply them by clicking 'Export format' (Ctrl+E)", QMessageBox::Yes|QMessageBox::No);
+    // reply = QMessageBox::question(this, "Question", "Do you want to rename the extensions? If so, changes can be previsualized in the folder /TempPreview and apply them by clicking 'Export format' (Ctrl+E)", QMessageBox::Yes|QMessageBox::No);
+    reply = QMessageBox::question(this, "Question", "Data will be overwritten. Prior backup is advised. \nAre you sure you want to proceed?", QMessageBox::Yes|QMessageBox::No);
+
     if (reply == QMessageBox::Yes) {
-        answer1 = QInputDialog::getText(this, "Input", "Introduce the name of the extension without dot (e.g. introduce 'txt' or 'asc').");
+
+        QFileInfo infoExp(importnames[0]);
+        answer1 = QInputDialog::getText(this, "Input", QString("Current extension is '%1'.\nIntroduce the name of the desired extension without dot (e.g. introduce 'txt' or 'asc').") .arg(infoExp.completeSuffix()));
         if(answer1.isEmpty()){
             QMessageBox::warning(this, "Warning", QString("File names cannot be empty. No operation was performed.") );
             return;
@@ -8059,7 +8155,7 @@ void MainWindow::on_actionExtensions_triggered(){
             QMessageBox::warning(this, "Warning", QString("Some illegal characters were detected. \nThe illegal characters are: \\ \" , | ? * / ; : > and < \nNo operation was performed.") );
             return;
         }
-
+        /*
         AllFormatActions.resize(AllFormatActions.size()+1); //I should make a struct where this vector is an object to simplify the whole code.
         AllFormatActions[AllFormatActions.size()-1].resize(3);
         AllFormatActions[AllFormatActions.size()-1][0]=QString("2");
@@ -8071,13 +8167,13 @@ void MainWindow::on_actionExtensions_triggered(){
         SaveAFA(false); //We only set true for Export, when we want to overwritte the data.
         prevExt.resize(prevExt.size()+1);   //I also decrease it by one in the UNDO OPTION!
         prevExt[prevExt.size()-1]=answer1;
+        */
 
-        /*
         for(int q = 0; q<importnames.size(); q++){
-            changeExtension(importnames[q], answer1);
-        }*/
+            changeExtensionSimple(importnames[q], answer1);
+        }
 
-        ui->statusbar->showMessage(QString("The extension of imported files have been modified. Results can be previewed in folder %1. To save changes click 'File->Export format' (Ctrl+E).") .arg(Tempfolder),10000);
+        ui->statusbar->showMessage(QString("The extension of imported files have been modified."),10000);
     }else{
       ui->statusbar->showMessage(QString("No action was performed"),10000);
       return;
@@ -8087,6 +8183,13 @@ void MainWindow::on_actionExtensions_triggered(){
 void MainWindow::on_actionFiles_triggered(){
     if(importnames.isEmpty()){
         QMessageBox::warning(this, "Warning", QString("Please, first import new files to proceed with this action.") );
+        return;
+    }
+    if(!AllFormatActions.isEmpty()){
+        QMessageBox::warning(this, "Warning", QString("Format actions have been detected. Please, export (Ctrl+E) or discard (Ctrl+N) those changes before performing this action.") );
+        return;
+    }else if(AllFormatActions.size()>0){
+        QMessageBox::warning(this, "Warning", QString("Format actions have been detected. Please, export (Ctrl+E) or discard (Ctrl+N) those changes before performing this action.") );
         return;
     }
 
@@ -8104,8 +8207,7 @@ void MainWindow::on_actionFiles_triggered(){
     w.setDefaultButton(Cancel);
     int ret = w.exec();
     QString answer1, answer2, output;
-    QStringList pieces, nameext;
-
+    QStringList pieces, nameext, newNames, oldNames;
 
     if( (New==Replace) || (AppendStart == AppendEnd) || (AppendEnd==Cancel) ){ // only used to dismissed warning about these buttons being unused.
         //do nothing.
@@ -8113,8 +8215,10 @@ void MainWindow::on_actionFiles_triggered(){
 
     switch(ret){
         case 0:{    // New file names
-
+            // 0- Introduce new names.
             answer1 = QInputDialog::getText(this, "Input", "Introduce the name of the files");
+
+            // 1- Check for errors.
             if(answer1.isEmpty()){
                 QMessageBox::warning(this, "Warning", QString("File names cannot be empty. No operation was performed.") );
                 return;
@@ -8129,18 +8233,15 @@ void MainWindow::on_actionFiles_triggered(){
                 return;
             }
 
-            QStringList allLines; // Here we will writte all names.
-            allLines.append(QString("New file name:\t\tOriginal file name:\n"));
-
+            // 2- Replace file names.
             if(importnames.size()==1){
 
                 QFileInfo info(importnames.at(0));
                 output = info.path() + "/" + answer1 + "." + info.suffix();
-                //output = info.path() + "/" + info.completeBaseName() + "." + info.completeSuffix();
-
-                allLines.append(answer1 + "." + info.suffix() + "\t\t" + info.completeBaseName() + "." + info.completeSuffix());
 
                 QFile::rename(importnames.at(0), output);
+                oldNames.append(importnames.at(0));
+                newNames.append(output);
                 importnames[0]=output;
                 output.clear();                
 
@@ -8150,32 +8251,18 @@ void MainWindow::on_actionFiles_triggered(){
                 QFileInfo info(importnames.at(q));
                 output = info.path() + "/" + answer1 + QString("_%1.") .arg(q+1) + info.suffix();
 
-                allLines.append(answer1 + QString("_%1.") .arg(q+1) + info.suffix() + "\t\t" + info.completeBaseName() + "." + info.completeSuffix());
-
                 QFile::rename(importnames.at(q), output);
+                oldNames.append(importnames.at(q));
+                newNames.append(output);
                 importnames[q]=output;
                 output.clear();
                 }
             }
 
-            // We prepare the output log file.
-            QFileInfo inputputinfo(importnames.at(0));
-            QString logFileName = "/DataPro_log/FileNames_log.txt";
-            QString output = inputputinfo.path() + logFileName;
-            QFileInfo logFile(output);
-            QDir dir;
-
-            dir.mkpath(logFile.path());
-
-            QByteArray be = output.toLocal8Bit(); //convert fitxer into char c_str2
-            const char *c_str3 = be.data();
-            ofstream temp(c_str3, ios::out);
-
-            // We paste all lines in FileNames_log.txt
-            for(int q = 0; q<allLines.length(); q++){
-                    temp << allLines.at(q).toUtf8().constData() << endl;
-            }
-            temp.close();
+            // 3- Make log file.
+            makeLogFile(newNames, oldNames);
+            oldNames.clear();
+            newNames.clear();
 
             ui->statusbar->showMessage(QString("%1 file(s) have been renamed. Changes can be tracked in the log file: '%2'.") .arg(importnames.size()) .arg(logFileName),10000);
         }
@@ -8201,6 +8288,7 @@ void MainWindow::on_actionFiles_triggered(){
                     QMessageBox::warning(this, "Warning", QString("File names cannot be empty. No action has been performed.") );
                     return;
                 }
+
             }
 
             bool findanswer1 = false;
@@ -8217,10 +8305,16 @@ void MainWindow::on_actionFiles_triggered(){
 
                 output = info.path() + "/" + check + "." + info.suffix();
                 QFile::rename(importnames.at(q), output);
+                oldNames.append(importnames.at(q));
+                newNames.append(output);
                 importnames[q]=output;
                 output.clear();
                 check.clear();
             }
+
+            makeLogFile(newNames, oldNames);
+            oldNames.clear();
+            newNames.clear();
 
             if(!findanswer1){
                 QMessageBox::warning(this, "Warning", QString("String %1 was not found in the filenames. No action has been performed.") .arg(answer1));
@@ -8243,9 +8337,15 @@ void MainWindow::on_actionFiles_triggered(){
                 QFileInfo info(importnames.at(q));
                 output = info.path() + "/" + answer1 + info.completeBaseName() + "." + info.suffix();
                 QFile::rename(importnames.at(q), output);
+                oldNames.append(importnames.at(q));
+                newNames.append(output);
                 importnames[q]=output;
                 output.clear();
             }
+
+            makeLogFile(newNames, oldNames);
+            oldNames.clear();
+            newNames.clear();
         return;
         }
         break;
@@ -8264,9 +8364,15 @@ void MainWindow::on_actionFiles_triggered(){
                 QFileInfo info(importnames.at(q));
                 output = info.path() + "/" + info.completeBaseName() + answer1 + "." + info.suffix();
                 QFile::rename(importnames.at(q), output);
+                oldNames.append(importnames.at(q));
+                newNames.append(output);
                 importnames[q]=output;
                 output.clear();
             }
+
+            makeLogFile(newNames, oldNames);
+            oldNames.clear();
+            newNames.clear();
         return;
         }
         case 4:{    // Cancell

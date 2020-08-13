@@ -9,6 +9,9 @@
 #include <QMessageBox>
 #include <QWidget> //to detect keypress
 #include <QTextStream>
+#include <QtCore>
+#include <QtGui>
+#include <QProgressBar>
 
 #include <cmath>
 #include <bits/stdc++.h>
@@ -196,9 +199,13 @@ public:
     void dragEnterEvent(QDragEnterEvent *e);
     void dropEvent(QDropEvent *e);
     void openPlotFiles(QStringList tempFilenames);
+    void changeExtensionSimple(QString &inputname, QString answer1);
+    void makeLogFile(QStringList newNames, QStringList oldNames);
+    bool isDataValid(QString fitxer, int ignoreFirstLines);    
+    void myProgress(int current, int end);
 
 
-    QString x_axis, y_axis, rememberExt;
+    QString x_axis, y_axis;
     QString startingDirectory = "C://";
     QVector<QString> prevExt; //remember previous extension.
     QString Tempfolder ="/TempPreview";
@@ -206,6 +213,7 @@ public:
     QStringList newFileNames;
     QString newFileDirectory, Logo; //the ones chosen to save as...
     QStringList referencenames, graphNamesLegend;
+    QString logFileName = "/DataPro_log/FileNames_log.txt";
 
     bool ZoomDrag =1;
     int flag1; // (0 => 1 file, 1 => all files plotted)
@@ -235,7 +243,6 @@ public:
     QVector<double> Plot_margins; // [0], [1], [2] and [3] are: min_abs_x, max_abs_x, min_abs_y, max_abs_y
     QVector<int> FileColNums, FileRowNums; // [0]=0 (1) files have equal, error flag = 0, (different, error flag = 1) num of rows/cols, [1] min num of rows/files, [2] max num of rows/files
     QVector<QVector<QVector<QVector<double>>>> AllData; //4D Vector for plotting only. [Historical][files][columns][rows], historical [0] is active plot. [1] is older plot, up to [5].
-    QVector<QVector<double>> RememberInv; //Used to store double data that cannot be stored in AllActions since that's integer.
     //We backup all actions so the program can execute sequentially them into the files.
     QVector<QVector<QString>> AllFormatActions; //will save all actions for formating: Import/Export. [w][0] for type of action, action number w. next data [0][1]... for data necessary to perform the action.
     // AllFormatActions[0][0] = 1 corresponds replace of string [][1] by new string [][2] inside each datafile.
@@ -243,7 +250,6 @@ public:
     // AllFormatActions[0][0] = 3 corresponds to modify the step of the first column, therefore changing the number of rows for each datafile.
     // AllFormatActions[0][0] = 4 corresponds to set row number, therefore changing the number of rows for each datafile.
 
-    QVector<int> ActionCol; // Action number that is run over a single columnPlot, and that can be run over all columns (if columnPlot =0 or AllColumns = true).
     QVector<QVector<QString>> AllActions; //First indice for a new action, second index [0][0] for number of action, next indexes [0][1]... for data necessary to perform the action.
     // AllActions[0][0] = 1 corresponds to new column selected. AllActions[0][1]= column number selected. AllActions[0][2]= previous column value.
     // AllActions[0][0] = 2 corresponds to add constant. AllActions[0][1]= constant number to be added.
@@ -255,16 +261,16 @@ public:
     // AllActions[0][0] = 8 corresponds to Swappping columns. AllActions[0][1]= first column to be swapped, AllActions[0][2]= second column to be swapped.
     // AllActions[0][0] = 9 corresponds to Trim. AllActions[0][1]= lowest value, AllActions[0][2]= largest value.
     // AllActions[0][0] = 10 corresponds to LinearBaseline. AllActions[0][1]= column number to perform baseline.
-    // AllActions[0][0] = 11 corresponds to NormIntOne. AllActions[0][1]= column number to perform normalization. RememberInv[w][q]= value to multiply for normalization.
-    // AllActions[0][0] = 12 corresponds to NormMaxOne. AllActions[0][1]= column number to perform normalization. RememberInv[w][q]= value to multiply for normalization.
-    // AllActions[0][0] = 13 corresponds to NormIntFirst. AllActions[0][1]= column number to perform normalization. RememberInv[w][q]= value to multiply for normalization.
-    // AllActions[0][0] = 14 corresponds to NormMaxFirst. AllActions[0][1]= column number to perform normalization. RememberInv[w][q]= value to multiply for normalization.
-    // AllActions[0][0] = 15 corresponds to MultConsty. AllActions[0][1]= multiplication value. RememberInv[w][q] = column number to perform normalization.
+    // AllActions[0][0] = 11 corresponds to NormIntOne. AllActions[0][1]= column number to perform normalization.
+    // AllActions[0][0] = 12 corresponds to NormMaxOne. AllActions[0][1]= column number to perform normalization.
+    // AllActions[0][0] = 13 corresponds to NormIntFirst. AllActions[0][1]= column number to perform normalization.
+    // AllActions[0][0] = 14 corresponds to NormMaxFirst. AllActions[0][1]= column number to perform normalization.
+    // AllActions[0][0] = 15 corresponds to MultConsty. AllActions[0][1]= multiplication value.
     // AllActions[0][0] = 16 corresponds to Clean_spikes. AllActions[0][1]= selected points. AllActions[0][2]= columnPlot.  AllActions[0][3]= sigmas.
-    // AllActions[0][0] = 17 corresponds to Vertical rearrangement. RememberInv[w][0]=VerticalShift.
-    // AllActions[0][0] = 18 corresponds to Ball-like baseline. AllActions[0][1]= column number to perform baseline. RememberInv[w][0]=radii.
+    // AllActions[0][0] = 17 corresponds to Vertical rearrangement.
+    // AllActions[0][0] = 18 corresponds to Ball-like baseline. AllActions[0][1]= column number to perform baseline.
     // AllActions[0][0] = 19 corresponds to add column by column reference. AllActions[0][1]= column number, AllActions[0][2] = reference column, AllActions[0][3] = previous column for plot.
-    // AllActions[0][0] = 20 corresponds to Filter interferences by fast fourier transform analysis. AllActions[0][1]=columnPlot. RememberInv[0][0]= low frequency, RememberInv[0][1]= high frequency.
+    // AllActions[0][0] = 20 corresponds to Filter interferences by fast fourier transform analysis. AllActions[0][1]=columnPlot.
     // AllActions[0][0] = 21 corresponds to calculate the modulus of the spectra by means of Kramers Kronig relations (see article Scientific Reports | 6:26663 | DOI: 10.1038/srep26663)
     // AllActions[0][0] = 22 corresponds to duplicate columns. AllActions[0][1]= column number.
     // AllActions[0][0] = 23 corresponds to Laplacian smoothing.
@@ -415,6 +421,9 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+
+    QLabel *Statlabel;
+    QProgressBar *StatProgress;
 
 };
 #endif // MAINWINDOW_H
